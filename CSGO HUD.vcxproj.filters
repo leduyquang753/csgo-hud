@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="main">
+      <UniqueIdentifier>{548764d4-e5ed-46ec-b239-5b1e376127e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="json">
+      <UniqueIdentifier>{0cf05b4f-dc69-46c8-b6a4-80b03ebccb30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hud">
+      <UniqueIdentifier>{e43e275a-01f8-4531-ac56-53c997939b11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{57964728-2ec4-48e1-8d6b-1126b914fabf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="components">
+      <UniqueIdentifier>{9d0c197b-55fa-4156-b6a0-f09d3498d95c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{389ba328-c0d9-4c01-bf62-682a021a20b7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main\main.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="hud\HudWindow.cpp">
+      <Filter>hud</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\Utils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="components\BagComponent.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
+    <ClCompile Include="components\BlankComponent.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
+    <ClCompile Include="components\Component.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
+    <ClCompile Include="components\PaddedComponent.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
+    <ClCompile Include="components\TestComponent.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
+    <ClCompile Include="components\FourCornersComponent.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="json\json.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="hud\HudWindow.h">
+      <Filter>hud</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\Utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="components\BagComponent.h">
+      <Filter>components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\BlankComponent.h">
+      <Filter>components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\Component.h">
+      <Filter>components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\PaddedComponent.h">
+      <Filter>components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\TestComponent.h">
+      <Filter>components</Filter>
+    </ClInclude>
+    <ClInclude Include="resources\CommonResources.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="components\FourCornersComponent.h">
+      <Filter>components</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
