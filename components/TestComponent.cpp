@@ -25,7 +25,7 @@ void TestComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &
 	renderTarget.SetTransform(transform);
 	const std::wstring countString = std::to_wstring(++count);
 	renderTarget.DrawText(
-		countString.c_str(), countString.size(),
+		countString.c_str(), static_cast<UINT32>(countString.size()),
 		textFormat.get(),
 		{0, 0, parentSize.width, parentSize.height},
 		brush.get(),

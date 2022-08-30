@@ -8,9 +8,12 @@ namespace CsgoHud {
 
 std::wstring Utils::widenString(const std::string &string) {
 	std::wstring wideString(
-		MultiByteToWideChar(CP_UTF8, 0, string.data(), string.size(), nullptr, 0), 0
+		MultiByteToWideChar(CP_UTF8, 0, string.data(), static_cast<int>(string.size()), nullptr, 0), 0
 	);
-	MultiByteToWideChar(CP_UTF8, 0, string.data(), string.size(), wideString.data(), wideString.size());
+	MultiByteToWideChar(
+		CP_UTF8, 0, string.data(), static_cast<int>(string.size()),
+		wideString.data(), static_cast<int>(wideString.size())
+	);
 	return wideString;
 }
 

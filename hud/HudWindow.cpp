@@ -8,7 +8,9 @@ namespace CsgoHud {
 
 // == HudWindow ==
 
-LRESULT CALLBACK HudWindow::receiveWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK HudWindow::receiveWindowMessage(
+	const HWND windowHandle, const UINT message, const WPARAM wParam, const LPARAM lParam
+) {
 	if (message == WM_CREATE) {
 		SetWindowLongPtr(
 			windowHandle, GWLP_USERDATA,
@@ -23,7 +25,7 @@ LRESULT CALLBACK HudWindow::receiveWindowMessage(HWND windowHandle, UINT message
 	}
 }
 
-void HudWindow::preInitialize(HINSTANCE appInstance) {
+void HudWindow::preInitialize(const HINSTANCE appInstance) {
 	static const WNDCLASSEX windowClass = {
 		.cbSize = sizeof(WNDCLASSEX),
 		.lpfnWndProc = receiveWindowMessage,
@@ -33,9 +35,10 @@ void HudWindow::preInitialize(HINSTANCE appInstance) {
 	RegisterClassEx(&windowClass);
 }
 
-HudWindow::HudWindow(HINSTANCE appInstance, CommonResources &commonResources): commonResources(commonResources) {
-	static const int
-		windowWidth = 1600, windowHeight = 900;
+HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResources):
+	commonResources(commonResources)
+{
+	static const int windowWidth = 1600, windowHeight = 900;
 	windowHandle = CreateWindowEx(
 		WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		L"HudWindow",
@@ -84,7 +87,7 @@ HudWindow::~HudWindow() {
 	ReleaseDC(windowHandle, windowSurface);
 }
 
-LRESULT HudWindow::handleWindowMessage(UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT HudWindow::handleWindowMessage(const UINT message, const WPARAM wParam, const LPARAM lParam) {
 	switch (message) {
 		case WM_TIMER:
 			paint();
