@@ -5,7 +5,7 @@
 
 #include "pch.h"
 
-#include "components/Component.h"
+#include "components/base/Component.h"
 
 namespace CsgoHud {
 

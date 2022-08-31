@@ -2,10 +2,10 @@
 
 #include <string>
 
-#include "components/Component.h"
+#include "components/base/Component.h"
 #include "resources/CommonResources.h"
 
-#include "components/TestComponent.h"
+#include "components/content/TestComponent.h"
 
 namespace CsgoHud {
 

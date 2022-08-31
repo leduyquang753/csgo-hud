@@ -1,9 +1,9 @@
-#ifndef CSGO_HUD_COMPONENTS_BLANKCOMPONENT_H
-#define CSGO_HUD_COMPONENTS_BLANKCOMPONENT_H
+#ifndef CSGO_HUD_COMPONENTS_BASE_BLANKCOMPONENT_H
+#define CSGO_HUD_COMPONENTS_BASE_BLANKCOMPONENT_H
 
 #include "pch.h"
 
-#include "components/Component.h"
+#include "components/base/Component.h"
 
 namespace CsgoHud {
 
@@ -20,4 +20,4 @@ class BlankComponent final: public Component {
 
 } // namespace CsgoHud
 
-#endif // CSGO_HUD_COMPONENTS_BLANKCOMPONENT_H
+#endif // CSGO_HUD_COMPONENTS_BASE_BLANKCOMPONENT_H

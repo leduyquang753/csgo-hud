@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "components/Component.h"
+#include "components/base/Component.h"
 
-#include "components/BlankComponent.h"
+#include "components/base/BlankComponent.h"
 
 namespace CsgoHud {
 

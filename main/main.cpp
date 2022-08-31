@@ -3,10 +3,10 @@
 
 #include "pch.h"
 
-#include "components/BagComponent.h"
-#include "components/FourCornersComponent.h"
-#include "components/PaddedComponent.h"
-#include "components/TestComponent.h"
+#include "components/base/BagComponent.h"
+#include "components/base/PaddedComponent.h"
+#include "components/content/FourCornersComponent.h"
+#include "components/content/TestComponent.h"
 #include "hud/HudWindow.h"
 #include "resources/CommonResources.h"
 

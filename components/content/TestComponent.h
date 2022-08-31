@@ -1,9 +1,9 @@
-#ifndef CSGO_HUD_COMPONENTS_TESTCOMPONENT_H
-#define CSGO_HUD_COMPONENTS_TESTCOMPONENT_H
+#ifndef CSGO_HUD_COMPONENTS_CONTENT_TESTCOMPONENT_H
+#define CSGO_HUD_COMPONENTS_CONTENT_TESTCOMPONENT_H
 
 #include "pch.h"
 
-#include "components/Component.h"
+#include "components/base/Component.h"
 
 namespace CsgoHud {
 
@@ -21,4 +21,4 @@ class TestComponent final: public Component {
 
 } // namespace CsgoHud
 
-#endif // CSGO_HUD_COMPONENTS_TESTCOMPONENT_H
+#endif // CSGO_HUD_COMPONENTS_CONTENT_TESTCOMPONENT_H

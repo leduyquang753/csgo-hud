@@ -159,12 +159,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="components\BagComponent.cpp" />
-    <ClCompile Include="components\BlankComponent.cpp" />
-    <ClCompile Include="components\Component.cpp" />
-    <ClCompile Include="components\FourCornersComponent.cpp" />
-    <ClCompile Include="components\PaddedComponent.cpp" />
-    <ClCompile Include="components\TestComponent.cpp" />
+    <ClCompile Include="components\base\BagComponent.cpp" />
+    <ClCompile Include="components\base\BlankComponent.cpp" />
+    <ClCompile Include="components\base\Component.cpp" />
+    <ClCompile Include="components\base\MultipleChildrenComponent.cpp" />
+    <ClCompile Include="components\base\PaddedComponent.cpp" />
+    <ClCompile Include="components\base\SingleChildComponent.cpp" />
+    <ClCompile Include="components\base\SizedComponent.cpp" />
+    <ClCompile Include="components\base\StackComponent.cpp" />
+    <ClCompile Include="components\content\FourCornersComponent.cpp" />
+    <ClCompile Include="components\content\TestComponent.cpp" />
     <ClCompile Include="hud\HudWindow.cpp" />
     <ClCompile Include="main\main.cpp" />
     <ClCompile Include="pch.cpp">
@@ -176,12 +180,17 @@
     <ClCompile Include="utils\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="components\BagComponent.h" />
-    <ClInclude Include="components\BlankComponent.h" />
-    <ClInclude Include="components\Component.h" />
-    <ClInclude Include="components\FourCornersComponent.h" />
-    <ClInclude Include="components\PaddedComponent.h" />
-    <ClInclude Include="components\TestComponent.h" />
+    <ClInclude Include="components\base\BagComponent.h" />
+    <ClInclude Include="components\base\BlankComponent.h" />
+    <ClInclude Include="components\base\Component.h" />
+    <ClInclude Include="components\base\MultipleChildrenComponent.h" />
+    <ClInclude Include="components\base\PaddedComponent.h" />
+    <ClInclude Include="components\base\SingleChildComponent.h" />
+    <ClInclude Include="components\base\SizedComponent.h" />
+    <ClInclude Include="components\base\StackComponent.h" />
+    <ClInclude Include="components\base\StackComponentChild.h" />
+    <ClInclude Include="components\content\FourCornersComponent.h" />
+    <ClInclude Include="components\content\TestComponent.h" />
     <ClInclude Include="hud\HudWindow.h" />
     <ClInclude Include="json\json.hpp" />
     <ClInclude Include="pch.h" />

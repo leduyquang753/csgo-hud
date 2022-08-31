@@ -1,9 +1,9 @@
-#ifndef CSGO_HUD_COMPONENTS_FOURCORNERSCOMPONENT_H
-#define CSGO_HUD_COMPONENTS_FOURCORNERSCOMPONENT_H
+#ifndef CSGO_HUD_COMPONENTS_CONTENT_FOURCORNERSCOMPONENT_H
+#define CSGO_HUD_COMPONENTS_CONTENT_FOURCORNERSCOMPONENT_H
 
 #include "pch.h"
 
-#include "components/Component.h"
+#include "components/base/Component.h"
 
 namespace CsgoHud {
 
@@ -22,4 +22,4 @@ class FourCornersComponent final: public Component {
 
 } // namespace CsgoHud
 
-#endif // CSGO_HUD_COMPONENTS_FOURCORNERSCOMPONENT_H
+#endif // CSGO_HUD_COMPONENTS_CONTENT_FOURCORNERSCOMPONENT_H

@@ -1,9 +1,9 @@
 #include "pch.h"
 
-#include "components/Component.h"
+#include "components/base/Component.h"
 #include "resources/CommonResources.h"
 
-#include "components/FourCornersComponent.h"
+#include "components/content/FourCornersComponent.h"
 
 namespace CsgoHud {
 

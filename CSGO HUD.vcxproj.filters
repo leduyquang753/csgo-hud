@@ -19,6 +19,12 @@
     <Filter Include="resources">
       <UniqueIdentifier>{389ba328-c0d9-4c01-bf62-682a021a20b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="components\base">
+      <UniqueIdentifier>{56e2ddff-6db3-475a-ad65-cd0d208320f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="components\content">
+      <UniqueIdentifier>{011c879c-6419-439a-9175-d43c0fd23254}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main\main.cpp">
@@ -31,23 +37,35 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="components\BagComponent.cpp">
-      <Filter>components</Filter>
+    <ClCompile Include="components\base\BagComponent.cpp">
+      <Filter>components\base</Filter>
     </ClCompile>
-    <ClCompile Include="components\BlankComponent.cpp">
-      <Filter>components</Filter>
+    <ClCompile Include="components\base\BlankComponent.cpp">
+      <Filter>components\base</Filter>
     </ClCompile>
-    <ClCompile Include="components\Component.cpp">
-      <Filter>components</Filter>
+    <ClCompile Include="components\base\Component.cpp">
+      <Filter>components\base</Filter>
     </ClCompile>
-    <ClCompile Include="components\PaddedComponent.cpp">
-      <Filter>components</Filter>
+    <ClCompile Include="components\base\PaddedComponent.cpp">
+      <Filter>components\base</Filter>
     </ClCompile>
-    <ClCompile Include="components\TestComponent.cpp">
-      <Filter>components</Filter>
+    <ClCompile Include="components\base\SingleChildComponent.cpp">
+      <Filter>components\base</Filter>
     </ClCompile>
-    <ClCompile Include="components\FourCornersComponent.cpp">
-      <Filter>components</Filter>
+    <ClCompile Include="components\base\SizedComponent.cpp">
+      <Filter>components\base</Filter>
+    </ClCompile>
+    <ClCompile Include="components\content\TestComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="components\content\FourCornersComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="components\base\MultipleChildrenComponent.cpp">
+      <Filter>components\base</Filter>
+    </ClCompile>
+    <ClCompile Include="components\base\StackComponent.cpp">
+      <Filter>components\base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -61,26 +79,41 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="components\BagComponent.h">
-      <Filter>components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\BlankComponent.h">
-      <Filter>components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\Component.h">
-      <Filter>components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\PaddedComponent.h">
-      <Filter>components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\TestComponent.h">
-      <Filter>components</Filter>
-    </ClInclude>
     <ClInclude Include="resources\CommonResources.h">
       <Filter>resources</Filter>
     </ClInclude>
-    <ClInclude Include="components\FourCornersComponent.h">
-      <Filter>components</Filter>
+    <ClInclude Include="components\base\BagComponent.h">
+      <Filter>components\base</Filter>
+    </ClInclude>
+    <ClInclude Include="components\base\BlankComponent.h">
+      <Filter>components\base</Filter>
+    </ClInclude>
+    <ClInclude Include="components\base\Component.h">
+      <Filter>components\base</Filter>
+    </ClInclude>
+    <ClInclude Include="components\base\PaddedComponent.h">
+      <Filter>components\base</Filter>
+    </ClInclude>
+    <ClInclude Include="components\base\SingleChildComponent.h">
+      <Filter>components\base</Filter>
+    </ClInclude>
+    <ClInclude Include="components\base\SizedComponent.h">
+      <Filter>components\base</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\TestComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\FourCornersComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\base\MultipleChildrenComponent.h">
+      <Filter>components\base</Filter>
+    </ClInclude>
+    <ClInclude Include="components\base\StackComponent.h">
+      <Filter>components\base</Filter>
+    </ClInclude>
+    <ClInclude Include="components\base\StackComponentChild.h">
+      <Filter>components\base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
