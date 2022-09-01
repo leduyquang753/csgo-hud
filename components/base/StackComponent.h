@@ -39,7 +39,7 @@ class StackComponent final: public Component {
 		
 		StackComponent(
 			CommonResources &commonResources,
-			bool axisDirection, float axisPosition, bool axisPositionMode,
+			bool axis, bool axisDirection, float axisPosition, bool axisPositionMode,
 			std::vector<StackComponentChild> &&children = {}
 		);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

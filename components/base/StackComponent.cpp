@@ -14,11 +14,11 @@ namespace CsgoHud {
 
 StackComponent::StackComponent(
 	CommonResources &commonResources,
-	const bool axisDirection, const float axisPosition, const bool axisPositionMode,
+	const bool axis, const bool axisDirection, const float axisPosition, const bool axisPositionMode,
 	std::vector<StackComponentChild> &&children
 ):
 	Component(commonResources),
-	axisDirection(axisDirection), axisPosition(axisPosition), axisPositionMode(axisPositionMode),
+	axis(axis), axisDirection(axisDirection), axisPosition(axisPosition), axisPositionMode(axisPositionMode),
 	children(std::move(children))
 {}
 
@@ -42,7 +42,7 @@ void StackComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 						- (child.anchorMode ? effectiveSize.width * child.anchor : child.anchor),
 					.height = paintPosition
 				}),
-				parentSize
+				effectiveSize
 			);
 		} else {
 			child.component->paint(
@@ -53,7 +53,7 @@ void StackComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 						+ (child.offsetMode ? parentSize.height * child.offset : child.offset)
 						- (child.anchorMode ? effectiveSize.height * child.anchor : child.anchor)
 				}),
-				parentSize
+				effectiveSize
 			);
 		}
 		if (!axisDirection) paintPosition += axis ? effectiveSize.height : effectiveSize.width;
