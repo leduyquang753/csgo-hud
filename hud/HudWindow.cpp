@@ -26,43 +26,44 @@ LRESULT CALLBACK HudWindow::receiveWindowMessage(
 }
 
 void HudWindow::preInitialize(const HINSTANCE appInstance) {
-	static const WNDCLASSEX windowClass = {
+	static const WNDCLASSEX WINDOW_CLASS = {
 		.cbSize = sizeof(WNDCLASSEX),
 		.lpfnWndProc = receiveWindowMessage,
 		.hInstance = appInstance,
 		.lpszClassName = L"HudWindow"
 	};
-	RegisterClassEx(&windowClass);
+	RegisterClassEx(&WINDOW_CLASS);
 }
 
 HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResources):
 	commonResources(commonResources)
 {
-	static const int windowWidth = 1600, windowHeight = 900;
+	static const int WINDOW_WIDTH = 1600, WINDOW_HEIGHT = 900;
 	windowHandle = CreateWindowEx(
 		WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		L"HudWindow",
 		L"CSGO HUD",
 		WS_POPUP,
-		0, 0, windowWidth, windowHeight,
+		0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
 		nullptr, nullptr, appInstance, this
 	);
 	SetWindowPos(
 		windowHandle,
 		HWND_TOPMOST,
-		(GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2, (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2, 0, 0,
+		(GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2, (GetSystemMetrics(SM_CYSCREEN) - WINDOW_HEIGHT) / 2,
+		0, 0,
 		SWP_NOSIZE
 	);
 	
 	D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, commonResources.d2dFactory.put());
-	static const D2D1_RENDER_TARGET_PROPERTIES renderTargetProperties = {
+	static const D2D1_RENDER_TARGET_PROPERTIES RENDER_TARGET_PROPERTIES = {
 		.type = D2D1_RENDER_TARGET_TYPE_DEFAULT,
 		.pixelFormat = {.format = DXGI_FORMAT_B8G8R8A8_UNORM, .alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED},
 		.dpiX = 0, .dpiY = 0,
 		.usage = D2D1_RENDER_TARGET_USAGE_NONE,
 		.minLevel = D2D1_FEATURE_LEVEL_DEFAULT
 	};
-	commonResources.d2dFactory->CreateDCRenderTarget(&renderTargetProperties, commonResources.renderTarget.put());
+	commonResources.d2dFactory->CreateDCRenderTarget(&RENDER_TARGET_PROPERTIES, commonResources.renderTarget.put());
 	
 	DWriteCreateFactory(
 		DWRITE_FACTORY_TYPE_ISOLATED, __uuidof(IDWriteFactory),

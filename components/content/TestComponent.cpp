@@ -11,7 +11,17 @@ namespace CsgoHud {
 
 // == TestComponent ==
 
-TestComponent::TestComponent(CommonResources &commonResources): Component(commonResources) {
+TestComponent::TestComponent(CommonResources &commonResources):
+	Component(commonResources),
+	linear({{{60, 50}, {120, 500}, {120, 300}, {180, 1050}, {240, 50}}}),
+	cubicBezier({{
+		{60, 50}, {0.2, 0.4}, {0.8, 1.5},
+		{120, 500}, {0, 0}, {0, 0},
+		{120, 300}, {0.3, 0}, {0.7, 1},
+		{180, 1050}, {0.5, 0}, {1, 1},
+		{240, 50}
+	}})
+{
 	commonResources.renderTarget->CreateSolidColorBrush({0, 0, 0, 1}, brush.put());
 	commonResources.writeFactory->CreateTextFormat(
 		L"Stratum2", nullptr,
@@ -32,6 +42,8 @@ void TestComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &
 		D2D1_DRAW_TEXT_OPTIONS_NONE,
 		DWRITE_MEASURING_MODE_NATURAL
 	);
+	renderTarget.FillRectangle({0, 50, linear.getValue(static_cast<float>(count)), 100}, brush.get());
+	renderTarget.FillRectangle({0, 150, cubicBezier.getValue(static_cast<float>(count)), 200}, brush.get());
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
 }
 

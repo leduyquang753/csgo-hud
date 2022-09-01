@@ -25,6 +25,9 @@
     <Filter Include="components\content">
       <UniqueIdentifier>{011c879c-6419-439a-9175-d43c0fd23254}</UniqueIdentifier>
     </Filter>
+    <Filter Include="movement">
+      <UniqueIdentifier>{28e77cc8-c118-4725-9381-72ed2490fab8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main\main.cpp">
@@ -66,6 +69,15 @@
     </ClCompile>
     <ClCompile Include="components\base\StackComponent.cpp">
       <Filter>components\base</Filter>
+    </ClCompile>
+    <ClCompile Include="movement\CubicBezier.cpp">
+      <Filter>movement</Filter>
+    </ClCompile>
+    <ClCompile Include="movement\LinearMovementFunction.cpp">
+      <Filter>movement</Filter>
+    </ClCompile>
+    <ClCompile Include="movement\CubicBezierMovementFunction.cpp">
+      <Filter>movement</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +126,18 @@
     </ClInclude>
     <ClInclude Include="components\base\StackComponentChild.h">
       <Filter>components\base</Filter>
+    </ClInclude>
+    <ClInclude Include="movement\CubicBezier.h">
+      <Filter>movement</Filter>
+    </ClInclude>
+    <ClInclude Include="movement\LinearMovementFunction.h">
+      <Filter>movement</Filter>
+    </ClInclude>
+    <ClInclude Include="movement\MovementFunction.h">
+      <Filter>movement</Filter>
+    </ClInclude>
+    <ClInclude Include="movement\CubicBezierMovementFunction.h">
+      <Filter>movement</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
