@@ -4,7 +4,6 @@
 #include <cmath>
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "components/base/Component.h"
@@ -25,30 +24,30 @@ TestComponent::TestComponent(CommonResources &commonResources):
 	Component(commonResources),
 	bombPosition(
 		commonResources,
-		std::move(std::make_unique<CubicBezierMovementFunction>(
+		std::make_unique<CubicBezierMovementFunction>(
 			std::vector<D2D1_POINT_2F>{{{0, 0}, {0.25f, 0.1f}, {0.25f, 1}, {300, 1}}}
-		)),
+		),
 		300, -12
 	),
 	bombOpacity(
 		commonResources,
-		std::move(std::make_unique<CubicBezierMovementFunction>(
+		std::make_unique<CubicBezierMovementFunction>(
 			std::vector<D2D1_POINT_2F>{{{0, 0}, {0.25f, 0.1f}, {0.25f, 1}, {300, 1}}}
-		)),
+		),
 		300, 0
 	),
 	defusePosition(
 		commonResources,
-		std::move(std::make_unique<CubicBezierMovementFunction>(
+		std::make_unique<CubicBezierMovementFunction>(
 			std::vector<D2D1_POINT_2F>{{{0, 0}, {0.25f, 0.1f}, {0.25f, 1}, {300, 1}}}
-		)),
+		),
 		300, -12
 	),
 	defuseOpacity(
 		commonResources,
-		std::move(std::make_unique<CubicBezierMovementFunction>(
+		std::make_unique<CubicBezierMovementFunction>(
 			std::vector<D2D1_POINT_2F>{{{0, 0}, {0.25f, 0.1f}, {0.25f, 1}, {300, 1}}}
-		)),
+		),
 		300, 0
 	)
 {

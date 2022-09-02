@@ -18,6 +18,7 @@ std::wstring Utils::widenString(const std::string &string) {
 }
 
 std::wstring Utils::formatTimeAmount(int millis) {
+	// Prevent a brief flash of the whole time amount when starting the timer.
 	if (millis > 0) --millis;
 	const int
 		tenths = millis / 100,
