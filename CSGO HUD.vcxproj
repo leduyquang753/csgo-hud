@@ -169,16 +169,26 @@
     <ClCompile Include="components\base\StackComponent.cpp" />
     <ClCompile Include="components\content\FourCornersComponent.cpp" />
     <ClCompile Include="components\content\TestComponent.cpp" />
+    <ClCompile Include="events\DataEventListener.cpp" />
+    <ClCompile Include="events\EventBus.cpp" />
+    <ClCompile Include="events\TimeEventListener.cpp" />
     <ClCompile Include="hud\HudWindow.cpp" />
     <ClCompile Include="main\main.cpp" />
     <ClCompile Include="movement\CubicBezier.cpp" />
     <ClCompile Include="movement\CubicBezierMovementFunction.cpp" />
     <ClCompile Include="movement\LinearMovementFunction.cpp" />
+    <ClCompile Include="movement\TransitionedValue.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="server\HttpServer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="utils\Utils.cpp" />
   </ItemGroup>
@@ -194,14 +204,19 @@
     <ClInclude Include="components\base\StackComponentChild.h" />
     <ClInclude Include="components\content\FourCornersComponent.h" />
     <ClInclude Include="components\content\TestComponent.h" />
+    <ClInclude Include="events\DataEventListener.h" />
+    <ClInclude Include="events\EventBus.h" />
+    <ClInclude Include="events\TimeEventListener.h" />
     <ClInclude Include="hud\HudWindow.h" />
     <ClInclude Include="json\json.hpp" />
     <ClInclude Include="movement\CubicBezier.h" />
     <ClInclude Include="movement\CubicBezierMovementFunction.h" />
     <ClInclude Include="movement\LinearMovementFunction.h" />
     <ClInclude Include="movement\MovementFunction.h" />
+    <ClInclude Include="movement\TransitionedValue.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resources\CommonResources.h" />
+    <ClInclude Include="server\HttpServer.h" />
     <ClInclude Include="utils\Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

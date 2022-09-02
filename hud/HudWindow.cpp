@@ -38,7 +38,7 @@ void HudWindow::preInitialize(const HINSTANCE appInstance) {
 HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResources):
 	commonResources(commonResources)
 {
-	static const int WINDOW_WIDTH = 1600, WINDOW_HEIGHT = 900;
+	static const int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
 	windowHandle = CreateWindowEx(
 		WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		L"HudWindow",
@@ -91,6 +91,7 @@ HudWindow::~HudWindow() {
 LRESULT HudWindow::handleWindowMessage(const UINT message, const WPARAM wParam, const LPARAM lParam) {
 	switch (message) {
 		case WM_TIMER:
+			tick();
 			paint();
 			return 0;
 		case WM_CLOSE:
@@ -102,6 +103,39 @@ LRESULT HudWindow::handleWindowMessage(const UINT message, const WPARAM wParam, 
 			return 0;
 		default:
 			return DefWindowProc(windowHandle, message, wParam, lParam);
+	}
+}
+
+void HudWindow::tick() {
+	const auto now = std::chrono::steady_clock::now();
+	if (lastTickTime == -1) {
+		firstTick = now;
+		lastTickTime = 0;
+	} else {
+		auto &eventBus = commonResources.eventBus;
+		auto &httpServer = commonResources.httpServer;
+		httpServer.mutex.lock();
+		const auto &jsons = httpServer.getCurrentJsons();
+		const auto &timestamps = httpServer.getCurrentTimestamps();
+		httpServer.swapBuffers();
+		httpServer.mutex.unlock();
+		std::size_t nextJson = 0;
+		for (auto timestamp = timestamps.begin(); timestamp != timestamps.end(); ++timestamp) {
+			const int time = static_cast<int>(
+				std::chrono::duration_cast<std::chrono::milliseconds>(*timestamp - firstTick).count()
+			);
+			eventBus.notifyTimeEvent(time - lastTickTime);
+			lastTickTime = time;
+			const auto json = JSON::parse(jsons.c_str() + nextJson);
+			eventBus.notifyDataEvent("", json);
+			for (const auto &entry : json.items()) eventBus.notifyDataEvent(entry.key(), entry.value());
+			nextJson = jsons.find('\0', nextJson) + 1;
+		}
+		const int currentTickTime = static_cast<int>(
+			std::chrono::duration_cast<std::chrono::milliseconds>(now - firstTick).count()
+		);
+		eventBus.notifyTimeEvent(currentTickTime - lastTickTime);
+		lastTickTime = currentTickTime;
 	}
 }
 

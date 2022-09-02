@@ -1,6 +1,7 @@
 #ifndef CSGO_HUD_HUD_HUDWINDOW_H
 #define CSGO_HUD_HUD_HUDWINDOW_H
 
+#include <chrono>
 #include <memory>
 
 #include "pch.h"
@@ -23,7 +24,11 @@ class HudWindow final {
 		HDC renderSurface;
 		CommonResources &commonResources;
 
+		std::chrono::time_point<std::chrono::steady_clock> firstTick;
+		int lastTickTime = -1;
+
 		LRESULT handleWindowMessage(UINT message, WPARAM wParam, LPARAM lParam);
+		void tick();
 		void paint();
 	public:
 		static void preInitialize(HINSTANCE appInstance);

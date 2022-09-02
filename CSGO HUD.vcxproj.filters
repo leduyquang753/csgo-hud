@@ -28,6 +28,12 @@
     <Filter Include="movement">
       <UniqueIdentifier>{28e77cc8-c118-4725-9381-72ed2490fab8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="events">
+      <UniqueIdentifier>{d7192f66-297e-4046-9e8e-0ebc107f40fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="server">
+      <UniqueIdentifier>{2162d90b-dd4b-4f79-bfb8-306ccdb5c3a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main\main.cpp">
@@ -77,6 +83,21 @@
       <Filter>movement</Filter>
     </ClCompile>
     <ClCompile Include="movement\CubicBezierMovementFunction.cpp">
+      <Filter>movement</Filter>
+    </ClCompile>
+    <ClCompile Include="events\DataEventListener.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\EventBus.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\TimeEventListener.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="server\HttpServer.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="movement\TransitionedValue.cpp">
       <Filter>movement</Filter>
     </ClCompile>
   </ItemGroup>
@@ -137,6 +158,21 @@
       <Filter>movement</Filter>
     </ClInclude>
     <ClInclude Include="movement\CubicBezierMovementFunction.h">
+      <Filter>movement</Filter>
+    </ClInclude>
+    <ClInclude Include="events\DataEventListener.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\EventBus.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\TimeEventListener.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="server\HttpServer.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="movement\TransitionedValue.h">
       <Filter>movement</Filter>
     </ClInclude>
   </ItemGroup>
