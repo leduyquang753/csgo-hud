@@ -81,6 +81,9 @@ TestComponent::TestComponent(CommonResources &commonResources):
 		12, L"", bombTextFormat.put()
 	);
 
+	timeTextRenderer.emplace(commonResources, timeTextFormat);
+	bombTextRenderer.emplace(commonResources, bombTextFormat);
+
 	auto &eventBus = commonResources.eventBus;
 	eventBus.listenToTimeEvent([this](const int timePassed) { advanceTime(timePassed); });
 	eventBus.listenToDataEvent("bomb"s, [this](const JSON &json) { receiveBombData(json); });
@@ -170,8 +173,6 @@ void TestComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 
-	std::wstring wtemp;
-
 	const float middle = parentSize.width / 2;
 
 	// Clock.
@@ -184,21 +185,22 @@ void TestComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &
 		const bool red = phase == "live"s && phaseTimeLeft <= 10000;
 		if (phaseTime != 0) {
 			renderTarget.FillRectangle(
-				{middle-40, 0, middle-40 + static_cast<float>(phaseTimeLeft) * 80 / phaseTime, 28},
+				{
+					middle-40, 0,
+					middle-40 + static_cast<float>(std::min(phaseTime, phaseTimeLeft)) * 80 / phaseTime,
+					28
+				},
 				red ? timeRedBrush.get() : timeWhiteBrush.get()
 			);
 		}
-		wtemp = Utils::formatTimeAmount(phaseTimeLeft);
-		renderTarget.DrawText(
-			wtemp.c_str(), static_cast<UINT32>(wtemp.size()),
-			timeTextFormat.get(),
-			{middle-40, 0, middle+40, 28},
-			red ? textRedBrush.get() : textWhiteBrush.get(),
-			D2D1_DRAW_TEXT_OPTIONS_NONE,
-			DWRITE_MEASURING_MODE_NATURAL
+		timeTextRenderer->draw(
+			Utils::formatTimeAmount(phaseTimeLeft),
+			{middle-40, 1, middle+40, 30},
+			red ? textRedBrush : textWhiteBrush
 		);
 	}
 
+	// Bomb timers.
 	if (
 		bombState == "planting"s || bombState == "planted"s || bombState == "defusing"s
 		|| bombPosition.transiting()
@@ -230,19 +232,15 @@ void TestComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &
 		renderTarget.FillRectangle(
 			{
 				innerLeft, 32 + bombY,
-				innerLeft + innerWidth * (planting ? 1 - bombTimeLeft / 3000.f : bombTimeLeft / 40000.f),
+				innerLeft + innerWidth * (planting ? 1 - displayedBombTime / 3000.f : displayedBombTime / 40000.f),
 				36 + bombY
 			},
 			planting ? bombTransparentBrush.get() : bombOpaqueBrush.get()
 		);
-		wtemp = Utils::formatTimeAmount(bombTimeLeft);
-		renderTarget.DrawText(
-			wtemp.c_str(), static_cast<UINT32>(wtemp.size()),
-			bombTextFormat.get(),
-			{outerRight+4, 28+bombY, parentSize.width, parentSize.height},
-			textWhiteBrush.get(),
-			D2D1_DRAW_TEXT_OPTIONS_NONE,
-			DWRITE_MEASURING_MODE_NATURAL
+		bombTextRenderer->draw(
+			Utils::formatTimeAmount(displayedBombTime),
+			{outerRight+4, 27+bombY, parentSize.width, parentSize.height},
+			textWhiteBrush
 		);
 
 		if (bombState == "defusing"s || defusePosition.transiting()) {
@@ -271,14 +269,10 @@ void TestComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &
 				},
 				defuseTimeLeft > bombTimeLeft ? defuseRedBrush.get() : defuseBlueBrush.get()
 			);
-			wtemp = Utils::formatTimeAmount(defuseTimeLeft);
-			renderTarget.DrawText(
-				wtemp.c_str(), static_cast<UINT32>(wtemp.size()),
-				bombTextFormat.get(),
-				{outerRight+4, 40+defuseY, parentSize.width, parentSize.height},
-				textWhiteBrush.get(),
-				D2D1_DRAW_TEXT_OPTIONS_NONE,
-				DWRITE_MEASURING_MODE_NATURAL
+			bombTextRenderer->draw(
+				Utils::formatTimeAmount(defuseTimeLeft),
+				{outerRight+4, 39+defuseY, parentSize.width, parentSize.height},
+				textWhiteBrush
 			);
 			renderTarget.PopLayer();
 		}

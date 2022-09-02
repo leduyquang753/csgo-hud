@@ -1,6 +1,7 @@
 #ifndef CSGO_HUD_COMPONENTS_CONTENT_TESTCOMPONENT_H
 #define CSGO_HUD_COMPONENTS_CONTENT_TESTCOMPONENT_H
 
+#include <optional>
 #include <string>
 
 #include "pch.h"
@@ -8,6 +9,7 @@
 #include "components/base/Component.h"
 #include "movement/CubicBezierMovementFunction.h"
 #include "movement/TransitionedValue.h"
+#include "text/FixedWidthDigitTextRenderer.h"
 
 namespace CsgoHud {
 
@@ -22,6 +24,7 @@ class TestComponent final: public Component {
 			bombOpaqueBrush, bombTransparentBrush,
 			defuseBlueBrush, defuseRedBrush;
 		winrt::com_ptr<IDWriteTextFormat> timeTextFormat, bombTextFormat;
+		std::optional<FixedWidthDigitTextRenderer> timeTextRenderer, bombTextRenderer;
 		winrt::com_ptr<ID2D1Layer> bombLayer, defuseLayer;
 
 		TransitionedValue bombPosition, bombOpacity, defusePosition, defuseOpacity;

@@ -117,11 +117,11 @@ void HttpServer::stop() {
 	HttpTerminate(HTTP_INITIALIZE_SERVER, nullptr);
 }
 
-std::string& HttpServer::getCurrentJsons() {
+const std::string& HttpServer::getCurrentJsons() {
 	return *currentJsons;
 }
 
-std::vector<std::chrono::time_point<std::chrono::steady_clock>>& HttpServer::getCurrentTimestamps() {
+const std::vector<std::chrono::time_point<std::chrono::steady_clock>>& HttpServer::getCurrentTimestamps() {
 	return *currentTimestamps;
 }
 

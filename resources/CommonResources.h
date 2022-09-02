@@ -13,7 +13,7 @@ struct CommonResources final {
 	
 	winrt::com_ptr<ID2D1Factory> d2dFactory;
 	winrt::com_ptr<ID2D1DCRenderTarget> renderTarget;
-	winrt::com_ptr<IDWriteFactory> writeFactory;
+	winrt::com_ptr<IDWriteFactory7> writeFactory;
 
 	EventBus eventBus;
 };

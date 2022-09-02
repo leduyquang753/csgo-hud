@@ -30,8 +30,8 @@ class HttpServer final {
 		
 		void run();
 		void stop();
-		std::string& getCurrentJsons();
-		std::vector<std::chrono::time_point<std::chrono::steady_clock>>& getCurrentTimestamps();
+		const std::string& getCurrentJsons();
+		const std::vector<std::chrono::time_point<std::chrono::steady_clock>>& getCurrentTimestamps();
 		void swapBuffers();
 };
 

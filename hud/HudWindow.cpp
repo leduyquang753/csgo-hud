@@ -66,7 +66,7 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 	commonResources.d2dFactory->CreateDCRenderTarget(&RENDER_TARGET_PROPERTIES, commonResources.renderTarget.put());
 	
 	DWriteCreateFactory(
-		DWRITE_FACTORY_TYPE_ISOLATED, __uuidof(IDWriteFactory),
+		DWRITE_FACTORY_TYPE_ISOLATED, __uuidof(IDWriteFactory7),
 		reinterpret_cast<IUnknown**>(commonResources.writeFactory.put())
 	);
 	
