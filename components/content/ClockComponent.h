@@ -24,11 +24,12 @@ class ClockComponent final: public Component {
 		winrt::com_ptr<IDWriteTextFormat> textFormat;
 		std::optional<FixedWidthDigitTextRenderer> textRenderer;
 
-		std::string phase;
+		std::string phase, mapPhase;
 		int phaseTimeLeft;
 
 		void advanceTime(const int timePassed);
-		void receiveData(const JSON &json);
+		void receivePhaseData(const JSON &json);
+		void receiveMapData(const JSON &json);
 		int getPhaseTime();
 	public:
 		ClockComponent(CommonResources &commonResources);

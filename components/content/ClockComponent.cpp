@@ -41,14 +41,15 @@ ClockComponent::ClockComponent(CommonResources &commonResources): Component(comm
 
 	auto &eventBus = commonResources.eventBus;
 	eventBus.listenToTimeEvent([this](const int timePassed) { advanceTime(timePassed); });
-	eventBus.listenToDataEvent("phase_countdowns"s, [this](const JSON &json) { receiveData(json); });
+	eventBus.listenToDataEvent("phase_countdowns"s, [this](const JSON &json) { receivePhaseData(json); });
+	eventBus.listenToDataEvent("map"s, [this](const JSON &json) { receiveMapData(json); });
 }
 
 void ClockComponent::advanceTime(const int timePassed) {
 	phaseTimeLeft = std::max(0, phaseTimeLeft - timePassed);
 }
 
-void ClockComponent::receiveData(const JSON &json) {
+void ClockComponent::receivePhaseData(const JSON &json) {
 	std::string currentPhase = json["phase"s].get<std::string>();
 	if (currentPhase == "bomb"s || currentPhase == "defuse"s) currentPhase.clear();
 	int timeLeft;
@@ -69,10 +70,17 @@ void ClockComponent::receiveData(const JSON &json) {
 	}
 }
 
+void ClockComponent::receiveMapData(const JSON &json) {
+	const std::string currentPhase = json["phase"s].get<std::string>();
+	if (currentPhase != mapPhase) mapPhase = currentPhase;
+}
+
 int ClockComponent::getPhaseTime() {
 	return
-		phase == "live"s ? 115000
+		mapPhase == "intermission"s ? 15000
+		: phase == "live"s ? 115000
 		: phase == "freezetime"s ? 15000
+		: phase == "over"s ? 7000
 		: 0;
 }
 
