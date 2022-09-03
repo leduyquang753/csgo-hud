@@ -19,7 +19,7 @@ int WINAPI wWinMain(
 	CsgoHud::HudWindow::preInitialize(instance);
 	CsgoHud::HudWindow hudWindow(instance, commonResources);
 
-	std::thread httpThread([&]() {
+	std::thread httpThread([&commonResources]() {
 		commonResources.httpServer.run();
 	});
 

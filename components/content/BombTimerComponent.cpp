@@ -76,7 +76,9 @@ void BombTimerComponent::advanceTime(const int timePassed) {
 }
 
 void BombTimerComponent::receiveData(const JSON &json) {
-	#define getTimeLeft() static_cast<int>(std::stod(json["countdown"s].get<std::string>()) * 1000)
+	const auto getTimeLeft = [&json]() {
+		return static_cast<int>(std::stod(json["countdown"s].get<std::string>()) * 1000);
+	};
 	const std::string currentState = json["state"s].get<std::string>();
 	if (currentState == bombState) {
 		// Need to check as there might be a brief moment the payload doesn't contain the field.
@@ -108,7 +110,6 @@ void BombTimerComponent::receiveData(const JSON &json) {
 			bombTransition.transition(0);
 		}
 	}
-	#undef getTimeLeft
 }
 
 void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
