@@ -67,9 +67,6 @@
     <ClCompile Include="components\base\SizedComponent.cpp">
       <Filter>components\base</Filter>
     </ClCompile>
-    <ClCompile Include="components\content\TestComponent.cpp">
-      <Filter>components\content</Filter>
-    </ClCompile>
     <ClCompile Include="components\content\FourCornersComponent.cpp">
       <Filter>components\content</Filter>
     </ClCompile>
@@ -106,6 +103,15 @@
     <ClCompile Include="text\FixedWidthDigitTextRenderer.cpp">
       <Filter>text</Filter>
     </ClCompile>
+    <ClCompile Include="components\content\ClockComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="components\content\HudComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="components\content\BombTimerComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="json\json.hpp">
@@ -138,9 +144,6 @@
     </ClInclude>
     <ClInclude Include="components\base\SizedComponent.h">
       <Filter>components\base</Filter>
-    </ClInclude>
-    <ClInclude Include="components\content\TestComponent.h">
-      <Filter>components\content</Filter>
     </ClInclude>
     <ClInclude Include="components\content\FourCornersComponent.h">
       <Filter>components\content</Filter>
@@ -183,6 +186,15 @@
     </ClInclude>
     <ClInclude Include="text\FixedWidthDigitTextRenderer.h">
       <Filter>text</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\ClockComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\HudComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\BombTimerComponent.h">
+      <Filter>components\content</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

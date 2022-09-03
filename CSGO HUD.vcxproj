@@ -167,8 +167,10 @@
     <ClCompile Include="components\base\SingleChildComponent.cpp" />
     <ClCompile Include="components\base\SizedComponent.cpp" />
     <ClCompile Include="components\base\StackComponent.cpp" />
+    <ClCompile Include="components\content\BombTimerComponent.cpp" />
+    <ClCompile Include="components\content\ClockComponent.cpp" />
     <ClCompile Include="components\content\FourCornersComponent.cpp" />
-    <ClCompile Include="components\content\TestComponent.cpp" />
+    <ClCompile Include="components\content\HudComponent.cpp" />
     <ClCompile Include="events\DataEventListener.cpp" />
     <ClCompile Include="events\EventBus.cpp" />
     <ClCompile Include="events\TimeEventListener.cpp" />
@@ -203,8 +205,10 @@
     <ClInclude Include="components\base\SizedComponent.h" />
     <ClInclude Include="components\base\StackComponent.h" />
     <ClInclude Include="components\base\StackComponentChild.h" />
+    <ClInclude Include="components\content\BombTimerComponent.h" />
+    <ClInclude Include="components\content\ClockComponent.h" />
     <ClInclude Include="components\content\FourCornersComponent.h" />
-    <ClInclude Include="components\content\TestComponent.h" />
+    <ClInclude Include="components\content\HudComponent.h" />
     <ClInclude Include="events\DataEventListener.h" />
     <ClInclude Include="events\EventBus.h" />
     <ClInclude Include="events\TimeEventListener.h" />

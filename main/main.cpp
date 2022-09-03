@@ -5,10 +5,7 @@
 
 #include "pch.h"
 
-#include "components/base/BagComponent.h"
-#include "components/base/PaddedComponent.h"
-#include "components/content/FourCornersComponent.h"
-#include "components/content/TestComponent.h"
+#include "components/content/HudComponent.h"
 #include "hud/HudWindow.h"
 #include "resources/CommonResources.h"
 
@@ -26,16 +23,7 @@ int WINAPI wWinMain(
 		commonResources.httpServer.run();
 	});
 
-	{
-		std::vector<std::unique_ptr<CsgoHud::Component>> outerComponents;
-		outerComponents.emplace_back(std::make_unique<CsgoHud::FourCornersComponent>(commonResources));
-		outerComponents.emplace_back(std::make_unique<CsgoHud::PaddedComponent>(commonResources, 8.f,
-			std::make_unique<CsgoHud::TestComponent>(commonResources)
-		));
-		hudWindow.mainComponent = std::make_unique<CsgoHud::BagComponent>(
-			commonResources, std::move(outerComponents)
-		);
-	}
+	hudWindow.mainComponent = std::make_unique<CsgoHud::HudComponent>(commonResources);
 	
 	MSG message;
 	while (GetMessage(&message, nullptr, 0, 0) > 0) {

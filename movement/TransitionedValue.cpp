@@ -52,8 +52,12 @@ void TransitionedValue::setValue(const float value) {
 
 void TransitionedValue::transition(const float newValue) {
 	previousValue = getValue();
-	currentValue = newValue;
-	passedTime = 0;
+	if (previousValue == newValue) {
+		passedTime = transitionTime;
+	} else {
+		currentValue = newValue;
+		passedTime = 0;
+	}
 }
 
 } // namespace CsgoHud
