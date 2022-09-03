@@ -184,7 +184,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 				{innerLeft, defuseInnerTop + defuseY, innerRight, defuseInnerBottom + defuseY},
 				gaugeInnerPlantedBrush.get()
 			);
-			renderTarget.FillRectangle(
+			if (bombState != "defused"s) renderTarget.FillRectangle(
 				{
 					innerLeft + innerWidth * std::max(0, bombTimeLeft - defuseTimeLeft) / 40000,
 					defuseInnerTop + defuseY,

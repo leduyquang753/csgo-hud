@@ -171,6 +171,7 @@
     <ClCompile Include="components\content\ClockComponent.cpp" />
     <ClCompile Include="components\content\FourCornersComponent.cpp" />
     <ClCompile Include="components\content\HudComponent.cpp" />
+    <ClCompile Include="components\content\TopBarComponent.cpp" />
     <ClCompile Include="events\DataEventListener.cpp" />
     <ClCompile Include="events\EventBus.cpp" />
     <ClCompile Include="events\TimeEventListener.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="components\content\ClockComponent.h" />
     <ClInclude Include="components\content\FourCornersComponent.h" />
     <ClInclude Include="components\content\HudComponent.h" />
+    <ClInclude Include="components\content\TopBarComponent.h" />
     <ClInclude Include="events\DataEventListener.h" />
     <ClInclude Include="events\EventBus.h" />
     <ClInclude Include="events\TimeEventListener.h" />

@@ -112,6 +112,9 @@
     <ClCompile Include="components\content\BombTimerComponent.cpp">
       <Filter>components\content</Filter>
     </ClCompile>
+    <ClCompile Include="components\content\TopBarComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="json\json.hpp">
@@ -194,6 +197,9 @@
       <Filter>components\content</Filter>
     </ClInclude>
     <ClInclude Include="components\content\BombTimerComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\TopBarComponent.h">
       <Filter>components\content</Filter>
     </ClInclude>
   </ItemGroup>
