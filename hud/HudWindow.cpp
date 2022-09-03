@@ -69,6 +69,25 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 		DWRITE_FACTORY_TYPE_ISOLATED, __uuidof(IDWriteFactory7),
 		reinterpret_cast<IUnknown**>(commonResources.writeFactory.put())
 	);
+	auto &writeFactory = *commonResources.writeFactory;
+	winrt::com_ptr<IDWriteRenderingParams> renderingParams;
+	winrt::com_ptr<IDWriteRenderingParams2> renderingParams2;
+	writeFactory.CreateMonitorRenderingParams(
+		MonitorFromWindow(windowHandle, MONITOR_DEFAULTTOPRIMARY), renderingParams.put()
+	);
+	renderingParams->QueryInterface(renderingParams2.put());
+	winrt::com_ptr<IDWriteRenderingParams2> customRenderingParams;
+	writeFactory.CreateCustomRenderingParams(
+		renderingParams2->GetGamma(),
+		renderingParams2->GetEnhancedContrast(),
+		renderingParams2->GetGrayscaleEnhancedContrast(),
+		renderingParams2->GetClearTypeLevel(),
+		renderingParams2->GetPixelGeometry(),
+		renderingParams2->GetRenderingMode(),
+		DWRITE_GRID_FIT_MODE_DISABLED,
+		customRenderingParams.put()
+	);
+	commonResources.renderTarget->SetTextRenderingParams(customRenderingParams.get());
 	
 	RECT windowSize;
 	GetClientRect(windowHandle, &windowSize);
