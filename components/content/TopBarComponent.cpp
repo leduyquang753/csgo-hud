@@ -168,7 +168,8 @@ void TopBarComponent::updateCtSide(const bool toTheLeft) {
 	ctToTheLeft = toTheLeft;
 	std::swap(leftNameDisplay->text, rightNameDisplay->text);
 	std::swap(leftNameDisplay->backgroundBrush, rightNameDisplay->backgroundBrush);
-	std::swap(leftScoreDisplay->text, rightScoreDisplay->text);
+	// It's just unreliable to try to guess whether to swap the scores, to resync press a spectator slot key.
+	//std::swap(leftScoreDisplay->text, rightScoreDisplay->text);
 	std::swap(leftScoreDisplay->backgroundBrush, rightScoreDisplay->backgroundBrush);
 	std::swap(ctNameDisplay, tNameDisplay);
 	std::swap(ctScoreDisplay, tScoreDisplay);

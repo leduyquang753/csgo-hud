@@ -27,7 +27,10 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 	const D2D1_COLOR_F
 		backgroundInactiveColor = {0, 0, 0, 0.3f},
 		backgroundActiveColor = {0, 0, 0, 0.7f},
-		activeOutlineColor = {1, 1, 1, 1};
+		activeOutlineColor = {1, 1, 1, 1},
+		flashColor = {1, 1, 1, 0.5f},
+		smokeColor = {0.8f, 0.8f, 0.8f, 0.5f},
+		fireColor = {1, 0.6f, 0, 0.5f};
 	
 	winrt::com_ptr<ID2D1SolidColorBrush> teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush;
 	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, teamCtBrush.put());
@@ -68,11 +71,12 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 	auto makeSide = [
 		this,
 		backgroundInactiveColor, backgroundActiveColor, activeOutlineColor,
+		flashColor, smokeColor, fireColor,
 		teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush,
 		normalTextFormat, boldTextFormat
 	](const int startIndex, const float anchor) {
+		const bool rightSide = startIndex > 4;
 		std::unique_ptr<StackComponent> currentStack;
-
 		currentStack = std::make_unique<StackComponent>(
 			this->commonResources,
 			StackComponent::AXIS_VERTICAL, StackComponent::AXIS_DECREASE, 0.f, StackComponent::MODE_PIXELS
@@ -90,8 +94,9 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 					{1, 40}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_PIXELS},
 					0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
 					std::make_unique<PlayerInfoComponent>(
-						this->commonResources,
+						this->commonResources, rightSide,
 						backgroundInactiveColor, backgroundActiveColor, activeOutlineColor,
+						flashColor, smokeColor, fireColor,
 						teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush,
 						normalTextFormat, boldTextFormat, *normalTextRenderer, *boldTextRenderer
 					)

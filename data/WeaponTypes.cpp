@@ -55,7 +55,7 @@ WeaponTypes::WeaponTypes() {
 		{"tec9"s, L"Tec-9"s, WeaponCategory::SECONDARY},
 		{"usp_silencer"s, L"USP-S"s, WeaponCategory::SECONDARY},
 		
-		{"zeus"s, L"Zeus x27"s, WeaponCategory::ZEUS},
+		{"taser"s, L"Zeus x27"s, WeaponCategory::ZEUS},
 		
 		{"decoy"s, L"Decoy grenade"s, WeaponCategory::GRENADE},
 		{"flashbang"s, L"Stun grenade"s, WeaponCategory::GRENADE},

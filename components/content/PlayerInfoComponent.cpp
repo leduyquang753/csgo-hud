@@ -20,9 +20,13 @@ namespace CsgoHud {
 
 PlayerInfoComponent::PlayerInfoComponent(
 	CommonResources &commonResources,
+	const bool rightSide,
 	const D2D1_COLOR_F &backgroundInactiveColor,
 	const D2D1_COLOR_F &backgroundActiveColor,
 	const D2D1_COLOR_F &activeOutlineColor,
+	const D2D1_COLOR_F &flashColor,
+	const D2D1_COLOR_F &smokeColor,
+	const D2D1_COLOR_F &fireColor,
 	const winrt::com_ptr<ID2D1SolidColorBrush> &teamCtBrush,
 	const winrt::com_ptr<ID2D1SolidColorBrush> &teamTBrush,
 	const winrt::com_ptr<ID2D1SolidColorBrush> &healthBrush,
@@ -33,9 +37,10 @@ PlayerInfoComponent::PlayerInfoComponent(
 	FixedWidthDigitTextRenderer &normalTextRenderer,
 	FixedWidthDigitTextRenderer &boldTextRenderer
 ):
-	Component(commonResources),
+	Component(commonResources), rightSide(rightSide),
 	backgroundInactiveColor(backgroundInactiveColor), backgroundActiveColor(backgroundActiveColor),
 	activeOutlineColor(activeOutlineColor),
+	flashColor(flashColor), smokeColor(smokeColor), fireColor(fireColor),
 	teamCtBrush(teamCtBrush), teamTBrush(teamTBrush), healthBrush(healthBrush),
 	textWhiteBrush(textWhiteBrush), textGreenBrush(textGreenBrush),
 	normalTextFormat(normalTextFormat), boldTextFormat(boldTextFormat),
@@ -86,7 +91,10 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		UTILITY_MARGIN = 4,
 		UTILITY_SPACING = 4,
 		DEAD_ICON_POS = 10,
-		PADDING = 4;
+		PADDING = 4,
+		KILL_COUNT_OFFSET = 8,
+		KILL_COUNT_LENGTH = 27,
+		KILL_COUNT_ICON_POS = 10;
 
 	if (index != lastIndex) {
 		lastIndex = index;
@@ -109,7 +117,6 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 	
-	const bool rightSide = index > 4;
 	const float
 		verticalMiddle = parentSize.height / 2,
 		scale = verticalMiddle / CommonConstants::ICON_HEIGHT,
@@ -154,6 +161,19 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			backgroundBrush.put()
 		);
 		renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, backgroundBrush.get());
+	}
+
+	if (player.health != 0) {
+		auto drawEffect = [this, &renderTarget, &parentSize](const D2D1_COLOR_F &color, const int amount) {
+			if (amount == 0) return;
+			winrt::com_ptr<ID2D1SolidColorBrush> effectBrush;
+			const float alpha = amount / 255.f;
+			renderTarget.CreateSolidColorBrush({color.r, color.g, color.b, color.a * alpha}, effectBrush.put());
+			renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, effectBrush.get());
+		};
+		drawEffect(flashColor, player.flashAmount);
+		drawEffect(smokeColor, player.smokeAmount);
+		drawEffect(fireColor, player.fireAmount);
 	}
 	
 	if (player.health > currentHealth) {
@@ -230,7 +250,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		if (player.hasZeus) {
 			drawIcon(
 				IconStorage::INDEX_ZEUS, secondRowPos, verticalMiddle, scale,
-				player.activeSlot == PlayerData::SLOT_ZEUS, false, !rightSide, false
+				player.activeSlot == PlayerData::SLOT_ZEUS, false, !rightSide, rightSide
 			);
 			secondRowPos
 				+= (commonResources.icons[IconStorage::INDEX_ZEUS].width * scale + UTILITY_MARGIN)
@@ -318,6 +338,22 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 				{-1, -1, parentSize.width+1, parentSize.height+1}, activeOutlineBrush.get(), 2
 			);
 		}
+	}
+
+	if (player.killsThisRound != 0) {
+		const float killCountPos
+			= rightSide ? -KILL_COUNT_OFFSET - KILL_COUNT_LENGTH : parentSize.width + KILL_COUNT_OFFSET;
+		normalTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+		normalTextRenderer.draw(
+			std::to_wstring(player.killsThisRound),
+			{killCountPos, 0, killCountPos + KILL_COUNT_ICON_POS, verticalMiddle},
+			textWhiteBrush
+		);
+		drawIcon(
+			IconStorage::INDEX_DEAD,
+			killCountPos + KILL_COUNT_ICON_POS, parentSize.height / 16, scale * 3 / 4,
+			true, false, false, false
+		);
 	}
 
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());

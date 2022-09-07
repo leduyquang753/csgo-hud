@@ -16,13 +16,16 @@ class FixedWidthDigitTextRenderer;
 */
 class PlayerInfoComponent final: public Component {
 	private:
-		const D2D1_COLOR_F backgroundInactiveColor, backgroundActiveColor, activeOutlineColor;
+		const D2D1_COLOR_F
+			backgroundInactiveColor, backgroundActiveColor, activeOutlineColor,
+			flashColor, smokeColor, fireColor;
 		const winrt::com_ptr<ID2D1SolidColorBrush>
 			teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush;
 		winrt::com_ptr<ID2D1Effect> inactiveEffect, emptyActiveEffect, emptyInactiveEffect;
 		winrt::com_ptr<IDWriteTextFormat> normalTextFormat, boldTextFormat;
 		FixedWidthDigitTextRenderer &normalTextRenderer, &boldTextRenderer;
 		
+		const bool rightSide;
 		TransitionedValue activeTransition, healthTransition;
 		int currentHealth, oldHealth = 0;
 		int healthDecayTime = 0;
@@ -36,9 +39,13 @@ class PlayerInfoComponent final: public Component {
 
 		PlayerInfoComponent(
 			CommonResources &commonResources,
+			bool rightSide,
 			const D2D1_COLOR_F &backgroundInactiveColor,
 			const D2D1_COLOR_F &backgroundActiveColor,
 			const D2D1_COLOR_F &activeOutlineColor,
+			const D2D1_COLOR_F &flashColor,
+			const D2D1_COLOR_F &smokeColor,
+			const D2D1_COLOR_F &fireColor,
 			const winrt::com_ptr<ID2D1SolidColorBrush> &teamCtBrush,
 			const winrt::com_ptr<ID2D1SolidColorBrush> &teamTBrush,
 			const winrt::com_ptr<ID2D1SolidColorBrush> &healthBrush,
