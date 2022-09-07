@@ -21,7 +21,6 @@ class ClockComponent final: public Component {
 		winrt::com_ptr<ID2D1SolidColorBrush>
 			textWhiteBrush, textRedBrush,
 			backgroundBrush, progressWhiteBrush, progressRedBrush;
-		winrt::com_ptr<IDWriteTextFormat> textFormat;
 		std::optional<FixedWidthDigitTextRenderer> textRenderer;
 
 		std::string phase, mapPhase;

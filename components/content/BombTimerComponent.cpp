@@ -20,7 +20,6 @@ using namespace std::string_literals;
 namespace CsgoHud {
 
 static const int FONT_SIZE = 12;
-static const float TEXT_OFFSET = -0.5f;
 
 // == BombTimerComponent ==
 
@@ -60,7 +59,9 @@ BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
 		FONT_SIZE, L"", textFormat.put()
 	);
 	
-	textRenderer.emplace(commonResources, textFormat);
+	textRenderer.emplace(
+		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
+	);
 
 	auto &eventBus = commonResources.eventBus;
 	eventBus.listenToTimeEvent([this](const int timePassed) { advanceTime(timePassed); });
@@ -157,7 +158,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 		);
 		textRenderer->draw(
 			Utils::formatTimeAmount(displayedBombTime),
-			{outerRight+4, (gaugeHeight-FONT_SIZE)/2 + bombY + TEXT_OFFSET, parentSize.width, parentSize.height},
+			{outerRight+4, bombY, parentSize.width, bombY + gaugeHeight},
 			textBrush
 		);
 
@@ -179,7 +180,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 				defuseInnerTop = gaugeHeight + 4,
 				defuseInnerBottom = parentSize.height - 4;
 			renderTarget.FillRectangle(
-				{outerLeft, gaugeHeight + defuseY, outerRight, parentSize.height}, gaugeOuterBrush.get()
+				{outerLeft, gaugeHeight + defuseY, outerRight, gaugeHeight*2 + defuseY}, gaugeOuterBrush.get()
 			);
 			renderTarget.FillRectangle(
 				{innerLeft, defuseInnerTop + defuseY, innerRight, defuseInnerBottom + defuseY},
@@ -196,10 +197,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 			);
 			textRenderer->draw(
 				Utils::formatTimeAmount(defuseTimeLeft),
-				{
-					outerRight+4, gaugeHeight + (gaugeHeight-FONT_SIZE) / 2 + defuseY + TEXT_OFFSET,
-					parentSize.width, parentSize.height
-				},
+				{outerRight+4, gaugeHeight + defuseY, parentSize.width, gaugeHeight*2 + defuseY},
 				textBrush
 			);
 			renderTarget.PopLayer();

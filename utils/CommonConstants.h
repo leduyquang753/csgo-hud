@@ -4,11 +4,23 @@
 namespace CsgoHud {
 
 namespace CommonConstants {
+	// The custom window message sent by the HTTP server to notify the HUD winodw about new data being available.
+	const UINT32 WM_JSON_ARRIVED = 0x8001;
+	
 	/*
 		The amount in milliseocnds that a difference in time between what the game reports and what the HUD is
 		keeping is considered a desync and the HUD resets its time to be what the game says.
 	*/
 	const int DESYNC_THRESHOLD = 200;
+
+	// The height of every icon.
+	const float ICON_HEIGHT = 128;
+
+	// The vertical font offset ratio.
+	const float FONT_OFFSET_RATIO = -0.3f;
+
+	// The font line height ratio.
+	const float FONT_LINE_HEIGHT_RATIO = 0.75f;
 }
 
 } // namespace CsgoHud

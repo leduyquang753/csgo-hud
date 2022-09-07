@@ -37,6 +37,9 @@
     <Filter Include="text">
       <UniqueIdentifier>{f81dad64-4a96-41ea-8b2a-13ab16aaf33c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{22f20ea1-27cd-475a-aa5d-c35b08884cc2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main\main.cpp">
@@ -114,6 +117,30 @@
     </ClCompile>
     <ClCompile Include="components\content\TopBarComponent.cpp">
       <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="data\AllPlayersData.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
+    <ClCompile Include="data\IconStorage.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
+    <ClCompile Include="data\PlayerData.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
+    <ClCompile Include="data\WeaponTypes.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
+    <ClCompile Include="components\content\AllPlayersComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="components\content\PlayerInfoComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="text\TextRenderer.cpp">
+      <Filter>text</Filter>
+    </ClCompile>
+    <ClCompile Include="text\NormalTextRenderer.cpp">
+      <Filter>text</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -201,6 +228,33 @@
     </ClInclude>
     <ClInclude Include="components\content\TopBarComponent.h">
       <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="data\AllPlayersData.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="data\GunData.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="data\IconStorage.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="data\PlayerData.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="data\WeaponTypes.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\AllPlayersComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\PlayerInfoComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="text\TextRenderer.h">
+      <Filter>text</Filter>
+    </ClInclude>
+    <ClInclude Include="text\NormalTextRenderer.h">
+      <Filter>text</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

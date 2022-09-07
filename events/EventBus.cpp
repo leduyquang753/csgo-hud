@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <memory>
 #include <functional>
 #include <utility>
@@ -13,51 +14,57 @@ namespace CsgoHud {
 
 // == EventBus ==
 
-TimeEventListener* EventBus::listenToTimeEvent(const std::function<void(int)> &callback) {
-	return timeEventListeners.emplace_back(
-		new TimeEventListener(this, timeEventListeners.size(), callback)
-	).get();
+TimeEventListener EventBus::listenToTimeEvent(const std::function<void(int)> &callback) {
+	const std::size_t index = timeEventListeners.size();
+	timeEventListeners.emplace_back(callback, nullptr);
+	auto &slot = timeEventListeners.back().second;
+	TimeEventListener listener(this, index, &slot);
+	slot = &listener;
+	return listener;
 }
 
-DataEventListener* EventBus::listenToDataEvent(
+DataEventListener EventBus::listenToDataEvent(
 	const std::string &dataPath, const std::function<void(const JSON&)> &callback
 ) {
 	auto &listenerList = dataEventListenerMap[dataPath];
-	return listenerList.emplace_back(
-		new DataEventListener(this, dataPath, listenerList.size(), callback)
-	).get();
+	const std::size_t index = listenerList.size();
+	listenerList.emplace_back(callback, nullptr);
+	auto &slot = listenerList.back().second;
+	DataEventListener listener(this, dataPath, index, &slot);
+	slot = &listener;
+	return listener;
 }
 
-void EventBus::unregisterTimeEventListener(TimeEventListener *const listener) {
-	if (listener->index == -1) return;
-	auto &listenerAtSlot = timeEventListeners[listener->index];
+void EventBus::unregisterTimeEventListener(TimeEventListener &listener) {
+	if (listener.index == -1) return;
+	auto &listenerAtSlot = timeEventListeners[listener.index];
 	listenerAtSlot = std::move(timeEventListeners.back());
-	listenerAtSlot->index = listener->index;
-	timeEventListeners.resize(timeEventListeners.size() - 1);
-	listener->index = -1;
+	listenerAtSlot.second->index = listener.index;
+	timeEventListeners.pop_back();
+	listener.index = -1;
 }
 
-void EventBus::unregisterDataEventListener(DataEventListener *const listener) {
-	if (listener->index == -1) return;
-	auto &listenerList = dataEventListenerMap[listener->dataPath];
-	auto &listenerAtSlot = listenerList[listener->index];
+void EventBus::unregisterDataEventListener(DataEventListener &listener) {
+	if (listener.index == -1) return;
+	auto &listenerList = dataEventListenerMap[listener.dataPath];
+	auto &listenerAtSlot = listenerList[listener.index];
 	listenerAtSlot = std::move(listenerList.back());
-	listenerAtSlot->index = listener->index;
-	listenerList.resize(listenerList.size() - 1);
-	listener->index = -1;
+	listenerAtSlot.second->index = listener.index;
+	listenerList.pop_back();
+	listener.index = -1;
 }
 
-void EventBus::notifyTimeEvent(const int timePassed) {
+void EventBus::notifyTimeEvent(const int timePassed) const {
 	for (const auto &listener : timeEventListeners) {
-		listener->callback(timePassed);
+		listener.first(timePassed);
 	}
 }
 
-void EventBus::notifyDataEvent(const std::string &dataPath, const JSON &json) {
+void EventBus::notifyDataEvent(const std::string &dataPath, const JSON &json) const {
 	auto entry = dataEventListenerMap.find(dataPath);
 	if (entry == dataEventListenerMap.end()) return;
 	for (const auto &listener : entry->second) {
-		listener->callback(json);
+		listener.first(json);
 	}
 }
 

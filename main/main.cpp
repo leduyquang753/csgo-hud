@@ -6,12 +6,18 @@
 #include "pch.h"
 
 #include "components/content/HudComponent.h"
+#include "data/AllPlayersData.h"
+#include "data/IconStorage.h"
 #include "hud/HudWindow.h"
 #include "resources/CommonResources.h"
 
 int WINAPI wWinMain(
 	const HINSTANCE instance, const HINSTANCE previousInstance, const PWSTR commandLine, const int showFlag
 ) {
+	CoInitialize(nullptr);
+
+	{ // Block enclosing resources to be freed before returning.
+	
 	// Allocate dynamically as the object is potentially large.
 	auto commonResourcesPointer = std::make_unique<CsgoHud::CommonResources>();
 	auto &commonResources = *commonResourcesPointer;
@@ -19,8 +25,8 @@ int WINAPI wWinMain(
 	CsgoHud::HudWindow::preInitialize(instance);
 	CsgoHud::HudWindow hudWindow(instance, commonResources);
 
-	std::thread httpThread([&commonResources]() {
-		commonResources.httpServer.run();
+	std::thread httpThread([&commonResources, &hudWindow]() {
+		commonResources.httpServer.run(hudWindow.getWindowHandle());
 	});
 
 	hudWindow.mainComponent = std::make_unique<CsgoHud::HudComponent>(commonResources);
@@ -33,6 +39,10 @@ int WINAPI wWinMain(
 
 	commonResources.httpServer.stop();
 	httpThread.join();
+	
+	} // Block enclosing resources to be freed before returning.
+
+	CoUninitialize();
 
 	return 0;
 }

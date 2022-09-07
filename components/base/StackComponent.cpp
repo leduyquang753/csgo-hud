@@ -33,28 +33,30 @@ void StackComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 			.height = child.sizeMode.y ? parentSize.height * child.size.height : child.size.height
 		};
 		if (axisDirection) paintPosition -= axis ? effectiveSize.height : effectiveSize.width;
-		if (axis) {
-			child.component->paint(
-				transform * D2D1::Matrix3x2F::Translation({
-					.width
-						= baseOffset
-						+ (child.offsetMode ? parentSize.width * child.offset : child.offset)
-						- (child.anchorMode ? effectiveSize.width * child.anchor : child.anchor),
-					.height = paintPosition
-				}),
-				effectiveSize
-			);
-		} else {
-			child.component->paint(
-				transform * D2D1::Matrix3x2F::Translation({
-					.width = paintPosition,
-					.height
-						= baseOffset
-						+ (child.offsetMode ? parentSize.height * child.offset : child.offset)
-						- (child.anchorMode ? effectiveSize.height * child.anchor : child.anchor)
-				}),
-				effectiveSize
-			);
+		if (child.component != nullptr) {
+			if (axis) {
+				child.component->paint(
+					D2D1::Matrix3x2F::Translation({
+						.width
+							= baseOffset
+							+ (child.offsetMode ? parentSize.width * child.offset : child.offset)
+							- (child.anchorMode ? effectiveSize.width * child.anchor : child.anchor),
+						.height = paintPosition
+					}) * transform,
+					effectiveSize
+				);
+			} else {
+				child.component->paint(
+					D2D1::Matrix3x2F::Translation({
+						.width = paintPosition,
+						.height
+							= baseOffset
+							+ (child.offsetMode ? parentSize.height * child.offset : child.offset)
+							- (child.anchorMode ? effectiveSize.height * child.anchor : child.anchor)
+					}) * transform,
+					effectiveSize
+				);
+			}
 		}
 		if (!axisDirection) paintPosition += axis ? effectiveSize.height : effectiveSize.width;
 	}

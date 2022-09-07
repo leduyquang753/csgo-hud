@@ -12,6 +12,9 @@
 #include "components/content/BombTimerComponent.h"
 #include "components/content/ClockComponent.h"
 #include "resources/CommonResources.h"
+#include "text/FixedWidthDigitTextRenderer.h"
+#include "text/NormalTextRenderer.h"
+#include "utils/CommonConstants.h"
 
 #include "components/content/TopBarComponent.h"
 
@@ -20,20 +23,17 @@ using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
-static const int FONT_SIZE = 24;
-static const float TEXT_OFFSET = -1;
-
 // == TopBarComponent::ChildComponent ==
 
 TopBarComponent::ChildComponent::ChildComponent(
 	CommonResources &commonResources,
 	const winrt::com_ptr<ID2D1SolidColorBrush> &backgroundBrush,
 	const winrt::com_ptr<ID2D1SolidColorBrush> &textBrush,
-	const winrt::com_ptr<IDWriteTextFormat> &textFormat,
+	const TextRenderer &textRenderer,
 	std::wstring_view text
 ):
 	Component(commonResources),
-	backgroundBrush(backgroundBrush), textBrush(textBrush), textFormat(textFormat),
+	backgroundBrush(backgroundBrush), textBrush(textBrush), textRenderer(textRenderer),
 	text(text)
 {}
 
@@ -42,13 +42,7 @@ void TopBarComponent::ChildComponent::paint(const D2D1::Matrix3x2F &transform, c
 	renderTarget.SetTransform(transform);
 
 	renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, backgroundBrush.get());
-	renderTarget.DrawText(
-		text.c_str(), static_cast<UINT32>(text.size()),
-		textFormat.get(),
-		{0, (parentSize.height-FONT_SIZE)/2 + TEXT_OFFSET, parentSize.width, parentSize.height},
-		textBrush.get(),
-		D2D1_DRAW_TEXT_OPTIONS_NO_SNAP, DWRITE_MEASURING_MODE_NATURAL
-	);
+	textRenderer.draw(text, {0, 0, parentSize.width, parentSize.height}, textBrush);
 
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
 }
@@ -64,18 +58,26 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources): Component(co
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, textBrush.put());
 	
 	auto &writeFactory = *commonResources.writeFactory;
+	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	writeFactory.CreateTextFormat(
 		L"Stratum2", nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-		FONT_SIZE, L"", nameTextFormat.put()
+		24, L"", textFormat.put()
 	);
+	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	nameTextRenderer.emplace(
+		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
+	);
+	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
 		L"Stratum2", nullptr,
 		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-		FONT_SIZE, L"", scoreTextFormat.put()
+		24, L"", textFormat.put()
 	);
-	nameTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	scoreTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	scoreTextRenderer.emplace(
+		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
+	);
 
 	auto stack = std::make_unique<StackComponent>(
 		commonResources,
@@ -84,7 +86,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources): Component(co
 
 	std::unique_ptr<ChildComponent> currentChild;
 	currentChild = std::make_unique<ChildComponent>(
-		commonResources, ctScoreBackgroundBrush, textBrush, scoreTextFormat, L"0"sv
+		commonResources, ctScoreBackgroundBrush, textBrush, *scoreTextRenderer, L"0"sv
 	);
 	leftScoreDisplay = currentChild.get();
 	stack->children.emplace_back(StackComponentChild{
@@ -93,7 +95,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources): Component(co
 		std::move(currentChild)
 	});
 	currentChild = std::make_unique<ChildComponent>(
-		commonResources, ctNameBackgroundBrush, textBrush, nameTextFormat, L"Counter-terrorists"sv
+		commonResources, ctNameBackgroundBrush, textBrush, *nameTextRenderer, L"Counter-terrorists"sv
 	);
 	leftNameDisplay = currentChild.get();
 	stack->children.emplace_back(StackComponentChild{
@@ -109,7 +111,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources): Component(co
 	});
 	
 	currentChild = std::make_unique<ChildComponent>(
-		commonResources, tNameBackgroundBrush, textBrush, nameTextFormat, L"Terrorists"sv
+		commonResources, tNameBackgroundBrush, textBrush, *nameTextRenderer, L"Terrorists"sv
 	);
 	rightNameDisplay = currentChild.get();
 	stack->children.emplace_back(StackComponentChild{
@@ -118,7 +120,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources): Component(co
 		std::move(currentChild)
 	});
 	currentChild = std::make_unique<ChildComponent>(
-		commonResources, tScoreBackgroundBrush, textBrush, scoreTextFormat, L"0"sv
+		commonResources, tScoreBackgroundBrush, textBrush, *scoreTextRenderer, L"0"sv
 	);
 	rightScoreDisplay = currentChild.get();
 	stack->children.emplace_back(StackComponentChild{
@@ -153,14 +155,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources): Component(co
 	});
 
 	auto &eventBus = commonResources.eventBus;
-	eventBus.listenToDataEvent("player"s, [this](const JSON &json) { receivePlayerData(json); });
 	eventBus.listenToDataEvent("map"s, [this](const JSON &json) { receiveMapData(json); });
-}
-
-void TopBarComponent::receivePlayerData(const JSON &json) {
-	if (!json.contains("spectarget"s) || json["spectarget"s].get<std::string>()[0] == 'f'/*ree*/) return;
-	const char slot = json["observer_slot"s].get<int>();
-	updateCtSide((slot >= 1 && slot <= 5) == (json["team"s].get<std::string>()[0] == 'C'/*T*/));
 }
 
 void TopBarComponent::receiveMapData(const JSON &json) {
@@ -180,6 +175,8 @@ void TopBarComponent::updateCtSide(const bool toTheLeft) {
 }
 
 void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
+	int firstPlayerIndex = commonResources.players.getFirstPlayerIndex();
+	if (firstPlayerIndex != -1) updateCtSide(commonResources.players[firstPlayerIndex]->team);
 	// (parentWidth:2 – 40 – 80 – 40) : 2.
 	*leftNameWidth = *rightNameWidth = parentSize.width/4 - 80;
 	container->paint(transform, parentSize);

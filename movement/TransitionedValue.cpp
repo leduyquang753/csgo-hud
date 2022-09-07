@@ -26,7 +26,7 @@ TransitionedValue::TransitionedValue(
 {}
 
 TransitionedValue::~TransitionedValue() {
-	timeEventListener->unregister();
+	timeEventListener.unregister();
 }
 
 void TransitionedValue::advanceTime(const int timePassed) {

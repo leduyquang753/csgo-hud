@@ -20,7 +20,7 @@ BagComponent::BagComponent(CommonResources &commonResources, std::vector<std::un
 {}
 
 void BagComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
-	for (auto &child : children) child->paint(transform, parentSize);
+	for (auto &child : children) if (child != nullptr) child->paint(transform, parentSize);
 }
 
 } // namespace CsgoHud

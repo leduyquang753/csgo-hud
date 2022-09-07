@@ -43,7 +43,7 @@ PaddedComponent::PaddedComponent(
 
 void PaddedComponent::paintChild(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
 	child->paint(
-		transform * D2D1::Matrix3x2F::Translation({padding.left, padding.top}),
+		D2D1::Matrix3x2F::Translation({padding.left, padding.top}) * transform,
 		{parentSize.width - padding.left - padding.right, parentSize.height - padding.top - padding.bottom}
 	);
 }

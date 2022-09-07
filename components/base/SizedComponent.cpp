@@ -29,14 +29,14 @@ void SizedComponent::paintChild(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		.height = sizeMode.y ? parentSize.height * size.height : size.height
 	};
 	child->paint(
-		transform * D2D1::Matrix3x2F::Translation({
+		D2D1::Matrix3x2F::Translation({
 			.width
 				= (offsetMode.x ? parentSize.width * offset.x : offset.x)
 				- (anchorMode.x ? effectiveSize.width * anchor.x : anchor.x),
 			.height
 				= (offsetMode.y ? parentSize.height * offset.y : offset.y)
 				- (anchorMode.y ? effectiveSize.height * anchor.y : anchor.y)
-		}),
+		}) * transform,
 		effectiveSize
 	);
 }

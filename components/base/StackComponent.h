@@ -23,7 +23,7 @@ class StackComponent final: public Component {
 			If the axis direction member is `false`, the axis goes right or down, if it's true, the axis goes left
 			or up.
 		*/
-		static const bool AXIS_INCREASE = false, AXIS_DECRASE = true;
+		static const bool AXIS_INCREASE = false, AXIS_DECREASE = true;
 		/*
 			If the axis position mode is `false`, the axis position is in pixels, if it's true, the axis position is
 			a ratio of the dimension perpendicular to the axis.

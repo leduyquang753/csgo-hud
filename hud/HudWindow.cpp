@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "resources/CommonResources.h"
+#include "utils/CommonConstants.h"
 
 #include "hud/HudWindow.h"
 
@@ -55,7 +56,10 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 		SWP_NOSIZE
 	);
 	
-	D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, commonResources.d2dFactory.put());
+	D2D1CreateFactory(
+		D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory7),
+		reinterpret_cast<void**>(commonResources.d2dFactory.put())
+	);
 	static const D2D1_RENDER_TARGET_PROPERTIES RENDER_TARGET_PROPERTIES = {
 		.type = D2D1_RENDER_TARGET_TYPE_DEFAULT,
 		.pixelFormat = {.format = DXGI_FORMAT_B8G8R8A8_UNORM, .alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED},
@@ -63,7 +67,9 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 		.usage = D2D1_RENDER_TARGET_USAGE_NONE,
 		.minLevel = D2D1_FEATURE_LEVEL_DEFAULT
 	};
-	commonResources.d2dFactory->CreateDCRenderTarget(&RENDER_TARGET_PROPERTIES, commonResources.renderTarget.put());
+	winrt::com_ptr<ID2D1DCRenderTarget> dcRenderTarget;
+	commonResources.d2dFactory->CreateDCRenderTarget(&RENDER_TARGET_PROPERTIES, dcRenderTarget.put());
+	dcRenderTarget->QueryInterface(commonResources.renderTarget.put());
 	
 	DWriteCreateFactory(
 		DWRITE_FACTORY_TYPE_ISOLATED, __uuidof(IDWriteFactory7),
@@ -94,7 +100,9 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 	windowSurface = GetDC(windowHandle);
 	renderSurface = CreateCompatibleDC(windowSurface);
 	SelectObject(renderSurface, CreateCompatibleBitmap(windowSurface, windowSize.right, windowSize.bottom));
-	commonResources.renderTarget->BindDC(renderSurface, &windowSize);
+	dcRenderTarget->BindDC(renderSurface, &windowSize);
+
+	commonResources.icons.loadIcons(commonResources);
 
 	paint();
 	ShowWindow(windowHandle, SW_SHOW);
@@ -109,6 +117,9 @@ HudWindow::~HudWindow() {
 
 LRESULT HudWindow::handleWindowMessage(const UINT message, const WPARAM wParam, const LPARAM lParam) {
 	switch (message) {
+		case CommonConstants::WM_JSON_ARRIVED:
+			tick();
+			return 0;
 		case WM_TIMER:
 			tick();
 			paint();
@@ -192,6 +203,10 @@ void HudWindow::paint() {
 		&blendFunction,
 		ULW_ALPHA
 	);
+}
+
+HWND HudWindow::getWindowHandle() {
+	return windowHandle;
 }
 
 } // namespace CsgoHud

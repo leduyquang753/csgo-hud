@@ -14,6 +14,8 @@
 
 #include <http.h>
 
+#include "utils/CommonConstants.h"
+
 #include "server/HttpServer.h"
 
 namespace CsgoHud {
@@ -22,7 +24,7 @@ namespace CsgoHud {
 
 static const wchar_t *url = L"http://127.0.0.1:31982/";
 
-void HttpServer::run() {
+void HttpServer::run(const HWND windowHandle) {
 	HttpInitialize(HTTPAPI_VERSION_1, HTTP_INITIALIZE_SERVER, nullptr);
 	HttpCreateHttpHandle(&queue, 0);
 	HttpAddUrl(queue, url, nullptr);
@@ -72,6 +74,10 @@ void HttpServer::run() {
 									*currentJsons += json;
 									*currentJsons += '\0';
 									currentTimestamps->push_back(std::chrono::steady_clock::now());
+									if (!notificationSent) {
+										PostMessage(windowHandle, CommonConstants::WM_JSON_ARRIVED, 0, 0);
+										notificationSent = true;
+									}
 									mutex.unlock();
 									done = true;
 									break;
@@ -131,6 +137,7 @@ void HttpServer::swapBuffers() {
 	currentTimestamps = bufferSwitch ? &timestamps1 : &timestamps2;
 	currentJsons->clear();
 	currentTimestamps->clear();
+	notificationSent = false;
 }
 
 } // namespace CsgoHud

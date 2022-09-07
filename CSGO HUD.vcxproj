@@ -87,7 +87,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);d2d1.lib;dwrite.lib;httpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);d2d1.lib;dwrite.lib;dxguid.lib;httpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -111,7 +111,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);d2d1.lib;dwrite.lib;httpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);d2d1.lib;dwrite.lib;dxguid.lib;httpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -131,7 +131,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);d2d1.lib;dwrite.lib;httpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);d2d1.lib;dwrite.lib;dxguid.lib;httpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -155,7 +155,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);d2d1.lib;dwrite.lib;httpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);d2d1.lib;dwrite.lib;dxguid.lib;httpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -167,11 +167,17 @@
     <ClCompile Include="components\base\SingleChildComponent.cpp" />
     <ClCompile Include="components\base\SizedComponent.cpp" />
     <ClCompile Include="components\base\StackComponent.cpp" />
+    <ClCompile Include="components\content\AllPlayersComponent.cpp" />
     <ClCompile Include="components\content\BombTimerComponent.cpp" />
     <ClCompile Include="components\content\ClockComponent.cpp" />
     <ClCompile Include="components\content\FourCornersComponent.cpp" />
     <ClCompile Include="components\content\HudComponent.cpp" />
+    <ClCompile Include="components\content\PlayerInfoComponent.cpp" />
     <ClCompile Include="components\content\TopBarComponent.cpp" />
+    <ClCompile Include="data\AllPlayersData.cpp" />
+    <ClCompile Include="data\IconStorage.cpp" />
+    <ClCompile Include="data\PlayerData.cpp" />
+    <ClCompile Include="data\WeaponTypes.cpp" />
     <ClCompile Include="events\DataEventListener.cpp" />
     <ClCompile Include="events\EventBus.cpp" />
     <ClCompile Include="events\TimeEventListener.cpp" />
@@ -194,6 +200,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="text\FixedWidthDigitTextRenderer.cpp" />
+    <ClCompile Include="text\NormalTextRenderer.cpp" />
+    <ClCompile Include="text\TextRenderer.cpp" />
     <ClCompile Include="utils\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -206,11 +214,18 @@
     <ClInclude Include="components\base\SizedComponent.h" />
     <ClInclude Include="components\base\StackComponent.h" />
     <ClInclude Include="components\base\StackComponentChild.h" />
+    <ClInclude Include="components\content\AllPlayersComponent.h" />
     <ClInclude Include="components\content\BombTimerComponent.h" />
     <ClInclude Include="components\content\ClockComponent.h" />
     <ClInclude Include="components\content\FourCornersComponent.h" />
     <ClInclude Include="components\content\HudComponent.h" />
+    <ClInclude Include="components\content\PlayerInfoComponent.h" />
     <ClInclude Include="components\content\TopBarComponent.h" />
+    <ClInclude Include="data\AllPlayersData.h" />
+    <ClInclude Include="data\GunData.h" />
+    <ClInclude Include="data\IconStorage.h" />
+    <ClInclude Include="data\PlayerData.h" />
+    <ClInclude Include="data\WeaponTypes.h" />
     <ClInclude Include="events\DataEventListener.h" />
     <ClInclude Include="events\EventBus.h" />
     <ClInclude Include="events\TimeEventListener.h" />
@@ -225,6 +240,8 @@
     <ClInclude Include="resources\CommonResources.h" />
     <ClInclude Include="server\HttpServer.h" />
     <ClInclude Include="text\FixedWidthDigitTextRenderer.h" />
+    <ClInclude Include="text\NormalTextRenderer.h" />
+    <ClInclude Include="text\TextRenderer.h" />
     <ClInclude Include="utils\Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

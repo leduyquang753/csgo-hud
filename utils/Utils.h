@@ -2,11 +2,12 @@
 #define CSGO_HUD_UTILS_UTILS_H
 
 #include <string>
+#include <string_view>
 
 namespace CsgoHud {
 
 namespace Utils {
-	std::wstring widenString(const std::string &string);
+	std::wstring widenString(std::string_view string);
 	std::wstring formatTimeAmount(int millis);
 }
 

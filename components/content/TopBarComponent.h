@@ -2,6 +2,7 @@
 #define CSGO_HUD_COMPONENTS_CONTENT_TOPBARCOMPONENT_H
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -9,6 +10,8 @@
 
 #include "components/base/Component.h"
 #include "components/base/StackComponent.h"
+#include "text/FixedWidthDigitTextRenderer.h"
+#include "text/NormalTextRenderer.h"
 
 namespace CsgoHud {
 
@@ -22,14 +25,14 @@ class TopBarComponent final: public Component {
 		class ChildComponent final: public Component {
 			public:
 				winrt::com_ptr<ID2D1SolidColorBrush> backgroundBrush, textBrush;
-				winrt::com_ptr<IDWriteTextFormat> textFormat;
+				const TextRenderer &textRenderer;
 				std::wstring text;
 
 				ChildComponent(
 					CommonResources &commonResources,
 					const winrt::com_ptr<ID2D1SolidColorBrush> &backgroundBrush,
 					const winrt::com_ptr<ID2D1SolidColorBrush> &textBrush,
-					const winrt::com_ptr<IDWriteTextFormat> &textFormat,
+					const TextRenderer &textRenderer,
 					std::wstring_view text
 				);
 				void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;
@@ -38,7 +41,8 @@ class TopBarComponent final: public Component {
 		winrt::com_ptr<ID2D1SolidColorBrush>
 			ctNameBackgroundBrush, tNameBackgroundBrush, ctScoreBackgroundBrush, tScoreBackgroundBrush,
 			textBrush;
-		winrt::com_ptr<IDWriteTextFormat> nameTextFormat, scoreTextFormat;
+		std::optional<NormalTextRenderer> nameTextRenderer;
+		std::optional<FixedWidthDigitTextRenderer> scoreTextRenderer;
 		
 		std::unique_ptr<StackComponent> container;
 		ChildComponent

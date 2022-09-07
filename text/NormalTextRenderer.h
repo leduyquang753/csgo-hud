@@ -1,7 +1,6 @@
-#ifndef CSGO_HUD_TEXT_FIXEDWIDTHDIGITTEXTRENDERER_H
-#define CSGO_HUD_TEXT_FIXEDWIDTHDIGITTEXTRENDERER_H
+#ifndef CSGO_HUD_NORMALTEXTRENDERER_H
+#define CSGO_HUD_NORMALTEXTRENDERER_H
 
-#include <array>
 #include <string_view>
 
 #include "pch.h"
@@ -13,18 +12,16 @@ namespace CsgoHud {
 struct CommonResources;
 
 /*
-	A helper class for rendering text with digits having a uniform width to prevent number displays from wobbling
-	when their values change.
+	A text rendering helper because DirectWrite tends to be yanky about baseline positions.
 */
-class FixedWidthDigitTextRenderer final: public TextRenderer {
+class NormalTextRenderer final: public TextRenderer {
 	private:
 		const winrt::com_ptr<IDWriteTextFormat> textFormat;
 		const DWRITE_LINE_SPACING lineSpacingSettings;
-		std::array<float, 10> digitSpacings = {};
 		const float verticalOffset;
-		const float lineHeight;
+		float lineHeight;
 	public:
-		FixedWidthDigitTextRenderer(
+		NormalTextRenderer(
 			CommonResources &commonResources, const winrt::com_ptr<IDWriteTextFormat> &textFormat,
 			float offsetRatio, // The proportion to the font size that the text should be vertically shifted.
 			float lineHeightRatio // The line height propertion to the font size.
@@ -37,4 +34,4 @@ class FixedWidthDigitTextRenderer final: public TextRenderer {
 
 } // namespace CsgoHud
 
-#endif // CSGO_HUD_TEXT_FIXEDWIDTHDIGITTEXTRENDERER_H
+#endif // CSGO_HUD_NORMALTEXTRENDERER_H

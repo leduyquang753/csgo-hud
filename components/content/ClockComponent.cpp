@@ -16,9 +16,6 @@ using namespace std::string_literals;
 
 namespace CsgoHud {
 
-static const int FONT_SIZE = 24;
-static const float TEXT_OFFSET = -1;
-
 // == ClockComponent ==
 
 ClockComponent::ClockComponent(CommonResources &commonResources): Component(commonResources) {
@@ -30,14 +27,17 @@ ClockComponent::ClockComponent(CommonResources &commonResources): Component(comm
 	renderTarget.CreateSolidColorBrush({1, 0.4f, 0.4f, 0.4f}, progressRedBrush.put());
 	
 	auto &writeFactory = *commonResources.writeFactory;
+	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	writeFactory.CreateTextFormat(
 		L"Stratum2", nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-		FONT_SIZE, L"", textFormat.put()
+		24, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	
-	textRenderer.emplace(commonResources, textFormat);
+	textRenderer.emplace(
+		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
+	);
 
 	auto &eventBus = commonResources.eventBus;
 	eventBus.listenToTimeEvent([this](const int timePassed) { advanceTime(timePassed); });
@@ -87,14 +87,12 @@ int ClockComponent::getPhaseTime() {
 void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
-
-	const float textPosition = (parentSize.height - FONT_SIZE) / 2 + TEXT_OFFSET;
 	
 	renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, backgroundBrush.get());
 	if (phase == "paused"s) {
 		textRenderer->draw(
 			L"Paused"s,
-			{0, textPosition, parentSize.width, parentSize.height},
+			{0, 0, parentSize.width, parentSize.height},
 			textWhiteBrush
 		);
 	} else if (!phase.empty()) {
@@ -112,7 +110,7 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 		}
 		textRenderer->draw(
 			Utils::formatTimeAmount(phaseTimeLeft),
-			{0, textPosition, parentSize.width, parentSize.height},
+			{0, 0, parentSize.width, parentSize.height},
 			red ? textRedBrush : textWhiteBrush
 		);
 	}

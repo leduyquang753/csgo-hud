@@ -24,11 +24,12 @@ class HttpServer final {
 			timestamps1, timestamps2,
 			*currentTimestamps = &timestamps1;
 		bool bufferSwitch = true;
+		bool notificationSent = false;
 		std::atomic_bool finished = false;
 	public:
 		std::mutex mutex;
 		
-		void run();
+		void run(HWND windowHandle);
 		void stop();
 		const std::string& getCurrentJsons();
 		const std::vector<std::chrono::time_point<std::chrono::steady_clock>>& getCurrentTimestamps();

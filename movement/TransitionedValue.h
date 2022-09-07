@@ -3,12 +3,12 @@
 
 #include <memory>
 
+#include "events/TimeEventListener.h"
 #include "movement/MovementFunction.h"
 
 namespace CsgoHud {
 
 struct CommonResources;
-struct TimeEventListener;
 
 /*
 	A value that can transition over time from the previous to the newly set value using a movement function.
@@ -21,7 +21,7 @@ class TransitionedValue final {
 		int passedTime;
 		float previousValue;
 		float currentValue;
-		TimeEventListener *const timeEventListener;
+		TimeEventListener timeEventListener;
 
 		void advanceTime(int timePassed);
 	public:

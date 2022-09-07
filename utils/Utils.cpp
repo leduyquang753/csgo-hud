@@ -1,4 +1,5 @@
 #include <string>
+#include <string_view>
 
 #include "pch.h"
 
@@ -6,7 +7,7 @@
 
 namespace CsgoHud {
 
-std::wstring Utils::widenString(const std::string &string) {
+std::wstring Utils::widenString(std::string_view string) {
 	std::wstring wideString(
 		MultiByteToWideChar(CP_UTF8, 0, string.data(), static_cast<int>(string.size()), nullptr, 0), 0
 	);

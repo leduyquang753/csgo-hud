@@ -12,18 +12,22 @@ namespace CsgoHud {
 struct DataEventListener final {
 	private:
 		friend class EventBus;
-		EventBus *const eventBus;
+		EventBus *eventBus;
 		// The JSON data path the listener listens to.
-		const std::string dataPath;
+		std::string dataPath;
 		// The index of the listener in the containing listener storage vector.
 		std::size_t index;
-		const std::function<void(const JSON&)> callback;
+		// The slot in the storage vector to replace when moved.
+		DataEventListener **slot;
 
 		DataEventListener(
-			EventBus *eventBus, const std::string &dataPath, std::size_t index,
-			const std::function<void(const JSON&)> &callback
+			EventBus *eventBus, const std::string &dataPath, std::size_t index, DataEventListener **slot
 		);
 	public:
+		DataEventListener(const DataEventListener &other) = delete;
+		DataEventListener(DataEventListener &&other);
+		DataEventListener& operator=(const DataEventListener &other) = delete;
+		DataEventListener& operator=(DataEventListener &&other);
 		void unregister();
 };
 

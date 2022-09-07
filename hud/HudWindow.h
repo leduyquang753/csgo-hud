@@ -37,6 +37,7 @@ class HudWindow final {
 		
 		HudWindow(HINSTANCE appInstance, CommonResources &commonResources);
 		~HudWindow();
+		HWND getWindowHandle();
 };
 
 } // namespace CsgoHud
