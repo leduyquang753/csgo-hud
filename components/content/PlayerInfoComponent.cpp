@@ -19,32 +19,9 @@ namespace CsgoHud {
 // == PlayerInfoComponent ==
 
 PlayerInfoComponent::PlayerInfoComponent(
-	CommonResources &commonResources,
-	const bool rightSide,
-	const D2D1_COLOR_F &backgroundInactiveColor,
-	const D2D1_COLOR_F &backgroundActiveColor,
-	const D2D1_COLOR_F &activeOutlineColor,
-	const D2D1_COLOR_F &flashColor,
-	const D2D1_COLOR_F &smokeColor,
-	const D2D1_COLOR_F &fireColor,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &teamCtBrush,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &teamTBrush,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &healthBrush,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &textWhiteBrush,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &textGreenBrush,
-	const winrt::com_ptr<IDWriteTextFormat> &normalTextFormat,
-	const winrt::com_ptr<IDWriteTextFormat> &boldTextFormat,
-	FixedWidthDigitTextRenderer &normalTextRenderer,
-	FixedWidthDigitTextRenderer &boldTextRenderer
+	CommonResources &commonResources, const bool rightSide, const Resources &resources
 ):
-	Component(commonResources), rightSide(rightSide),
-	backgroundInactiveColor(backgroundInactiveColor), backgroundActiveColor(backgroundActiveColor),
-	activeOutlineColor(activeOutlineColor),
-	flashColor(flashColor), smokeColor(smokeColor), fireColor(fireColor),
-	teamCtBrush(teamCtBrush), teamTBrush(teamTBrush), healthBrush(healthBrush),
-	textWhiteBrush(textWhiteBrush), textGreenBrush(textGreenBrush),
-	normalTextFormat(normalTextFormat), boldTextFormat(boldTextFormat),
-	normalTextRenderer(normalTextRenderer), boldTextRenderer(boldTextRenderer),
+	Component(commonResources), resources(resources), rightSide(rightSide),
 	activeTransition(
 		commonResources,
 		std::make_unique<CubicBezierMovementFunction>(
@@ -153,10 +130,10 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		const float in = activeTransition.getValue(), out = 1 - in;
 		renderTarget.CreateSolidColorBrush(
 			{
-				backgroundInactiveColor.r * out + backgroundActiveColor.r * in,
-				backgroundInactiveColor.g * out + backgroundActiveColor.g * in,
-				backgroundInactiveColor.b * out + backgroundActiveColor.b * in,
-				backgroundInactiveColor.a * out + backgroundActiveColor.a * in
+				resources.backgroundInactiveColor.r * out + resources.backgroundActiveColor.r * in,
+				resources.backgroundInactiveColor.g * out + resources.backgroundActiveColor.g * in,
+				resources.backgroundInactiveColor.b * out + resources.backgroundActiveColor.b * in,
+				resources.backgroundInactiveColor.a * out + resources.backgroundActiveColor.a * in
 			},
 			backgroundBrush.put()
 		);
@@ -171,9 +148,9 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			renderTarget.CreateSolidColorBrush({color.r, color.g, color.b, color.a * alpha}, effectBrush.put());
 			renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, effectBrush.get());
 		};
-		drawEffect(flashColor, player.flashAmount);
-		drawEffect(smokeColor, player.smokeAmount);
-		drawEffect(fireColor, player.fireAmount);
+		drawEffect(resources.flashColor, player.flashAmount);
+		drawEffect(resources.smokeColor, player.smokeAmount);
+		drawEffect(resources.fireColor, player.fireAmount);
 	}
 	
 	if (player.health > currentHealth) {
@@ -197,7 +174,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 						parentSize.width * player.health / 100, 0,
 						parentSize.width * healthTransitionValue / 100, verticalMiddle
 					},
-				healthBrush.get()
+				resources.healthBrush.get()
 			);
 		}
 	}
@@ -213,17 +190,17 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			rightSide
 				? D2D1_RECT_F{parentSize.width * (1 - player.health / 100.f), 0, parentSize.width, verticalMiddle}
 				: D2D1_RECT_F{0, 0, parentSize.width * player.health / 100, verticalMiddle},
-			player.team ? teamCtBrush.get() : teamTBrush.get()
+			player.team ? resources.teamCtBrush.get() : resources.teamTBrush.get()
 		);
-		boldTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
-		boldTextRenderer.draw(
+		resources.boldTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+		resources.boldTextRenderer.draw(
 			std::to_wstring(player.health),
 			rightSide
 				? D2D1_RECT_F{
 					parentSize.width - PADDING - HEALTH_LENGTH, 0, parentSize.width - PADDING, verticalMiddle
 				}
 				: D2D1_RECT_F{PADDING, 0, PADDING + HEALTH_LENGTH - 4, verticalMiddle},
-			textWhiteBrush
+			resources.textWhiteBrush
 		);
 		
 		const float gunPosition = rightSide ? PADDING : parentSize.width - PADDING;
@@ -275,13 +252,15 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		if (player.hasC4OrDefuseKit) drawIcon(
 			player.team ? IconStorage::INDEX_DEFUSE_KIT : IconStorage::INDEX_C4,
 			rightSide ? parentSize.width - PADDING - 20 : PADDING + 20, smallIconY, scale * 3 / 4,
-			true, false, rightSide, false
+			player.activeSlot == PlayerData::SLOT_C4, false, rightSide, false
 		);
 	}
 	renderTarget.SetTransform(transform);
 	
-	normalTextFormat->SetTextAlignment(rightSide ? DWRITE_TEXT_ALIGNMENT_LEADING : DWRITE_TEXT_ALIGNMENT_TRAILING);
-	normalTextRenderer.draw(
+	resources.normalTextFormat->SetTextAlignment(
+		rightSide ? DWRITE_TEXT_ALIGNMENT_LEADING : DWRITE_TEXT_ALIGNMENT_TRAILING
+	);
+	resources.normalTextRenderer.draw(
 		rightSide ? L"| "s + std::to_wstring(index+1) : std::to_wstring(index+1) + L" |"s,
 		rightSide
 			? D2D1_RECT_F{
@@ -290,10 +269,12 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			: D2D1_RECT_F{
 				0, 0, PADDING + HEALTH_LENGTH + SLOT_RENDER_LENGTH, verticalMiddle
 			},
-		textWhiteBrush
+		resources.textWhiteBrush
 	);
-	normalTextFormat->SetTextAlignment(rightSide ? DWRITE_TEXT_ALIGNMENT_TRAILING : DWRITE_TEXT_ALIGNMENT_LEADING);
-	normalTextRenderer.draw(
+	resources.normalTextFormat->SetTextAlignment(
+		rightSide ? DWRITE_TEXT_ALIGNMENT_TRAILING : DWRITE_TEXT_ALIGNMENT_LEADING
+	);
+	resources.normalTextRenderer.draw(
 		player.name,
 		player.health == 0 || !player.primaryGun
 			? rightSide
@@ -312,15 +293,15 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 					PADDING + HEALTH_LENGTH + SLOT_LENGTH, 0,
 					parentSize.width - PADDING - scaledMaxPrimaryGunLength, verticalMiddle
 				},
-		textWhiteBrush
+		resources.textWhiteBrush
 	);
 		
-	normalTextRenderer.draw(
+	resources.normalTextRenderer.draw(
 		std::to_wstring(player.money) + L" $",
 		rightSide
 			? D2D1_RECT_F{PADDING, verticalMiddle, parentSize.width - PADDING - 40, parentSize.height}
 			: D2D1_RECT_F{PADDING + 40, verticalMiddle, parentSize.width - PADDING, parentSize.height},
-		textGreenBrush
+		resources.textGreenBrush
 	);
 	
 	{
@@ -329,8 +310,8 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			winrt::com_ptr<ID2D1SolidColorBrush> activeOutlineBrush;
 			renderTarget.CreateSolidColorBrush(
 				{
-					activeOutlineColor.r, activeOutlineColor.g,
-					activeOutlineColor.b, activeOutlineColor.a * activeTransitionValue
+					resources.activeOutlineColor.r, resources.activeOutlineColor.g,
+					resources.activeOutlineColor.b, resources.activeOutlineColor.a * activeTransitionValue
 				},
 				activeOutlineBrush.put()
 			);
@@ -343,11 +324,11 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	if (player.killsThisRound != 0) {
 		const float killCountPos
 			= rightSide ? -KILL_COUNT_OFFSET - KILL_COUNT_LENGTH : parentSize.width + KILL_COUNT_OFFSET;
-		normalTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-		normalTextRenderer.draw(
+		resources.normalTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+		resources.normalTextRenderer.draw(
 			std::to_wstring(player.killsThisRound),
 			{killCountPos, 0, killCountPos + KILL_COUNT_ICON_POS, verticalMiddle},
-			textWhiteBrush
+			resources.textWhiteBrush
 		);
 		drawIcon(
 			IconStorage::INDEX_DEAD,

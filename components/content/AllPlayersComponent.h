@@ -9,6 +9,7 @@
 
 #include "components/base/BagComponent.h"
 #include "components/base/Component.h"
+#include "components/content/PlayerInfoComponent.h"
 #include "text/FixedWidthDigitTextRenderer.h"
 
 namespace CsgoHud {
@@ -21,6 +22,7 @@ class PlayerInfoComponent;
 */
 class AllPlayersComponent final: public Component {
 	private:
+		std::optional<PlayerInfoComponent::Resources> resources;
 		std::optional<FixedWidthDigitTextRenderer> normalTextRenderer, boldTextRenderer;
 
 		std::unique_ptr<BagComponent> container;

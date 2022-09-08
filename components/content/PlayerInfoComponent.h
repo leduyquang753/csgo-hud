@@ -15,15 +15,19 @@ class FixedWidthDigitTextRenderer;
 	A component that displays a player's information to either side of the HUD.
 */
 class PlayerInfoComponent final: public Component {
+	public:
+		struct Resources {
+			D2D1_COLOR_F
+				backgroundInactiveColor, backgroundActiveColor, activeOutlineColor,
+				flashColor, smokeColor, fireColor;
+			winrt::com_ptr<ID2D1SolidColorBrush>
+				teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush;
+			winrt::com_ptr<IDWriteTextFormat> normalTextFormat, boldTextFormat;
+			FixedWidthDigitTextRenderer &normalTextRenderer, &boldTextRenderer;
+		};
 	private:
-		const D2D1_COLOR_F
-			backgroundInactiveColor, backgroundActiveColor, activeOutlineColor,
-			flashColor, smokeColor, fireColor;
-		const winrt::com_ptr<ID2D1SolidColorBrush>
-			teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush;
+		const Resources &resources;
 		winrt::com_ptr<ID2D1Effect> inactiveEffect, emptyActiveEffect, emptyInactiveEffect;
-		winrt::com_ptr<IDWriteTextFormat> normalTextFormat, boldTextFormat;
-		FixedWidthDigitTextRenderer &normalTextRenderer, &boldTextRenderer;
 		
 		const bool rightSide;
 		TransitionedValue activeTransition, healthTransition;
@@ -37,25 +41,7 @@ class PlayerInfoComponent final: public Component {
 		bool active = false;
 		int index = -1;
 
-		PlayerInfoComponent(
-			CommonResources &commonResources,
-			bool rightSide,
-			const D2D1_COLOR_F &backgroundInactiveColor,
-			const D2D1_COLOR_F &backgroundActiveColor,
-			const D2D1_COLOR_F &activeOutlineColor,
-			const D2D1_COLOR_F &flashColor,
-			const D2D1_COLOR_F &smokeColor,
-			const D2D1_COLOR_F &fireColor,
-			const winrt::com_ptr<ID2D1SolidColorBrush> &teamCtBrush,
-			const winrt::com_ptr<ID2D1SolidColorBrush> &teamTBrush,
-			const winrt::com_ptr<ID2D1SolidColorBrush> &healthBrush,
-			const winrt::com_ptr<ID2D1SolidColorBrush> &textWhiteBrush,
-			const winrt::com_ptr<ID2D1SolidColorBrush> &textGreenBrush,
-			const winrt::com_ptr<IDWriteTextFormat> &normalTextFormat,
-			const winrt::com_ptr<IDWriteTextFormat> &boldTextFormat,
-			FixedWidthDigitTextRenderer &normalTextRenderer,
-			FixedWidthDigitTextRenderer &boldTextRenderer
-		);
+		PlayerInfoComponent(CommonResources &commonResources, bool rightSide, const Resources &resources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;
 };
 

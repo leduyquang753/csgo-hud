@@ -90,11 +90,14 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 	
 	renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, backgroundBrush.get());
 	if (phase == "paused"s) {
-		textRenderer->draw(
-			L"Paused"s,
-			{0, 0, parentSize.width, parentSize.height},
-			textWhiteBrush
-		);
+		const float
+			center = parentSize.width / 2,
+			outer = parentSize.height / 4,
+			inner = parentSize.height / 12,
+			iconTop = parentSize.height / 4,
+			iconBottom = parentSize.height * 3 / 4;
+		renderTarget.FillRectangle({center-outer, iconTop, center-inner, iconBottom}, textWhiteBrush.get());
+		renderTarget.FillRectangle({center+inner, iconTop, center+outer, iconBottom}, textWhiteBrush.get());
 	} else if (!phase.empty()) {
 		const int phaseTime = getPhaseTime();
 		const bool red = phase == "live"s && phaseTimeLeft <= 10000;

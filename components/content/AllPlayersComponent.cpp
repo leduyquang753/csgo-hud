@@ -23,21 +23,6 @@ namespace CsgoHud {
 
 AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Component(commonResources) {
 	auto &renderTarget = *commonResources.renderTarget;
-
-	const D2D1_COLOR_F
-		backgroundInactiveColor = {0, 0, 0, 0.3f},
-		backgroundActiveColor = {0, 0, 0, 0.7f},
-		activeOutlineColor = {1, 1, 1, 1},
-		flashColor = {1, 1, 1, 0.5f},
-		smokeColor = {0.8f, 0.8f, 0.8f, 0.5f},
-		fireColor = {1, 0.6f, 0, 0.5f};
-	
-	winrt::com_ptr<ID2D1SolidColorBrush> teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush;
-	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, teamCtBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 1}, teamTBrush.put());
-	renderTarget.CreateSolidColorBrush({1, 0, 0, 1}, healthBrush.put());
-	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, textWhiteBrush.put());
-	renderTarget.CreateSolidColorBrush({0.5f, 1, 0.5f, 1}, textGreenBrush.put());
 	
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> normalTextFormat, boldTextFormat;
@@ -66,15 +51,28 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 		CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
 	);
 
+	resources.emplace(PlayerInfoComponent::Resources{
+		.backgroundInactiveColor = {0, 0, 0, 0.3f},
+		.backgroundActiveColor = {0, 0, 0, 0.7f},
+		.activeOutlineColor = {1, 1, 1, 1},
+		.flashColor = {1, 1, 1, 0.5f},
+		.smokeColor = {0.8f, 0.8f, 0.8f, 0.5f},
+		.fireColor = {1, 0.6f, 0, 0.5f},
+		.normalTextFormat = normalTextFormat,
+		.boldTextFormat = boldTextFormat,
+		.normalTextRenderer = *normalTextRenderer,
+		.boldTextRenderer = *boldTextRenderer
+	});
+	
+	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, resources->teamCtBrush.put());
+	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 1}, resources->teamTBrush.put());
+	renderTarget.CreateSolidColorBrush({1, 0, 0, 1}, resources->healthBrush.put());
+	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, resources->textWhiteBrush.put());
+	renderTarget.CreateSolidColorBrush({0.5f, 1, 0.5f, 1}, resources->textGreenBrush.put());
+
 	container = std::make_unique<BagComponent>(commonResources);
 
-	auto makeSide = [
-		this,
-		backgroundInactiveColor, backgroundActiveColor, activeOutlineColor,
-		flashColor, smokeColor, fireColor,
-		teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush,
-		normalTextFormat, boldTextFormat
-	](const int startIndex, const float anchor) {
+	auto makeSide = [this](const int startIndex, const float anchor) {
 		const bool rightSide = startIndex > 4;
 		std::unique_ptr<StackComponent> currentStack;
 		currentStack = std::make_unique<StackComponent>(
@@ -93,13 +91,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 				currentStack->children.emplace_back(StackComponentChild{
 					{1, 40}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_PIXELS},
 					0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
-					std::make_unique<PlayerInfoComponent>(
-						this->commonResources, rightSide,
-						backgroundInactiveColor, backgroundActiveColor, activeOutlineColor,
-						flashColor, smokeColor, fireColor,
-						teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush,
-						normalTextFormat, boldTextFormat, *normalTextRenderer, *boldTextRenderer
-					)
+					std::make_unique<PlayerInfoComponent>(this->commonResources, rightSide, *resources)
 				}).component.get()
 			);
 		}

@@ -15,6 +15,7 @@
 #include "text/FixedWidthDigitTextRenderer.h"
 #include "text/NormalTextRenderer.h"
 #include "utils/CommonConstants.h"
+#include "utils/Utils.h"
 
 #include "components/content/TopBarComponent.h"
 
@@ -159,8 +160,12 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources): Component(co
 }
 
 void TopBarComponent::receiveMapData(const JSON &json) {
-	ctScoreDisplay->text = std::to_wstring(json["team_ct"s]["score"s].get<int>());
-	tScoreDisplay->text = std::to_wstring(json["team_t"s]["score"s].get<int>());
+	const JSON &ct = json["team_ct"s], &t = json["team_t"s];
+	ctNameDisplay->text
+		= ct.contains("name"s) ? Utils::widenString(ct["name"s].get<std::string>()) : L"Counter-terrorists"s;
+	ctScoreDisplay->text = std::to_wstring(ct["score"s].get<int>());
+	tNameDisplay->text = t.contains("name"s) ? Utils::widenString(t["name"s].get<std::string>()) : L"Terrorists"s;
+	tScoreDisplay->text = std::to_wstring(t["score"s].get<int>());
 }
 
 void TopBarComponent::updateCtSide(const bool toTheLeft) {
