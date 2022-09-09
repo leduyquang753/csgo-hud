@@ -33,6 +33,7 @@ class PlayerData final {
 		int flashAmount;
 		int smokeAmount;
 		int fireAmount;
+		int startingMoney;
 		int money;
 		int killsThisRound;
 		int headshotKillsThisRound;

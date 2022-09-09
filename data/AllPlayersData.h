@@ -22,8 +22,11 @@ class AllPlayersData final {
 		const WeaponTypes &weaponTypes;
 		std::array<std::optional<PlayerData>, 10> players;
 		std::unordered_map<std::uint64_t, int> steamIdMap;
+		std::string phase;
+		bool alreadyFreezeTime = false;
 
-		void receiveData(const JSON &json);
+		void receivePlayersData(const JSON &json);
+		void receivePhaseData(const JSON &json);
 	public:
 		AllPlayersData(const WeaponTypes &weaponTypes, EventBus &eventBus);
 		const std::optional<PlayerData>& operator[](int slot) const;

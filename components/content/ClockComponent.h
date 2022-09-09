@@ -24,7 +24,7 @@ class ClockComponent final: public Component {
 		std::optional<FixedWidthDigitTextRenderer> textRenderer;
 
 		std::string phase, mapPhase;
-		int phaseTimeLeft;
+		int phaseTime, phaseTimeLeft;
 
 		void advanceTime(const int timePassed);
 		void receivePhaseData(const JSON &json);

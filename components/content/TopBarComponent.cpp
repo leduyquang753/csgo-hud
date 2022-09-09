@@ -65,7 +65,11 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources): Component(co
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		24, L"", textFormat.put()
 	);
+	winrt::com_ptr<IDWriteInlineObject> trimmingSign;
+	static const DWRITE_TRIMMING TRIMMING_OPTIONS = {DWRITE_TRIMMING_GRANULARITY_CHARACTER, 0, 0};
+	textFormat->SetTrimming(&TRIMMING_OPTIONS, trimmingSign.get());
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
 	nameTextRenderer.emplace(
 		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
 	);

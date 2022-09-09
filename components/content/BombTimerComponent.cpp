@@ -117,10 +117,9 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 	
-	if (
-		bombState == "planting"s || bombState == "planted"s || bombState == "defusing"s
-		|| bombTransition.transiting()
-	) {
+	const float bombTransitionValue = bombTransition.getValue();
+	if (bombTransitionValue != 0) {
+		const bool bombTransiting = bombTransition.transiting();
 		const float
 			outerLeft = parentSize.width * 0.25f,
 			outerRight = parentSize.width * 0.75f,
@@ -128,18 +127,18 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 			innerRight = outerRight - 4,
 			innerWidth = innerRight - innerLeft,
 			gaugeHeight = parentSize.height / 2;
-		renderTarget.PushLayer(
+		if (bombTransiting) renderTarget.PushLayer(
 			{
 				{0, 0, parentSize.width, parentSize.height},
 				nullptr, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE, D2D1::Matrix3x2F::Identity(),
-				bombTransition.getValue(), nullptr,
+				bombTransitionValue, nullptr,
 				D2D1_LAYER_OPTIONS_NONE
 			},
 			bombLayer.get()
 		);
 		const bool planting = displayedBombState == "planting"s;
 		const float
-			bombY = gaugeHeight * (bombTransition.getValue() - 1),
+			bombY = gaugeHeight * (bombTransitionValue - 1),
 			bombInnerBottom = gaugeHeight - 4;
 		// The reported bomb time from the game tends to exceed 40" when the bomb has just been planted.
 		const int displayedBombTime = std::min(40000, bombTimeLeft);
@@ -162,21 +161,20 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 			textBrush
 		);
 
-		if (bombState == "defusing"s || defuseTransition.transiting()) {
-			const bool planted = bombState == "planted"s || bombState == "defusing"s;
-			renderTarget.PushLayer(
+		const float defuseTransitionValue = defuseTransition.getValue();
+		if (defuseTransitionValue != 0) {
+			const bool shouldApplyDefuseLayer = bombTransiting || defuseTransition.transiting();
+			if (shouldApplyDefuseLayer) renderTarget.PushLayer(
 				{
-					{0, planted ? gaugeHeight : 0.f, parentSize.width, parentSize.height},
+					{0, bombTransiting ? bombY : gaugeHeight, parentSize.width, parentSize.height},
 					nullptr, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE, D2D1::Matrix3x2F::Identity(),
-					planted ? defuseTransition.getValue() : bombTransition.getValue(), nullptr,
+					bombTransiting ? bombTransitionValue : defuseTransitionValue, nullptr,
 					D2D1_LAYER_OPTIONS_NONE
 				},
 				defuseLayer.get()
 			);
 			const float
-				defuseY = planted || defuseTransition.transiting()
-					? gaugeHeight * (defuseTransition.getValue() - 1)
-					: 0,
+				defuseY = bombTransiting ? bombY : gaugeHeight * (defuseTransition.getValue() - 1),
 				defuseInnerTop = gaugeHeight + 4,
 				defuseInnerBottom = parentSize.height - 4;
 			renderTarget.FillRectangle(
@@ -200,10 +198,10 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 				{outerRight+4, gaugeHeight + defuseY, parentSize.width, gaugeHeight*2 + defuseY},
 				textBrush
 			);
-			renderTarget.PopLayer();
+			if (shouldApplyDefuseLayer) renderTarget.PopLayer();
 		}
 		
-		renderTarget.PopLayer();
+		if (bombTransiting) renderTarget.PopLayer();
 	}
 	
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());

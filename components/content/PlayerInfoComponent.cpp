@@ -42,6 +42,8 @@ PlayerInfoComponent::PlayerInfoComponent(
 	emptyActiveEffect->SetValue(D2D1_TINT_PROP_COLOR, D2D1_VECTOR_4F{1, 0.5f, 0.5f, 1});
 	renderTarget.CreateEffect(CLSID_D2D1Tint, emptyInactiveEffect.put());
 	emptyInactiveEffect->SetValue(D2D1_TINT_PROP_COLOR, D2D1_VECTOR_4F{1, 0.5f, 0.5f, 0.6f});
+	
+	renderTarget.CreateLayer(statsLayer.put());
 
 	commonResources.eventBus.listenToTimeEvent([this](const int timePassed) { advanceTime(timePassed); });
 }
@@ -71,7 +73,11 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		PADDING = 4,
 		KILL_COUNT_OFFSET = 8,
 		KILL_COUNT_LENGTH = 27,
-		KILL_COUNT_ICON_POS = 10;
+		KILL_COUNT_ICON_POS = 10,
+		KD_CELL_LENGTH = 30,
+		MONEY_CELL_LENGTH = 64,
+		STAT_CELL_SPACING = 4,
+		STATS_LENGTH = KD_CELL_LENGTH + MONEY_CELL_LENGTH + STAT_CELL_SPACING;
 
 	if (index != lastIndex) {
 		lastIndex = index;
@@ -125,20 +131,18 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		}
 	};
 	
-	{
-		winrt::com_ptr<ID2D1SolidColorBrush> backgroundBrush;
-		const float in = activeTransition.getValue(), out = 1 - in;
-		renderTarget.CreateSolidColorBrush(
-			{
-				resources.backgroundInactiveColor.r * out + resources.backgroundActiveColor.r * in,
-				resources.backgroundInactiveColor.g * out + resources.backgroundActiveColor.g * in,
-				resources.backgroundInactiveColor.b * out + resources.backgroundActiveColor.b * in,
-				resources.backgroundInactiveColor.a * out + resources.backgroundActiveColor.a * in
-			},
-			backgroundBrush.put()
-		);
-		renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, backgroundBrush.get());
-	}
+	winrt::com_ptr<ID2D1SolidColorBrush> backgroundBrush;
+	const float in = activeTransition.getValue(), out = 1 - in;
+	renderTarget.CreateSolidColorBrush(
+		{
+			resources.backgroundInactiveColor.r * out + resources.backgroundActiveColor.r * in,
+			resources.backgroundInactiveColor.g * out + resources.backgroundActiveColor.g * in,
+			resources.backgroundInactiveColor.b * out + resources.backgroundActiveColor.b * in,
+			resources.backgroundInactiveColor.a * out + resources.backgroundActiveColor.a * in
+		},
+		backgroundBrush.put()
+	);
+	renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, backgroundBrush.get());
 
 	if (player.health != 0) {
 		auto drawEffect = [this, &renderTarget, &parentSize](const D2D1_COLOR_F &color, const int amount) {
@@ -335,6 +339,61 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			killCountPos + KILL_COUNT_ICON_POS, parentSize.height / 16, scale * 3 / 4,
 			true, false, false, false
 		);
+		renderTarget.SetTransform(transform);
+	}
+
+	{
+		const float statsTransitionValue = resources.statsTransition.getValue();
+		if (statsTransitionValue != 0) {
+			const bool statsTransiting = resources.statsTransition.transiting();
+			const float currentLength = STATS_LENGTH * statsTransitionValue;
+			if (statsTransiting) renderTarget.PushLayer(
+				{
+					rightSide
+						? D2D1_RECT_F{-STAT_CELL_SPACING - currentLength, 0, -STAT_CELL_SPACING, parentSize.height}
+						: D2D1_RECT_F{
+							parentSize.width + STAT_CELL_SPACING, 0,
+							parentSize.width + STAT_CELL_SPACING + currentLength, parentSize.height
+						},
+					nullptr, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE, D2D1::Matrix3x2F::Identity(),
+					1, nullptr, D2D1_LAYER_OPTIONS_NONE
+				},
+				statsLayer.get()
+			);
+			const float	
+				start = rightSide
+					? -STAT_CELL_SPACING - currentLength
+					: parentSize.width + STAT_CELL_SPACING - STATS_LENGTH + currentLength,
+				kdStart = rightSide ? start + MONEY_CELL_LENGTH + STAT_CELL_SPACING : start,
+				kdEnd = kdStart + KD_CELL_LENGTH,
+				moneyStart = rightSide ? start : start + KD_CELL_LENGTH + STAT_CELL_SPACING,
+				moneyEnd = moneyStart + MONEY_CELL_LENGTH;
+				
+			renderTarget.FillRectangle({kdStart, 0, kdEnd, parentSize.height}, backgroundBrush.get());
+			renderTarget.FillRectangle({moneyStart, 0, moneyEnd, parentSize.height}, backgroundBrush.get());
+			resources.normalTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+			resources.normalTextRenderer.draw(
+				std::to_wstring(player.totalKills), {kdStart, 0, kdEnd, verticalMiddle}, resources.textWhiteBrush
+			);
+			resources.normalTextRenderer.draw(
+				std::to_wstring(player.totalDeaths),
+				{kdStart, verticalMiddle, kdEnd, parentSize.height},
+				resources.textWhiteBrush
+			);
+			resources.normalTextRenderer.draw(
+				std::to_wstring(player.equipmentValue) + L" $"s,
+				{moneyStart, 0, moneyEnd, verticalMiddle},
+				resources.textWhiteBrush
+			);
+			resources.normalTextRenderer.draw(
+				player.money == player.startingMoney
+					? L"-0 $"s
+					: std::to_wstring(player.money - player.startingMoney) + L" $"s,
+				{moneyStart, verticalMiddle, moneyEnd, parentSize.height},
+				resources.textWhiteBrush
+			);
+			if (statsTransiting) renderTarget.PopLayer();
+		}
 	}
 
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());

@@ -10,6 +10,8 @@
 #include "components/base/StackComponent.h"
 #include "components/base/StackComponentChild.h"
 #include "components/content/PlayerInfoComponent.h"
+#include "components/content/StatsHeaderComponent.h"
+#include "movement/CubicBezierMovementFunction.h"
 #include "resources/CommonResources.h"
 #include "utils/CommonConstants.h"
 
@@ -21,7 +23,16 @@ namespace CsgoHud {
 
 // == AllPlayersComponent ==
 
-AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Component(commonResources) {
+AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
+	Component(commonResources),
+	statsTransition(
+		commonResources,
+		std::make_unique<CubicBezierMovementFunction>(
+			std::vector<D2D1_POINT_2F>{{{0, 0}, {0, 0}, {0.58f, 1}, {300, 1}}}
+		),
+		300, 0
+	)
+{
 	auto &renderTarget = *commonResources.renderTarget;
 	
 	auto &writeFactory = *commonResources.writeFactory;
@@ -61,7 +72,8 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 		.normalTextFormat = normalTextFormat,
 		.boldTextFormat = boldTextFormat,
 		.normalTextRenderer = *normalTextRenderer,
-		.boldTextRenderer = *boldTextRenderer
+		.boldTextRenderer = *boldTextRenderer,
+		.statsTransition = statsTransition
 	});
 	
 	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, resources->teamCtBrush.put());
@@ -72,7 +84,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 
 	container = std::make_unique<BagComponent>(commonResources);
 
-	auto makeSide = [this](const int startIndex, const float anchor) {
+	auto makeSide = [this](const int startIndex, const float anchor, StatsHeaderComponent *&header) {
 		const bool rightSide = startIndex > 4;
 		std::unique_ptr<StackComponent> currentStack;
 		currentStack = std::make_unique<StackComponent>(
@@ -80,13 +92,6 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 			StackComponent::AXIS_VERTICAL, StackComponent::AXIS_DECREASE, 0.f, StackComponent::MODE_PIXELS
 		);
 		for (int i = 0; i != 5; ++i) {
-			if (i != 0) {
-				currentStack->children.emplace_back(StackComponentChild{
-					{1, 5}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_PIXELS},
-					0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
-					nullptr
-				});
-			}
 			children[startIndex+4-i] = static_cast<PlayerInfoComponent*>(
 				currentStack->children.emplace_back(StackComponentChild{
 					{1, 40}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_PIXELS},
@@ -94,7 +99,19 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 					std::make_unique<PlayerInfoComponent>(this->commonResources, rightSide, *resources)
 				}).component.get()
 			);
+			currentStack->children.emplace_back(StackComponentChild{
+				{1, 5}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_PIXELS},
+				0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
+				nullptr
+			});
 		}
+		header = static_cast<StatsHeaderComponent*>(
+			currentStack->children.emplace_back(StackComponentChild{
+				{1, 40}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_PIXELS},
+				0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
+				std::make_unique<StatsHeaderComponent>(this->commonResources, rightSide, *resources)
+			}).component.get()
+		);
 		container->children.emplace_back(std::make_unique<SizedComponent>(
 			this->commonResources,
 			D2D1_SIZE_F{0.2f, 1.f}, D2D1_POINT_2U{SizedComponent::MODE_RATIO, SizedComponent::MODE_RATIO},
@@ -104,10 +121,22 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 		));
 	};
 	
-	makeSide(0, 0);
-	makeSide(5, 1);
+	makeSide(0, 0, leftStatsHeader);
+	makeSide(5, 1, rightStatsHeader);
 
-	commonResources.eventBus.listenToDataEvent("player"s, [this](const JSON &json) { receivePlayerData(json); });
+	auto &eventBus = commonResources.eventBus;
+	eventBus.listenToDataEvent("phase_countdowns"s, [this](const JSON &json) { receivePhaseData(json); });
+	eventBus.listenToDataEvent("player"s, [this](const JSON &json) { receivePlayerData(json); });
+}
+
+void AllPlayersComponent::receivePhaseData(const JSON &json) {
+	const std::string currentPhase = json["phase"s].get<std::string>();
+	if (phase == currentPhase) return;
+	phase = currentPhase;
+	const bool currentStatsOn = phase != "live"s && phase != "bomb"s && phase != "defuse"s && phase != "over"s;
+	if (statsOn == currentStatsOn) return;
+	statsOn = currentStatsOn;
+	statsTransition.transition(statsOn ? 1.f : 0.f);
 }
 
 void AllPlayersComponent::receivePlayerData(const JSON &json) {
@@ -141,6 +170,8 @@ void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	}
 	for (int i = leftSideSlot; i != 5; ++i) children[i]->index = -1;
 	for (int i = rightSideSlot; i != 10; ++i) children[i]->index = -1;
+	leftStatsHeader->ct = leftTeam;
+	rightStatsHeader->ct = !leftTeam;
 	
 	container->paint(transform, parentSize);
 }

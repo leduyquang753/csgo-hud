@@ -142,6 +142,9 @@
     <ClCompile Include="text\NormalTextRenderer.cpp">
       <Filter>text</Filter>
     </ClCompile>
+    <ClCompile Include="components\content\StatsHeaderComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="json\json.hpp">
@@ -255,6 +258,9 @@
     </ClInclude>
     <ClInclude Include="text\NormalTextRenderer.h">
       <Filter>text</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\StatsHeaderComponent.h">
+      <Filter>components\content</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -66,13 +66,17 @@ void ClockComponent::receivePhaseData(const JSON &json) {
 		}
 	} else {
 		phase = currentPhase;
+		phaseTime = getPhaseTime();
 		if (!currentPhase.empty()) phaseTimeLeft = timeLeft;
 	}
 }
 
 void ClockComponent::receiveMapData(const JSON &json) {
 	const std::string currentPhase = json["phase"s].get<std::string>();
-	if (currentPhase != mapPhase) mapPhase = currentPhase;
+	if (currentPhase != mapPhase) {
+		mapPhase = currentPhase;
+		phaseTime = getPhaseTime();
+	}
 }
 
 int ClockComponent::getPhaseTime() {
@@ -99,7 +103,6 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 		renderTarget.FillRectangle({center-outer, iconTop, center-inner, iconBottom}, textWhiteBrush.get());
 		renderTarget.FillRectangle({center+inner, iconTop, center+outer, iconBottom}, textWhiteBrush.get());
 	} else if (!phase.empty()) {
-		const int phaseTime = getPhaseTime();
 		const bool red = phase == "live"s && phaseTimeLeft <= 10000;
 		if (phaseTime != 0) {
 			renderTarget.FillRectangle(

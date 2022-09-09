@@ -173,6 +173,7 @@
     <ClCompile Include="components\content\FourCornersComponent.cpp" />
     <ClCompile Include="components\content\HudComponent.cpp" />
     <ClCompile Include="components\content\PlayerInfoComponent.cpp" />
+    <ClCompile Include="components\content\StatsHeaderComponent.cpp" />
     <ClCompile Include="components\content\TopBarComponent.cpp" />
     <ClCompile Include="data\AllPlayersData.cpp" />
     <ClCompile Include="data\IconStorage.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="components\content\FourCornersComponent.h" />
     <ClInclude Include="components\content\HudComponent.h" />
     <ClInclude Include="components\content\PlayerInfoComponent.h" />
+    <ClInclude Include="components\content\StatsHeaderComponent.h" />
     <ClInclude Include="components\content\TopBarComponent.h" />
     <ClInclude Include="data\AllPlayersData.h" />
     <ClInclude Include="data\GunData.h" />

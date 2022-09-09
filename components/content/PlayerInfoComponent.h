@@ -10,6 +10,7 @@ namespace CsgoHud {
 
 struct CommonResources;
 class FixedWidthDigitTextRenderer;
+class TransitionedValue;
 
 /*
 	A component that displays a player's information to either side of the HUD.
@@ -24,10 +25,12 @@ class PlayerInfoComponent final: public Component {
 				teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush;
 			winrt::com_ptr<IDWriteTextFormat> normalTextFormat, boldTextFormat;
 			FixedWidthDigitTextRenderer &normalTextRenderer, &boldTextRenderer;
+			TransitionedValue &statsTransition;
 		};
 	private:
 		const Resources &resources;
 		winrt::com_ptr<ID2D1Effect> inactiveEffect, emptyActiveEffect, emptyInactiveEffect;
+		winrt::com_ptr<ID2D1Layer> statsLayer;
 		
 		const bool rightSide;
 		TransitionedValue activeTransition, healthTransition;

@@ -10,12 +10,14 @@
 #include "components/base/BagComponent.h"
 #include "components/base/Component.h"
 #include "components/content/PlayerInfoComponent.h"
+#include "movement/TransitionedValue.h"
 #include "text/FixedWidthDigitTextRenderer.h"
 
 namespace CsgoHud {
 
 struct CommonResources;
 class PlayerInfoComponent;
+class StatsHeaderComponent;
 
 /*
 	A component that displays every player's information to either side of the HUD.
@@ -27,9 +29,15 @@ class AllPlayersComponent final: public Component {
 
 		std::unique_ptr<BagComponent> container;
 		std::array<PlayerInfoComponent*, 10> children;
+		StatsHeaderComponent *leftStatsHeader, *rightStatsHeader;
+
+		std::string phase;
+		bool statsOn = false;
+		TransitionedValue statsTransition;
 		
 		int activeSlot = -1;
 
+		void receivePhaseData(const JSON &json);
 		void receivePlayerData(const JSON &json);
 	public:
 		AllPlayersComponent(CommonResources &commonResources);

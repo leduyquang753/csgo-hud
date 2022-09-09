@@ -17,10 +17,11 @@ class WeaponTypes;
 // == AllPlayersData ==
 
 AllPlayersData::AllPlayersData(const WeaponTypes &weaponTypes, EventBus &eventBus): weaponTypes(weaponTypes) {
-	eventBus.listenToDataEvent("allplayers"s, [this](const JSON &json) { receiveData(json); });	
+	eventBus.listenToDataEvent("allplayers"s, [this](const JSON &json) { receivePlayersData(json); });	
+	eventBus.listenToDataEvent("phase_countdowns"s, [this](const JSON &json) { receivePhaseData(json); });	
 }
 
-void AllPlayersData::receiveData(const JSON &json) {
+void AllPlayersData::receivePlayersData(const JSON &json) {
 	//steamIdMap.clear();
 	std::array<bool, 10> playerPresent = {};
 	for (const JSON &playerData : json) {
@@ -35,6 +36,18 @@ void AllPlayersData::receiveData(const JSON &json) {
 		//steamIdMap.insert({std::stoull(playerData["steamid"s].get<std::string>()), slot});
 	}
 	for (int i = 0; i != 10; ++i) if (!playerPresent[i]) players[i].reset();
+}
+
+void AllPlayersData::receivePhaseData(const JSON &json) {
+	const std::string currentPhase = json["phase"s].get<std::string>();
+	if (phase == currentPhase) return;
+	phase = currentPhase;
+	if (phase == "live"s) {
+		alreadyFreezeTime = false;
+	} else if (!alreadyFreezeTime && phase == "freezetime"s) {
+		alreadyFreezeTime = true;
+		for (auto &player : players) if (player) player->startingMoney = player->money;
+	}
 }
 
 const std::optional<PlayerData>& AllPlayersData::operator[](const int slot) const {
