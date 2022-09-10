@@ -33,6 +33,7 @@ class BombTimerComponent final: public Component {
 		// A "displayed bomb state" is needed for the fade out of the component.
 		std::string bombState, displayedBombState;
 		int bombTimeLeft = 0, defuseTimeLeft = 0, oldBombTime;
+		std::wstring planterName, defuserName;
 
 		void advanceTime(const int timePassed);
 		void receiveData(JSON::dom::object &json);

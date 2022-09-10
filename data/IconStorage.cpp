@@ -15,7 +15,7 @@ namespace CsgoHud {
 // == IconStorage ==
 
 void IconStorage::loadIcons(CommonResources &commonResources) {
-	const std::array<std::wstring, 47> fileNames = {
+	const std::array<std::wstring, 49> fileNames = {
 		/*
 			Weapons in the order corresponding to that in `data\WeaponTypes.cpp` so that lookup can be
 			easily done.
@@ -71,7 +71,9 @@ void IconStorage::loadIcons(CommonResources &commonResources) {
 		L"Kevlar"s,
 		L"Full armor"s,
 		L"Health"s, // 45
-		L"Dead"s // 46
+		L"Dead"s,
+		L"Explosion"s,
+		L"Timer"s // 48
 	};
 
 	winrt::com_ptr<IWICImagingFactory> imagingFactory;

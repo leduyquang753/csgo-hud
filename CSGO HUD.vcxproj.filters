@@ -148,6 +148,12 @@
     <ClCompile Include="json\simdjson.cpp">
       <Filter>json</Filter>
     </ClCompile>
+    <ClCompile Include="data\RoundsData.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
+    <ClCompile Include="components\content\RoundComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud\HudWindow.h">
@@ -264,6 +270,12 @@
     </ClInclude>
     <ClInclude Include="json\simdjson.h">
       <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="data\RoundsData.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\RoundComponent.h">
+      <Filter>components\content</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

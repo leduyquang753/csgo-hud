@@ -54,12 +54,15 @@ BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
 	renderTarget.CreateLayer(bombLayer.put());
 	renderTarget.CreateLayer(defuseLayer.put());
 	
-	auto &writeFactory = *commonResources.writeFactory;
-	writeFactory.CreateTextFormat(
+	commonResources.writeFactory->CreateTextFormat(
 		L"Stratum2", nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		FONT_SIZE, L"", textFormat.put()
 	);
+	winrt::com_ptr<IDWriteInlineObject> trimmingSign;
+	static const DWRITE_TRIMMING TRIMMING_OPTIONS = {DWRITE_TRIMMING_GRANULARITY_CHARACTER, 0, 0};
+	textFormat->SetTrimming(&TRIMMING_OPTIONS, trimmingSign.get());
+	textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
 	
 	textRenderer.emplace(
 		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
@@ -104,12 +107,15 @@ void BombTimerComponent::receiveData(JSON::dom::object &json) {
 		bombState = currentState;
 		if (currentState == "planting"s || currentState == "planted"s) {
 			displayedBombState = currentState;
-			if (currentState == "planting"s)
+			if (currentState == "planting"s) {
 				bombTransition.transition(1);
+				planterName = commonResources.players(json["player"sv].value().get_uint64())->name;
+			}
 			bombTimeLeft = getTimeLeft();
 		} else if (currentState == "defusing"s) {
 			defuseTimeLeft = getTimeLeft();
 			defuseTransition.transition(1);
+			defuserName = commonResources.players(json["player"sv].value().get_uint64())->name;
 		} else {
 			bombTransition.transition(0);
 		}
@@ -159,7 +165,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 			planting ? bombTransparentBrush.get() : bombOpaqueBrush.get()
 		);
 		textRenderer->draw(
-			Utils::formatTimeAmount(displayedBombTime),
+			Utils::formatTimeAmount(displayedBombTime) + L" | "s + planterName,
 			{outerRight+4, bombY, parentSize.width, bombY + gaugeHeight},
 			textBrush
 		);
@@ -197,7 +203,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 				defuseTimeLeft > bombTimeLeft ? defuseRedBrush.get() : defuseBlueBrush.get()
 			);
 			textRenderer->draw(
-				Utils::formatTimeAmount(defuseTimeLeft),
+				Utils::formatTimeAmount(defuseTimeLeft) + L" | "s + defuserName,
 				{outerRight+4, gaugeHeight + defuseY, parentSize.width, gaugeHeight*2 + defuseY},
 				textBrush
 			);
