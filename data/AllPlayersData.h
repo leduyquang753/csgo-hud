@@ -25,8 +25,8 @@ class AllPlayersData final {
 		std::string phase;
 		bool alreadyFreezeTime = false;
 
-		void receivePlayersData(const JSON &json);
-		void receivePhaseData(const JSON &json);
+		void receivePlayersData(JSON::dom::object &json);
+		void receivePhaseData(JSON::dom::object &json);
 	public:
 		AllPlayersData(const WeaponTypes &weaponTypes, EventBus &eventBus);
 		const std::optional<PlayerData>& operator[](int slot) const;

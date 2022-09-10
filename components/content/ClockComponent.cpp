@@ -4,6 +4,7 @@
 #include <cmath>
 #include <memory>
 #include <string>
+#include <string_view>
 
 #include "components/base/Component.h"
 #include "resources/CommonResources.h"
@@ -13,6 +14,7 @@
 #include "components/content/ClockComponent.h"
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
@@ -41,20 +43,22 @@ ClockComponent::ClockComponent(CommonResources &commonResources): Component(comm
 
 	auto &eventBus = commonResources.eventBus;
 	eventBus.listenToTimeEvent([this](const int timePassed) { advanceTime(timePassed); });
-	eventBus.listenToDataEvent("phase_countdowns"s, [this](const JSON &json) { receivePhaseData(json); });
-	eventBus.listenToDataEvent("map"s, [this](const JSON &json) { receiveMapData(json); });
+	eventBus.listenToDataEvent(
+		"phase_countdowns"s, [this](JSON::dom::object &json) { receivePhaseData(json); }
+	);
+	eventBus.listenToDataEvent("map"s, [this](JSON::dom::object &json) { receiveMapData(json); });
 }
 
 void ClockComponent::advanceTime(const int timePassed) {
 	phaseTimeLeft = std::max(0, phaseTimeLeft - timePassed);
 }
 
-void ClockComponent::receivePhaseData(const JSON &json) {
-	std::string currentPhase = json["phase"s].get<std::string>();
+void ClockComponent::receivePhaseData(JSON::dom::object &json) {
+	std::string currentPhase(json["phase"sv].value().get_string().value());
 	if (currentPhase == "bomb"s || currentPhase == "defuse"s) currentPhase.clear();
 	int timeLeft;
 	if (!currentPhase.empty()) {
-		const std::string timeString = json["phase_ends_in"s].get<std::string>();
+		const std::string timeString(json["phase_ends_in"sv].value().get_string().value());
 		timeLeft
 			= std::stoi(timeString.substr(0, timeString.size()-2)) * 1000
 			+ std::stoi(timeString.substr(timeString.size()-1, 1)) * 100;
@@ -71,8 +75,8 @@ void ClockComponent::receivePhaseData(const JSON &json) {
 	}
 }
 
-void ClockComponent::receiveMapData(const JSON &json) {
-	const std::string currentPhase = json["phase"s].get<std::string>();
+void ClockComponent::receiveMapData(JSON::dom::object &json) {
+	const std::string currentPhase(json["phase"sv].value().get_string().value());
 	if (currentPhase != mapPhase) {
 		mapPhase = currentPhase;
 		phaseTime = getPhaseTime();

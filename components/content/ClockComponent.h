@@ -27,8 +27,8 @@ class ClockComponent final: public Component {
 		int phaseTime, phaseTimeLeft;
 
 		void advanceTime(const int timePassed);
-		void receivePhaseData(const JSON &json);
-		void receiveMapData(const JSON &json);
+		void receivePhaseData(JSON::dom::object &json);
+		void receiveMapData(JSON::dom::object &json);
 		int getPhaseTime();
 	public:
 		ClockComponent(CommonResources &commonResources);

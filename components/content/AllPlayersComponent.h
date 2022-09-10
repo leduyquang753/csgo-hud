@@ -37,8 +37,8 @@ class AllPlayersComponent final: public Component {
 		
 		int activeSlot = -1;
 
-		void receivePhaseData(const JSON &json);
-		void receivePlayerData(const JSON &json);
+		void receivePhaseData(JSON::dom::object &json);
+		void receivePlayerData(JSON::dom::object &json);
 	public:
 		AllPlayersComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

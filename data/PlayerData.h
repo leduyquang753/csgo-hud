@@ -56,7 +56,7 @@ class PlayerData final {
 
 		int activeSlot;
 
-		void receiveData(const WeaponTypes &weaponTypes, const JSON &json);
+		void receiveData(const WeaponTypes &weaponTypes, JSON::dom::object &json);
 };
 
 } // namespace CsgoHud

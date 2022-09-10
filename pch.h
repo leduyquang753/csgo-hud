@@ -9,7 +9,7 @@
 #include <dwrite_3.h>
 #include <wincodec.h>
 
-#include "json/json.hpp"
-using JSON = nlohmann::json;
+#include "json/simdjson.h"
+namespace JSON = simdjson;
 
 #endif // CSGO_HUD_PCH_H

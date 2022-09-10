@@ -150,16 +150,27 @@ void HudWindow::tick() {
 		httpServer.swapBuffers();
 		httpServer.mutex.unlock();
 		std::size_t nextJson = 0;
-		for (auto timestamp = timestamps.begin(); timestamp != timestamps.end(); ++timestamp) {
-			const int time = static_cast<int>(
-				std::chrono::duration_cast<std::chrono::milliseconds>(*timestamp - firstTick).count()
-			);
-			eventBus.notifyTimeEvent(time - lastTickTime);
-			lastTickTime = time;
-			const auto json = JSON::parse(jsons.c_str() + nextJson);
-			eventBus.notifyDataEvent("", json);
-			for (const auto &entry : json.items()) eventBus.notifyDataEvent(entry.key(), entry.value());
-			nextJson = jsons.find('\0', nextJson) + 1;
+		for (const auto &timestamp : timestamps) {
+			const std::size_t
+				jsonEnd = jsons.find('\0', nextJson),
+				jsonSize = jsonEnd - nextJson;
+			if (jsonSize != 0) {
+				const int time = static_cast<int>(
+					std::chrono::duration_cast<std::chrono::milliseconds>(timestamp - firstTick).count()
+				);
+				eventBus.notifyTimeEvent(time - lastTickTime);
+				lastTickTime = time;
+				
+				JSON::dom::element jsonDocument
+					= jsonParser.parse(jsons.c_str() + nextJson, jsonSize, jsonSize + JSON::SIMDJSON_PADDING);
+				JSON::dom::object json = jsonDocument.get_object();
+				eventBus.notifyDataEvent("", json);
+				for (auto field : json) {
+					JSON::dom::object subJson = field.value.get_object();
+					eventBus.notifyDataEvent(std::string(field.key), subJson);
+				}
+			}
+			nextJson = jsonEnd + JSON::SIMDJSON_PADDING;
 		}
 		const int currentTickTime = static_cast<int>(
 			std::chrono::duration_cast<std::chrono::milliseconds>(now - firstTick).count()

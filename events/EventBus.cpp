@@ -24,7 +24,7 @@ TimeEventListener EventBus::listenToTimeEvent(const std::function<void(int)> &ca
 }
 
 DataEventListener EventBus::listenToDataEvent(
-	const std::string &dataPath, const std::function<void(const JSON&)> &callback
+	const std::string &dataPath, const std::function<void(JSON::dom::object&)> &callback
 ) {
 	auto &listenerList = dataEventListenerMap[dataPath];
 	const std::size_t index = listenerList.size();
@@ -60,7 +60,7 @@ void EventBus::notifyTimeEvent(const int timePassed) const {
 	}
 }
 
-void EventBus::notifyDataEvent(const std::string &dataPath, const JSON &json) const {
+void EventBus::notifyDataEvent(const std::string &dataPath, JSON::dom::object &json) const {
 	auto entry = dataEventListenerMap.find(dataPath);
 	if (entry == dataEventListenerMap.end()) return;
 	for (const auto &listener : entry->second) {

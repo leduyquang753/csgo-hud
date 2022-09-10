@@ -4,6 +4,7 @@
 #include <cmath>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "components/base/Component.h"
@@ -16,6 +17,7 @@
 #include "components/content/BombTimerComponent.h"
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
@@ -65,7 +67,7 @@ BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
 
 	auto &eventBus = commonResources.eventBus;
 	eventBus.listenToTimeEvent([this](const int timePassed) { advanceTime(timePassed); });
-	eventBus.listenToDataEvent("bomb"s, [this](const JSON &json) { receiveData(json); });
+	eventBus.listenToDataEvent("bomb"s, [this](JSON::dom::object &json) { receiveData(json); });
 }
 
 void BombTimerComponent::advanceTime(const int timePassed) {
@@ -76,14 +78,15 @@ void BombTimerComponent::advanceTime(const int timePassed) {
 	}
 }
 
-void BombTimerComponent::receiveData(const JSON &json) {
+void BombTimerComponent::receiveData(JSON::dom::object &json) {
 	const auto getTimeLeft = [&json]() {
-		return static_cast<int>(std::stod(json["countdown"s].get<std::string>()) * 1000);
+		return static_cast<int>(std::stod(std::string(json["countdown"sv].value().get_string().value())) * 1000);
 	};
-	const std::string currentState = json["state"s].get<std::string>();
+	const std::string currentState(json["state"sv].value().get_string().value());
 	if (currentState == bombState) {
 		// Need to check as there might be a brief moment the payload doesn't contain the field.
-		if (json.contains("countdown"s)) {
+		auto countdown = json["countdown"sv];
+		if (!countdown.error()) {
 			const int timeLeft = getTimeLeft();
 			if (currentState == "planting"s || currentState == "planted"s) {
 				if (std::abs(timeLeft - bombTimeLeft) > CommonConstants::DESYNC_THRESHOLD)

@@ -24,6 +24,8 @@ class HudWindow final {
 		HDC renderSurface;
 		CommonResources &commonResources;
 
+		JSON::dom::parser jsonParser;
+
 		std::chrono::time_point<std::chrono::steady_clock> firstTick;
 		int lastTickTime = -1;
 

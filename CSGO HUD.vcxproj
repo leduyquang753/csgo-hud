@@ -183,6 +183,12 @@
     <ClCompile Include="events\EventBus.cpp" />
     <ClCompile Include="events\TimeEventListener.cpp" />
     <ClCompile Include="hud\HudWindow.cpp" />
+    <ClCompile Include="json\simdjson.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="main\main.cpp" />
     <ClCompile Include="movement\CubicBezier.cpp" />
     <ClCompile Include="movement\CubicBezierMovementFunction.cpp" />
@@ -232,7 +238,7 @@
     <ClInclude Include="events\EventBus.h" />
     <ClInclude Include="events\TimeEventListener.h" />
     <ClInclude Include="hud\HudWindow.h" />
-    <ClInclude Include="json\json.hpp" />
+    <ClInclude Include="json\simdjson.h" />
     <ClInclude Include="movement\CubicBezier.h" />
     <ClInclude Include="movement\CubicBezierMovementFunction.h" />
     <ClInclude Include="movement\LinearMovementFunction.h" />

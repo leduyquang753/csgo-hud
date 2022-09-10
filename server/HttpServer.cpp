@@ -14,9 +14,12 @@
 
 #include <http.h>
 
+#include "json/simdjson.h"
 #include "utils/CommonConstants.h"
 
 #include "server/HttpServer.h"
+
+namespace JSON = simdjson;
 
 namespace CsgoHud {
 
@@ -37,7 +40,6 @@ void HttpServer::run(const HWND windowHandle) {
 	HTTP_SET_NULL_ID(&requestId);
 
 	std::vector<char> entity(1 << 20);
-	std::string json;
 
 	HTTP_RESPONSE response{};
 	response.ReasonLength = 0;
@@ -52,7 +54,6 @@ void HttpServer::run(const HWND windowHandle) {
 			case NO_ERROR: {
 				if (request->Verb == HttpVerbPOST) {
 					if (request->Flags & HTTP_REQUEST_FLAG_MORE_ENTITY_BODY_EXISTS) {
-						json.clear();
 						done = false;
 						while (!done) {
 							switch (HttpReceiveRequestEntityBody(
@@ -61,18 +62,17 @@ void HttpServer::run(const HWND windowHandle) {
 								entity.data(), static_cast<ULONG>(entity.size()), &bytes, nullptr
 							)) {
 								case NO_ERROR:
-									if (bytes != 0) json.append(entity.data(), bytes);
+									if (bytes != 0) currentJsons->append(entity.data(), bytes);
 									break;
 								case ERROR_HANDLE_EOF:
-									if (bytes != 0) json.append(entity.data(), bytes);
+									if (bytes != 0) currentJsons->append(entity.data(), bytes);
 									response.StatusCode = 200; // OK.
 									auto result = HttpSendHttpResponse(
 										queue, request->RequestId, 0, &response, nullptr, &bytes,
 										nullptr, 0, nullptr, nullptr
 									);
 									mutex.lock();
-									*currentJsons += json;
-									*currentJsons += '\0';
+									currentJsons->append(JSON::SIMDJSON_PADDING, '\0');
 									currentTimestamps->push_back(std::chrono::steady_clock::now());
 									if (!notificationSent) {
 										PostMessage(windowHandle, CommonConstants::WM_JSON_ARRIVED, 0, 0);

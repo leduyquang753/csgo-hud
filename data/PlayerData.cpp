@@ -9,6 +9,7 @@
 #include "data/PlayerData.h"
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
@@ -23,33 +24,38 @@ static D2D_VECTOR_3F parseVector(std::string_view string) {
 
 // == PlayerData ==
 
-void PlayerData::receiveData(const WeaponTypes &weaponTypes, const JSON &json) {
-	name = Utils::widenString(json["name"s].get<std::string>());
-	team = json["team"s].get<std::string>()[0] == 'C'/*T*/;
+void PlayerData::receiveData(const WeaponTypes &weaponTypes, JSON::dom::object &json) {
+	name = Utils::widenString(json["name"sv].value().get_string());
+	team = json["team"sv].value().get_string().value()[0] == 'C'/*T*/;
+
+	auto getInt = [](JSON::dom::object &json, std::string_view key) {
+		return static_cast<int>(json[key].value().get_int64());
+	};
 
 	hasC4OrDefuseKit = false;
-	const JSON &state = json["state"s];
-	health = state["health"s].get<int>();
-	armor = state["armor"s].get<int>();
-	hasHelmet = state["helmet"s].get<bool>();
-	flashAmount = state["flashed"s].get<int>();
-	smokeAmount = state.contains("smoked"s) ? state["smoked"s].get<int>() : 0;
-	fireAmount = state["burning"s].get<int>();
-	money = state["money"s].get<int>();
-	killsThisRound = state["round_kills"s].get<int>();
-	headshotKillsThisRound = state["round_killhs"s].get<int>();
-	equipmentValue = state["equip_value"s].get<int>();
-	if (state.contains("defusekit"s)) hasC4OrDefuseKit = true;
+	auto state = json["state"sv].value().get_object().value();
+	health = getInt(state, "health"sv);
+	armor = getInt(state, "armor"sv);
+	hasHelmet = state["helmet"sv].value().get_bool();
+	flashAmount = getInt(state, "flashed"sv);
+	auto smokeData = state["smoked"sv];
+	smokeAmount = smokeData.error() ? 0 : static_cast<int>(smokeData.value().get_int64());
+	fireAmount = getInt(state, "burning"sv);
+	money = getInt(state, "money"sv);
+	killsThisRound = getInt(state, "round_kills"sv);
+	headshotKillsThisRound = getInt(state, "round_killhs"sv);
+	equipmentValue = getInt(state, "equip_value"sv);
+	if (!state["defusekit"sv].error()) hasC4OrDefuseKit = true;
 
-	position = parseVector(json["position"s].get<std::string>());
-	forward = parseVector(json["forward"s].get<std::string>());
+	position = parseVector(json["position"sv].value().get_string());
+	forward = parseVector(json["forward"sv].value().get_string());
 
-	const JSON &matchStats = json["match_stats"s];
-	totalKills = matchStats["kills"s].get<int>();
-	totalAssists = matchStats["assists"s].get<int>();
-	totalDeaths = matchStats["deaths"s].get<int>();
-	totalMvps = matchStats["mvps"s].get<int>();
-	totalScore = matchStats["score"s].get<int>();
+	auto matchStats = json["match_stats"sv].value().get_object().value();
+	totalKills = getInt(matchStats, "kills"sv);
+	totalAssists = getInt(matchStats, "assists"sv);
+	totalDeaths = getInt(matchStats, "deaths"sv);
+	totalMvps = getInt(matchStats, "mvps"sv);
+	totalScore = getInt(matchStats, "score"sv);
 
 	primaryGun.reset();
 	secondaryGun.reset();
@@ -58,12 +64,14 @@ void PlayerData::receiveData(const WeaponTypes &weaponTypes, const JSON &json) {
 	int nextGrenade = 0;
 
 	const auto &nameMap = weaponTypes.nameMap;
-	for (const JSON &weapon : json["weapons"s]) {
-		const bool active = weapon["state"s].get<std::string>()[0] == 'a'/*ctive*/;
-		if (weapon.contains("type"s) && weapon["type"s].get<std::string>() == "Knife"s) {
+	for (auto entry : json["weapons"sv].get_object().value()) {
+		auto weapon = entry.value.get_object().value();
+		const bool active = weapon["state"sv].value().get_string().value()[0] == 'a'/*ctive*/;
+		auto typeData = weapon["type"sv];
+		if (!typeData.error() && typeData.value().get_string() == "Knife"sv) {
 			if (active) activeSlot = SLOT_KNIFE;
 		} else {
-			const std::string name = weapon["name"s].get<std::string>().substr(7); // Skip "weapon_".
+			const std::string name(weapon["name"sv].value().get_string().value().substr(7)); // Skip "weapon_".
 			if (name == "c4"s) {
 				hasC4OrDefuseKit = true;
 				if (active) activeSlot = SLOT_C4;
@@ -72,36 +80,46 @@ void PlayerData::receiveData(const WeaponTypes &weaponTypes, const JSON &json) {
 				if (entry != nameMap.end()) {
 					const int type = entry->second;
 					switch (weaponTypes.categoryMap[type]) {
-						case WeaponCategory::PRIMARY:
+						case WeaponCategory::PRIMARY: {
+							auto spareRoundsData = weapon["ammo_reserve"sv];
 							primaryGun = {
 								.type = type,
-								.roundsInClip = weapon["ammo_clip"s].get<int>(),
-								.clipSize = weapon["ammo_clip_max"s].get<int>(),
-								.spareRounds = weapon["ammo_reserve"s].get<int>()
+								.roundsInClip = getInt(weapon, "ammo_clip"sv),
+								.clipSize = getInt(weapon, "ammo_clip_max"sv),
+								.spareRounds = spareRoundsData.error()
+									? 0
+									: static_cast<int>(spareRoundsData.value().get_int64())
 							};
 							if (active) activeSlot = SLOT_PRIMARY_GUN;
 							break;
-						case WeaponCategory::SECONDARY:
+						}
+						case WeaponCategory::SECONDARY: {
+							auto spareRoundsData = weapon["ammo_reserve"sv];
 							secondaryGun = {
 								.type = type,
-								.roundsInClip = weapon["ammo_clip"s].get<int>(),
-								.clipSize = weapon["ammo_clip_max"s].get<int>(),
-								.spareRounds = weapon["ammo_reserve"s].get<int>()
+								.roundsInClip = getInt(weapon, "ammo_clip"sv),
+								.clipSize = getInt(weapon, "ammo_clip_max"sv),
+								.spareRounds = spareRoundsData.error()
+									? 0
+									: static_cast<int>(spareRoundsData.value().get_int64())
 							};
 							if (active) activeSlot = SLOT_SECONDARY_GUN;
 							break;
-						case WeaponCategory::ZEUS:
+						}
+						case WeaponCategory::ZEUS: {
 							hasZeus = true;
 							if (active) activeSlot = SLOT_ZEUS;
 							break;
-						case WeaponCategory::GRENADE:
+						}
+						case WeaponCategory::GRENADE: {
 							if (active) activeSlot = SLOT_GRENADE_0 + nextGrenade;
-							const int quantity = weapon["ammo_reserve"s].get<int>();
+							const int quantity = getInt(weapon, "ammo_reserve"sv);
 							for (int i = 0; i != quantity; ++i) {
 								grenades[nextGrenade] = type;
 								++nextGrenade;
 							}
 							break;
+						}
 					}
 				}
 			}

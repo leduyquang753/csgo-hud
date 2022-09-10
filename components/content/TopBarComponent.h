@@ -51,8 +51,8 @@ class TopBarComponent final: public Component {
 		float *leftNameWidth, *rightNameWidth;
 		bool ctToTheLeft = true;
 
-		void receivePlayerData(const JSON &json);
-		void receiveMapData(const JSON &json);
+		void receivePlayerData(JSON::dom::object &json);
+		void receiveMapData(JSON::dom::object &json);
 		void updateCtSide(bool toTheLeft);
 	public:
 		TopBarComponent(CommonResources &commonResources);

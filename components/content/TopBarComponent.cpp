@@ -160,16 +160,20 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources): Component(co
 	});
 
 	auto &eventBus = commonResources.eventBus;
-	eventBus.listenToDataEvent("map"s, [this](const JSON &json) { receiveMapData(json); });
+	eventBus.listenToDataEvent("map"s, [this](JSON::dom::object &json) { receiveMapData(json); });
 }
 
-void TopBarComponent::receiveMapData(const JSON &json) {
-	const JSON &ct = json["team_ct"s], &t = json["team_t"s];
-	ctNameDisplay->text
-		= ct.contains("name"s) ? Utils::widenString(ct["name"s].get<std::string>()) : L"Counter-terrorists"s;
-	ctScoreDisplay->text = std::to_wstring(ct["score"s].get<int>());
-	tNameDisplay->text = t.contains("name"s) ? Utils::widenString(t["name"s].get<std::string>()) : L"Terrorists"s;
-	tScoreDisplay->text = std::to_wstring(t["score"s].get<int>());
+void TopBarComponent::receiveMapData(JSON::dom::object &json) {
+	JSON::dom::object
+		ct = json["team_ct"sv].value().get_object(),
+		t = json["team_t"sv].value().get_object();
+	JSON::simdjson_result<JSON::dom::element> value;
+	value = ct["name"sv];
+	ctNameDisplay->text = value.error() ? L"Counter-terrorists"s : Utils::widenString(value.value().get_string());
+	ctScoreDisplay->text = std::to_wstring(ct["score"sv].value().get_int64());
+	value = t["name"sv];
+	tNameDisplay->text = value.error() ? L"Terrorists"s : Utils::widenString(value.value().get_string());
+	tScoreDisplay->text = std::to_wstring(t["score"sv].value().get_int64());
 }
 
 void TopBarComponent::updateCtSide(const bool toTheLeft) {

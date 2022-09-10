@@ -35,7 +35,7 @@ class BombTimerComponent final: public Component {
 		int bombTimeLeft = 0, defuseTimeLeft = 0, oldBombTime;
 
 		void advanceTime(const int timePassed);
-		void receiveData(const JSON &json);
+		void receiveData(JSON::dom::object &json);
 	public:
 		BombTimerComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

@@ -1,5 +1,6 @@
 #include <memory>
 #include <string>
+#include <string_view>
 
 #include "pch.h"
 
@@ -18,6 +19,7 @@
 #include "components/content/AllPlayersComponent.h"
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
@@ -125,12 +127,14 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 	makeSide(5, 1, rightStatsHeader);
 
 	auto &eventBus = commonResources.eventBus;
-	eventBus.listenToDataEvent("phase_countdowns"s, [this](const JSON &json) { receivePhaseData(json); });
-	eventBus.listenToDataEvent("player"s, [this](const JSON &json) { receivePlayerData(json); });
+	eventBus.listenToDataEvent(
+		"phase_countdowns"s, [this](JSON::dom::object &json) { receivePhaseData(json); }
+	);
+	eventBus.listenToDataEvent("player"s, [this](JSON::dom::object &json) { receivePlayerData(json); });
 }
 
-void AllPlayersComponent::receivePhaseData(const JSON &json) {
-	const std::string currentPhase = json["phase"s].get<std::string>();
+void AllPlayersComponent::receivePhaseData(JSON::dom::object &json) {
+	const std::string currentPhase(json["phase"sv].value().get_string().value());
 	if (phase == currentPhase) return;
 	phase = currentPhase;
 	const bool currentStatsOn = phase != "live"s && phase != "bomb"s && phase != "defuse"s && phase != "over"s;
@@ -139,8 +143,9 @@ void AllPlayersComponent::receivePhaseData(const JSON &json) {
 	statsTransition.transition(statsOn ? 1.f : 0.f);
 }
 
-void AllPlayersComponent::receivePlayerData(const JSON &json) {
-	activeSlot = json.contains("observer_slot"s) ? json["observer_slot"s].get<int>() : -1;
+void AllPlayersComponent::receivePlayerData(JSON::dom::object &json) {
+	auto slotData = json["observer_slot"sv];
+	activeSlot = slotData.error() ? -1 : static_cast<int>(slotData.value().get_int64().value());
 	if (activeSlot != -1) {
 		if (activeSlot == 0) activeSlot = 9;
 		else --activeSlot;
