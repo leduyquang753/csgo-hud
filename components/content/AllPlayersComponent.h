@@ -37,7 +37,6 @@ class AllPlayersComponent final: public Component {
 		
 		int activeSlot = -1;
 
-		void receivePhaseData(JSON::dom::object &json);
 		void receivePlayerData(JSON::dom::object &json);
 	public:
 		AllPlayersComponent(CommonResources &commonResources);

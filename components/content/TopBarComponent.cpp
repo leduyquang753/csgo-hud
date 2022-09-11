@@ -328,9 +328,6 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 
 	auto &eventBus = commonResources.eventBus;
 	eventBus.listenToDataEvent("map"s, [this](JSON::dom::object &json) { receiveMapData(json); });
-	eventBus.listenToDataEvent(
-		"phase_countdowns"s, [this](JSON::dom::object &json) { receivePhaseData(json); }
-	);
 }
 
 void TopBarComponent::receiveMapData(JSON::dom::object &json) {
@@ -344,10 +341,6 @@ void TopBarComponent::receiveMapData(JSON::dom::object &json) {
 	value = t["name"sv];
 	tNameDisplay->text = value.error() ? L"Terrorists"s : Utils::widenString(value.value().get_string());
 	tScoreDisplay->text = std::to_wstring(t["score"sv].value().get_int64());
-}
-
-void TopBarComponent::receivePhaseData(JSON::dom::object &json) {
-	isOverPhase = json["phase"sv].value().get_string().value()[0] == 'o'/*ver*/;
 }
 
 void TopBarComponent::updateCtSide(const bool toTheLeft) {
@@ -394,7 +387,9 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 	};
 
 	const auto &rounds = commonResources.rounds;
-	const bool currentWinLoseShown = isOverPhase && rounds.getCurrentRound() == rounds.getRounds().size();
+	const bool currentWinLoseShown
+		= rounds.getCurrentPhase() == RoundsData::Phase::OVER
+		&& rounds.getCurrentRound() == rounds.getRounds().size();
 	if (currentWinLoseShown != winLoseShown) {
 		winLoseShown = currentWinLoseShown;
 		if (winLoseShown) {

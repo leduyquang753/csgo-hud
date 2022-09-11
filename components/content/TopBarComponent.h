@@ -78,13 +78,11 @@ class TopBarComponent final: public Component {
 		float *leftNameWidth, *rightNameWidth, *paddingHeight;
 		WinLoseComponent *leftWinLoseDisplay, *rightWinLoseDisplay;
 		TransitionedValue winLoseTransition;
-		bool isOverPhase = false;
 		bool winLoseShown = false;
 		
 		bool ctToTheLeft = true;
 
 		void receiveMapData(JSON::dom::object &json);
-		void receivePhaseData(JSON::dom::object &json);
 		void updateCtSide(bool toTheLeft);
 	public:
 		TopBarComponent(CommonResources &commonResources);

@@ -12,6 +12,7 @@
 #include "components/base/StackComponentChild.h"
 #include "components/content/PlayerInfoComponent.h"
 #include "components/content/StatsHeaderComponent.h"
+#include "data/RoundsData.h"
 #include "movement/CubicBezierMovementFunction.h"
 #include "resources/CommonResources.h"
 #include "utils/CommonConstants.h"
@@ -127,20 +128,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 	makeSide(5, 1, rightStatsHeader);
 
 	auto &eventBus = commonResources.eventBus;
-	eventBus.listenToDataEvent(
-		"phase_countdowns"s, [this](JSON::dom::object &json) { receivePhaseData(json); }
-	);
 	eventBus.listenToDataEvent("player"s, [this](JSON::dom::object &json) { receivePlayerData(json); });
-}
-
-void AllPlayersComponent::receivePhaseData(JSON::dom::object &json) {
-	const std::string currentPhase(json["phase"sv].value().get_string().value());
-	if (phase == currentPhase) return;
-	phase = currentPhase;
-	const bool currentStatsOn = phase != "live"s && phase != "bomb"s && phase != "defuse"s && phase != "over"s;
-	if (statsOn == currentStatsOn) return;
-	statsOn = currentStatsOn;
-	statsTransition.transition(statsOn ? 1.f : 0.f);
 }
 
 void AllPlayersComponent::receivePlayerData(JSON::dom::object &json) {
@@ -156,6 +144,16 @@ void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	const auto &players = commonResources.players;
 	int firstPlayerIndex = players.getFirstPlayerIndex();
 	if (firstPlayerIndex == -1) return;
+
+	const RoundsData::Phase phase = commonResources.rounds.getCurrentPhase();
+	const bool currentStatsOn
+		= phase == RoundsData::Phase::FREEZETIME
+		|| phase == RoundsData::Phase::TIMEOUT_CT || phase == RoundsData::Phase::TIMEOUT_T;
+	if (statsOn != currentStatsOn) {
+		statsOn = currentStatsOn;
+		statsTransition.transition(statsOn ? 1.f : 0.f);
+	}
+	
 	const bool leftTeam = players[firstPlayerIndex]->team;
 	int leftSideSlot = 0, rightSideSlot = 5;
 	for (int i = 0; i != 10; ++i) {
