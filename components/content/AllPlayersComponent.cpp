@@ -145,10 +145,7 @@ void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	int firstPlayerIndex = players.getFirstPlayerIndex();
 	if (firstPlayerIndex == -1) return;
 
-	const RoundsData::Phase phase = commonResources.rounds.getCurrentPhase();
-	const bool currentStatsOn
-		= phase == RoundsData::Phase::FREEZETIME
-		|| phase == RoundsData::Phase::TIMEOUT_CT || phase == RoundsData::Phase::TIMEOUT_T;
+	const bool currentStatsOn = commonResources.rounds.isBeginningOfRound();
 	if (statsOn != currentStatsOn) {
 		statsOn = currentStatsOn;
 		statsTransition.transition(statsOn ? 1.f : 0.f);

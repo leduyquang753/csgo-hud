@@ -176,6 +176,7 @@
     <ClCompile Include="components\content\RoundComponent.cpp" />
     <ClCompile Include="components\content\StatsHeaderComponent.cpp" />
     <ClCompile Include="components\content\TopBarComponent.cpp" />
+    <ClCompile Include="components\content\TopBarComponent_Special.cpp" />
     <ClCompile Include="data\AllPlayersData.cpp" />
     <ClCompile Include="data\IconStorage.cpp" />
     <ClCompile Include="data\PlayerData.cpp" />

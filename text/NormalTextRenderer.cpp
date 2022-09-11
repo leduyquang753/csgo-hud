@@ -27,8 +27,8 @@ NormalTextRenderer::NormalTextRenderer(
 	lineHeight(textFormat->GetFontSize() * lineHeightRatio)
 {}
 
-void NormalTextRenderer::draw(
-	std::wstring_view text, const D2D1_RECT_F &bounds, const winrt::com_ptr<ID2D1Brush> &brush
+winrt::com_ptr<IDWriteTextLayout3> NormalTextRenderer::prepareLayout(
+	std::wstring_view text, const D2D1_RECT_F &bounds
 ) const {
 	winrt::com_ptr<IDWriteTextLayout> textLayout;
 	winrt::com_ptr<IDWriteTextLayout3> textLayout3;
@@ -39,9 +39,17 @@ void NormalTextRenderer::draw(
 	);
 	textLayout->QueryInterface(textLayout3.put());
 	textLayout3->SetLineSpacing(&lineSpacingSettings);
+	return textLayout3;
+}
+
+
+void NormalTextRenderer::drawPreparedLayout(
+	const winrt::com_ptr<IDWriteTextLayout3> &layout,
+	const D2D1_RECT_F &bounds, const winrt::com_ptr<ID2D1Brush> &brush
+) const {
 	commonResources.renderTarget->DrawTextLayout(
 		{bounds.left, bounds.top + (bounds.bottom - bounds.top - lineHeight) / 2 + verticalOffset},
-		textLayout.get(), brush.get(), D2D1_DRAW_TEXT_OPTIONS_NO_SNAP
+		layout.get(), brush.get(), D2D1_DRAW_TEXT_OPTIONS_NO_SNAP
 	);
 }
 

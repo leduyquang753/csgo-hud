@@ -29,8 +29,12 @@ class FixedWidthDigitTextRenderer final: public TextRenderer {
 			float offsetRatio, // The proportion to the font size that the text should be vertically shifted.
 			float lineHeightRatio // The line height propertion to the font size.
 		);
-		void draw(
-			std::wstring_view text, const D2D1_RECT_F &bounds, const winrt::com_ptr<ID2D1Brush> &brush
+		winrt::com_ptr<IDWriteTextLayout3> prepareLayout(
+			std::wstring_view text, const D2D1_RECT_F &bounds
+		) const override;
+		void drawPreparedLayout(
+			const winrt::com_ptr<IDWriteTextLayout3> &layout,
+			const D2D1_RECT_F &bounds, const winrt::com_ptr<ID2D1Brush> &brush
 		) const override;
 		float getLineHeight() const override;
 };

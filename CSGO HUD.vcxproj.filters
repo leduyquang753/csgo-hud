@@ -154,6 +154,9 @@
     <ClCompile Include="components\content\RoundComponent.cpp">
       <Filter>components\content</Filter>
     </ClCompile>
+    <ClCompile Include="components\content\TopBarComponent_Special.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud\HudWindow.h">

@@ -18,8 +18,9 @@ class RoundsData final {
 		enum class WinningCondition { ELIMINATION, TIME, BOMB, DEFUSE };
 		enum class Phase { WARMUP, FREEZETIME, LIVE, BOMB, DEFUSE, OVER, PAUSED, TIMEOUT_CT, TIMEOUT_T };
 	private:
-		int currentRound = 1;
+		int currentRound = 0;
 		Phase currentPhase = Phase::WARMUP;
+		bool beginningOfRound = false;
 		std::vector<std::pair<bool, WinningCondition>> history;
 
 		void receivePhaseData(JSON::dom::object &json);
@@ -31,6 +32,7 @@ class RoundsData final {
 		const std::vector<std::pair<bool, WinningCondition>>& getRounds() const;
 		int getCurrentRound() const;
 		Phase getCurrentPhase() const;
+		bool isBeginningOfRound() const;
 };
 
 } // namespace CsgoHud

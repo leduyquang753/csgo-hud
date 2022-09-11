@@ -1,4 +1,5 @@
 #include <array>
+#include <cmath>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -7,6 +8,7 @@
 
 #include "pch.h"
 
+#include "components/base/BagComponent.h"
 #include "components/base/Component.h"
 #include "components/base/SizedComponent.h"
 #include "components/base/StackComponent.h"
@@ -29,113 +31,25 @@ using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
-// == TopBarComponent::ChildComponent ==
-
-TopBarComponent::ChildComponent::ChildComponent(
-	CommonResources &commonResources,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &backgroundBrush,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &textBrush,
-	const TextRenderer &textRenderer,
-	std::wstring_view text
-):
-	Component(commonResources),
-	backgroundBrush(backgroundBrush), textBrush(textBrush), textRenderer(textRenderer),
-	text(text)
-{}
-
-void TopBarComponent::ChildComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
-	auto &renderTarget = *commonResources.renderTarget;
-	renderTarget.SetTransform(transform);
-
-	renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, backgroundBrush.get());
-	textRenderer.draw(text, {0, 0, parentSize.width, parentSize.height}, textBrush);
-
-	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
-}
-
-// == TopBarComponent::WinLoseComponent ==
-
-TopBarComponent::WinLoseComponent::WinLoseComponent(
-	CommonResources &commonResources,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &backgroundBlackBrush,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &backgroundTeamBrush,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &teamBrush,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &textBrush,
-	const winrt::com_ptr<ID2D1SolidColorBrush> &moneyGainBrush,
-	const TextRenderer &textRenderer,
-	const TextRenderer &moneyGainTextRenderer,
-	const TransitionedValue &transition
-):
-	Component(commonResources),
-	backgroundBlackBrush(backgroundBlackBrush), backgroundTeamBrush(backgroundTeamBrush),
-	teamBrush(teamBrush), textBrush(textBrush), moneyGainBrush(moneyGainBrush),
-	textRenderer(textRenderer), moneyGainTextRenderer(moneyGainTextRenderer), transition(transition)
-{
-	commonResources.renderTarget->CreateLayer(layer.put());
-}
-
-void TopBarComponent::WinLoseComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
-	const float transitionValue = transition.getValue();
-	if (transitionValue == 0) return;
-	const bool transiting = transition.transiting();
-	auto &renderTarget = *commonResources.renderTarget;
-	D2D1::Matrix3x2F currentTransform = transform;
-	if (transiting) {
-		renderTarget.SetTransform(currentTransform);
-		renderTarget.PushLayer(
-			{
-				{0, 0, parentSize.width, parentSize.height},
-				nullptr, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE, D2D1::Matrix3x2F::Identity(),
-				transitionValue, nullptr,
-				D2D1_LAYER_OPTIONS_NONE
-			},
-			layer.get()
-		);
-		currentTransform
-			 = D2D1::Matrix3x2F::Translation(0, parentSize.height * (transitionValue-1)) * currentTransform;
-	}
-	renderTarget.SetTransform(currentTransform);
-	renderTarget.FillRectangle(
-		{0, 0, parentSize.width, parentSize.height},
-		winIconIndex == -1 ? backgroundBlackBrush.get() : backgroundTeamBrush.get()
-	);
-	if (winIconIndex == -1) {
-		const float
-			length = parentSize.height * 3 / 4,
-			top = parentSize.height * 3 / 8, bottom = parentSize.height * 5 / 8;
-		for (int i = 0; i != 4; ++i) {
-			const float x = 8 + (length + 4) * i;
-			renderTarget.FillRectangle(
-				{x, top, x + length, bottom},
-				i < lossBonusLevel ? teamBrush.get() : backgroundTeamBrush.get()
-			);
-		}
-	} else {
-		const float scale = parentSize.height / CommonConstants::ICON_HEIGHT * 3 / 4;
-		renderTarget.SetTransform(
-			D2D1::Matrix3x2F::Scale(scale, scale, {0, 0})
-			* D2D1::Matrix3x2F::Translation(8, parentSize.height/8)
-			* currentTransform
-		);
-		renderTarget.DrawImage(
-			commonResources.icons[winIconIndex].source.get(), nullptr, nullptr,
-			D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, D2D1_COMPOSITE_MODE_SOURCE_OVER
-		);
-		renderTarget.SetTransform(currentTransform);
-		textRenderer.draw(	
-			L"WIN"sv, {12 + parentSize.height * 3 / 4, 0, parentSize.width, parentSize.height}, textBrush
-		);
-	}
-	moneyGainTextRenderer.draw(moneyGain, {0, 0, parentSize.width - 8, parentSize.height}, moneyGainBrush);
-	if (transiting) renderTarget.PopLayer();
-	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
-}
-
 // == TopBarComponent ==
 
 TopBarComponent::TopBarComponent(CommonResources &commonResources):
 	Component(commonResources),
 	winLoseTransition(
+		commonResources,
+		std::make_unique<CubicBezierMovementFunction>(
+			std::vector<D2D1_POINT_2F>{{{0, 0}, {0.25f, 0.1f}, {0.25f, 1}, {300, 1}}}
+		),
+		300, 0
+	),
+	matchPointTransition(
+		commonResources,
+		std::make_unique<CubicBezierMovementFunction>(
+			std::vector<D2D1_POINT_2F>{{{0, 0}, {0.25f, 0.1f}, {0.25f, 1}, {300, 1}}}
+		),
+		300, 0
+	),
+	timeoutTransition(
 		commonResources,
 		std::make_unique<CubicBezierMovementFunction>(
 			std::vector<D2D1_POINT_2F>{{{0, 0}, {0.25f, 0.1f}, {0.25f, 1}, {300, 1}}}
@@ -205,9 +119,59 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		StackComponent::AXIS_HORIZONTAL, StackComponent::AXIS_INCREASE, 0.f, StackComponent::MODE_PIXELS
 	);
 
-	std::unique_ptr<StackComponent> currentStack;
+	auto makeNameStack = [this, &commonResources, &stack](const bool side) {
+		auto innerStack = std::make_unique<StackComponent>(
+			commonResources,
+			StackComponent::AXIS_VERTICAL, StackComponent::AXIS_INCREASE, 0.f, StackComponent::MODE_PIXELS
+		);
+
+		const auto &backgroundBrush = side ? tNameBackgroundBrush : ctNameBackgroundBrush;
+		
+		auto child = std::make_unique<ChildComponent>(
+			commonResources, backgroundBrush, textBrush, *nameTextRenderer,
+			side ? L"Terrorists"sv : L"Counter-terrorists"sv
+		);
+		(side ? rightNameDisplay : leftNameDisplay) = child.get();
+		innerStack->children.emplace_back(StackComponentChild{
+			{1, 1}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_RATIO},
+			0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
+			std::move(child)
+		});
+
+		auto bag = std::make_unique<BagComponent>(commonResources);
+		auto winLoseDisplay = std::make_unique<WinLoseComponent>(
+			commonResources,
+			backgroundBlackBrush,
+			backgroundBrush, side ? tScoreBackgroundBrush : ctScoreBackgroundBrush,
+			textBrush, moneyGainBrush,
+			*winLoseTextRenderer, *nameTextRenderer, *moneyGainTextRenderer, winLoseTransition
+		);
+		(side ? rightWinLoseDisplay : leftWinLoseDisplay) = winLoseDisplay.get();
+		bag->children.emplace_back(std::move(winLoseDisplay));
+		auto matchPointDisplay = std::make_unique<MatchPointComponent>(
+			commonResources, backgroundBrush, textBrush, *nameTextRenderer, matchPointTransition
+		);
+		(side ? rightMatchPointDisplay : leftMatchPointDisplay) = matchPointDisplay.get();
+		bag->children.emplace_back(std::move(matchPointDisplay));
+		auto timeoutDisplay = std::make_unique<TimeoutComponent>(
+			commonResources, backgroundBrush, textBrush, *nameTextRenderer, timeoutTransition
+		);
+		(side ? rightTimeoutDisplay : leftTimeoutDisplay) = timeoutDisplay.get();
+		bag->children.emplace_back(std::move(timeoutDisplay));
+		innerStack->children.emplace_back(StackComponentChild{
+			{1, 1}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_RATIO},
+			0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
+			std::move(bag)
+		});
+		
+		stack->children.emplace_back(StackComponentChild{
+			{100, 1}, {StackComponentChild::MODE_PIXELS, StackComponentChild::MODE_RATIO},
+			0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
+			std::move(innerStack)
+		});
+	};
+	
 	std::unique_ptr<ChildComponent> currentChild;
-	std::unique_ptr<WinLoseComponent> currentWinLoseDisplay;
 	
 	currentChild = std::make_unique<ChildComponent>(
 		commonResources, ctScoreBackgroundBrush, textBrush, *scoreTextRenderer, L"0"sv
@@ -219,71 +183,16 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		std::move(currentChild)
 	});
 
-	currentStack = std::make_unique<StackComponent>(
-		commonResources,
-		StackComponent::AXIS_VERTICAL, StackComponent::AXIS_INCREASE, 0.f, StackComponent::MODE_PIXELS
-	);
-	currentChild = std::make_unique<ChildComponent>(
-		commonResources, ctNameBackgroundBrush, textBrush, *nameTextRenderer, L"Counter-terrorists"sv
-	);
-	leftNameDisplay = currentChild.get();
-	currentStack->children.emplace_back(StackComponentChild{
-		{1, 1}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_RATIO},
-		0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
-		std::move(currentChild)
-	});
-	currentWinLoseDisplay = std::make_unique<WinLoseComponent>(
-		commonResources,
-		backgroundBlackBrush, ctNameBackgroundBrush, ctScoreBackgroundBrush, textBrush, moneyGainBrush,
-		*winLoseTextRenderer, *moneyGainTextRenderer, winLoseTransition
-	);
-	leftWinLoseDisplay = currentWinLoseDisplay.get();
-	currentStack->children.emplace_back(StackComponentChild{
-		{1, 1}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_RATIO},
-		0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
-		std::move(currentWinLoseDisplay)
-	});
-	stack->children.emplace_back(StackComponentChild{
-		{100, 1}, {StackComponentChild::MODE_PIXELS, StackComponentChild::MODE_RATIO},
-		0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
-		std::move(currentStack)
-	});
+	makeNameStack(false);
 	
 	stack->children.emplace_back(StackComponentChild{
 		{80, 1}, {StackComponentChild::MODE_PIXELS, StackComponentChild::MODE_RATIO},
 		0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
 		std::make_unique<ClockComponent>(commonResources)
 	});
+
+	makeNameStack(true);
 	
-	currentStack = std::make_unique<StackComponent>(
-		commonResources,
-		StackComponent::AXIS_VERTICAL, StackComponent::AXIS_INCREASE, 0.f, StackComponent::MODE_PIXELS
-	);
-	currentChild = std::make_unique<ChildComponent>(
-		commonResources, tNameBackgroundBrush, textBrush, *nameTextRenderer, L"Terrorists"sv
-	);
-	rightNameDisplay = currentChild.get();
-	currentStack->children.emplace_back(StackComponentChild{
-		{1, 1}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_RATIO},
-		0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
-		std::move(currentChild)
-	});
-	currentWinLoseDisplay = std::make_unique<WinLoseComponent>(
-		commonResources,
-		backgroundBlackBrush, tNameBackgroundBrush, tScoreBackgroundBrush, textBrush, moneyGainBrush,
-		*winLoseTextRenderer, *moneyGainTextRenderer, winLoseTransition
-	);
-	rightWinLoseDisplay = currentWinLoseDisplay.get();
-	currentStack->children.emplace_back(StackComponentChild{
-		{1, 1}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_RATIO},
-		0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
-		std::move(currentWinLoseDisplay)
-	});
-	stack->children.emplace_back(StackComponentChild{
-		{100, 1}, {StackComponentChild::MODE_PIXELS, StackComponentChild::MODE_RATIO},
-		0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
-		std::move(currentStack)
-	});
 	currentChild = std::make_unique<ChildComponent>(
 		commonResources, tScoreBackgroundBrush, textBrush, *scoreTextRenderer, L"0"sv
 	);
@@ -337,10 +246,14 @@ void TopBarComponent::receiveMapData(JSON::dom::object &json) {
 	JSON::simdjson_result<JSON::dom::element> value;
 	value = ct["name"sv];
 	ctNameDisplay->text = value.error() ? L"Counter-terrorists"s : Utils::widenString(value.value().get_string());
-	ctScoreDisplay->text = std::to_wstring(ct["score"sv].value().get_int64());
+	ctScore = static_cast<int>(ct["score"sv].value().get_int64());
+	ctTimeouts = static_cast<int>(ct["timeouts_remaining"sv].value().get_int64());
+	ctScoreDisplay->text = std::to_wstring(ctScore);
 	value = t["name"sv];
 	tNameDisplay->text = value.error() ? L"Terrorists"s : Utils::widenString(value.value().get_string());
-	tScoreDisplay->text = std::to_wstring(t["score"sv].value().get_int64());
+	tScore = static_cast<int>(t["score"sv].value().get_int64());
+	tTimeouts = static_cast<int>(t["timeouts_remaining"sv].value().get_int64());
+	tScoreDisplay->text = std::to_wstring(tScore);
 }
 
 void TopBarComponent::updateCtSide(const bool toTheLeft) {
@@ -353,6 +266,8 @@ void TopBarComponent::updateCtSide(const bool toTheLeft) {
 	std::swap(leftScoreDisplay->backgroundBrush, rightScoreDisplay->backgroundBrush);
 	std::swap(leftWinLoseDisplay->backgroundTeamBrush, rightWinLoseDisplay->backgroundTeamBrush);
 	std::swap(leftWinLoseDisplay->teamBrush, rightWinLoseDisplay->teamBrush);
+	std::swap(leftMatchPointDisplay->backgroundBrush, rightMatchPointDisplay->backgroundBrush);
+	std::swap(leftTimeoutDisplay->backgroundBrush, rightTimeoutDisplay->backgroundBrush);
 	std::swap(ctNameDisplay, tNameDisplay);
 	std::swap(ctScoreDisplay, tScoreDisplay);
 }
@@ -385,6 +300,22 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 				: 1400 + 500*oldLevel + (winningCondition == 3 ? 800 : 0)
 		};
 	};
+	auto computeStreak = [](const bool team, const RoundsData &roundsData) {
+		const auto &rounds = roundsData.getRounds();
+		const int currentRound = roundsData.getCurrentRound();
+		bool currentTeam = currentRound > 15 ? !team : team;
+		const int firstCap = currentRound > 15 ? 15 : currentRound;
+		int streak = 0;
+		for (int round = 0; round != firstCap; ++round) {
+			if (rounds[round].first == currentTeam) ++streak;
+			else streak = 0;
+		}
+		if (currentRound > 15) for (int round = 15; round != currentRound; ++round) {
+			if (rounds[round].first == team) ++streak;
+			else streak = 0;
+		}
+		return streak;
+	};
 
 	const auto &rounds = commonResources.rounds;
 	const bool currentWinLoseShown
@@ -397,17 +328,64 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 			int winningCondition = static_cast<int>(result.second);
 			bool win = result.first == ctToTheLeft;
 			auto gain = computeGain(ctToTheLeft, win, winningCondition, rounds);
+			int streak = computeStreak(ctToTheLeft, rounds);
 			leftWinLoseDisplay->winIconIndex = win ? RoundsData::iconMap[winningCondition] : -1;
 			leftWinLoseDisplay->lossBonusLevel = gain.first;
 			leftWinLoseDisplay->moneyGain = L"+"s + std::to_wstring(gain.second) + L" $"s;
+			if (win) leftWinLoseDisplay->streak = streak > 1 ? L"🔥 "s + std::to_wstring(streak) : L""s;
 			win = !win;
 			gain = computeGain(!ctToTheLeft, win, winningCondition, rounds);
+			streak = computeStreak(!ctToTheLeft, rounds);
 			rightWinLoseDisplay->winIconIndex = win ? RoundsData::iconMap[winningCondition] : -1;
 			rightWinLoseDisplay->lossBonusLevel = gain.first;
 			rightWinLoseDisplay->moneyGain = L"+" + std::to_wstring(gain.second) + L" $"s;
+			if (win) rightWinLoseDisplay->streak = streak > 1 ? L"🔥 "s + std::to_wstring(streak) : L""s;
 			winLoseTransition.transition(1);
 		} else {
 			winLoseTransition.transition(0);
+		}
+	}
+	const RoundsData::Phase currentPhase = rounds.getCurrentPhase();
+	const bool currentTimeoutShown
+		= currentPhase == RoundsData::Phase::TIMEOUT_CT || currentPhase == RoundsData::Phase::TIMEOUT_T;
+	if (currentTimeoutShown != timeoutShown) {
+		timeoutShown = currentTimeoutShown;
+		if (timeoutShown) {
+			TimeoutComponent
+				*ctDisplay = ctToTheLeft ? leftTimeoutDisplay : rightTimeoutDisplay,
+				*tDisplay = ctToTheLeft ? rightTimeoutDisplay : leftTimeoutDisplay;
+			if (currentPhase == RoundsData::Phase::TIMEOUT_CT) {
+				ctDisplay->timeoutsRemaining = ctTimeouts;
+				tDisplay->timeoutsRemaining = -1;
+			} else {
+				ctDisplay->timeoutsRemaining = -1;
+				tDisplay->timeoutsRemaining = tTimeouts;
+			}
+			timeoutTransition.transition(1);
+		} else {
+			timeoutTransition.transition(0);
+		}
+	}
+	const bool currentMatchPointShown = rounds.isBeginningOfRound() && !timeoutShown;
+	if (currentMatchPointShown != matchPointShown) {
+		matchPointShown = currentMatchPointShown;
+		if (matchPointShown) {
+			const int
+				round = rounds.getCurrentRound(),
+				threshold = round > 30 ? 15 + (round - 25) / 6 * 3 : 15,
+				difference = std::abs(ctScore - tScore);
+			if (ctScore == threshold || tScore == threshold) {
+				if (ctToTheLeft == (ctScore == threshold)) {
+					leftMatchPointDisplay->matchPoints = difference;
+					rightMatchPointDisplay->matchPoints = 0;
+				} else {
+					leftMatchPointDisplay->matchPoints = 0;
+					rightMatchPointDisplay->matchPoints = difference;
+				}
+				matchPointTransition.transition(1);
+			}
+		} else {
+			matchPointTransition.transition(0);
 		}
 	}
 	*paddingHeight = winLoseTransition.getValue() * 28;

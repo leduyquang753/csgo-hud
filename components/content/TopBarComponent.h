@@ -43,10 +43,11 @@ class TopBarComponent final: public Component {
 				winrt::com_ptr<ID2D1Layer> layer;
 				winrt::com_ptr<ID2D1SolidColorBrush>
 					backgroundBlackBrush, backgroundTeamBrush, teamBrush, textBrush, moneyGainBrush;
-				const TextRenderer &textRenderer, &moneyGainTextRenderer;
+				const TextRenderer &winTextRenderer, &streakTextRenderer, &moneyGainTextRenderer;
 				const TransitionedValue &transition;
 				// -1 if it's a loss, otherwise it's a win.
 				int winIconIndex;
+				std::wstring streak;
 				int lossBonusLevel;
 				std::wstring moneyGain;
 
@@ -57,8 +58,45 @@ class TopBarComponent final: public Component {
 					const winrt::com_ptr<ID2D1SolidColorBrush> &teamBrush,
 					const winrt::com_ptr<ID2D1SolidColorBrush> &textBrush,
 					const winrt::com_ptr<ID2D1SolidColorBrush> &moneyGainBrush,
-					const TextRenderer &textRenderer,
+					const TextRenderer &winTextRenderer,
+					const TextRenderer &streakTextRenderer,
 					const TextRenderer &moneyGainTextRenderer,
+					const TransitionedValue &transition
+				);
+				void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;
+		};
+		class MatchPointComponent final: public Component {
+			public:
+				winrt::com_ptr<ID2D1Layer> layer;
+				winrt::com_ptr<ID2D1SolidColorBrush> backgroundBrush, textBrush;
+				const TextRenderer &textRenderer;
+				const TransitionedValue &transition;
+				// 0 if it's not this team's match point.
+				int matchPoints;
+
+				MatchPointComponent(
+					CommonResources &commonResources,
+					const winrt::com_ptr<ID2D1SolidColorBrush> &backgroundBrush,
+					const winrt::com_ptr<ID2D1SolidColorBrush> &textBrush,
+					const TextRenderer &textRenderer,
+					const TransitionedValue &transition
+				);
+				void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;
+		};
+		class TimeoutComponent final: public Component {
+			public:
+				winrt::com_ptr<ID2D1Layer> layer;
+				winrt::com_ptr<ID2D1SolidColorBrush> backgroundBrush, textBrush;
+				const TextRenderer &textRenderer;
+				const TransitionedValue &transition;
+				// -1 if it's not this team's timeout.
+				int timeoutsRemaining;
+
+				TimeoutComponent(
+					CommonResources &commonResources,
+					const winrt::com_ptr<ID2D1SolidColorBrush> &backgroundBrush,
+					const winrt::com_ptr<ID2D1SolidColorBrush> &textBrush,
+					const TextRenderer &textRenderer,
 					const TransitionedValue &transition
 				);
 				void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;
@@ -77,8 +115,12 @@ class TopBarComponent final: public Component {
 			*ctNameDisplay, *tNameDisplay, *ctScoreDisplay, *tScoreDisplay;
 		float *leftNameWidth, *rightNameWidth, *paddingHeight;
 		WinLoseComponent *leftWinLoseDisplay, *rightWinLoseDisplay;
-		TransitionedValue winLoseTransition;
-		bool winLoseShown = false;
+		MatchPointComponent *leftMatchPointDisplay, *rightMatchPointDisplay;
+		TimeoutComponent *leftTimeoutDisplay, *rightTimeoutDisplay;
+		TransitionedValue winLoseTransition, matchPointTransition, timeoutTransition;
+		bool winLoseShown = false, matchPointShown = false, timeoutShown = false;
+
+		int ctScore = 0, tScore = 0, ctTimeouts = 0, tTimeouts = 0;
 		
 		bool ctToTheLeft = true;
 

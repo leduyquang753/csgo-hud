@@ -45,8 +45,9 @@ FixedWidthDigitTextRenderer::FixedWidthDigitTextRenderer(
 	for (int i = 0; i != 10; ++i) digitSpacings[i] = (maxDigitWidth - digitWidths[i]) / 2;
 }
 
-void FixedWidthDigitTextRenderer::draw(
-	std::wstring_view text, const D2D1_RECT_F &bounds, const winrt::com_ptr<ID2D1Brush> &brush
+
+winrt::com_ptr<IDWriteTextLayout3> FixedWidthDigitTextRenderer::prepareLayout(
+	std::wstring_view text, const D2D1_RECT_F &bounds
 ) const {
 	winrt::com_ptr<IDWriteTextLayout> textLayout;
 	winrt::com_ptr<IDWriteTextLayout3> textLayout3;
@@ -64,9 +65,16 @@ void FixedWidthDigitTextRenderer::draw(
 			textLayout3->SetCharacterSpacing(spacing, spacing, 0, {static_cast<UINT32>(i), 1});
 		}
 	}
+	return textLayout3;
+}
+
+void FixedWidthDigitTextRenderer::drawPreparedLayout(
+	const winrt::com_ptr<IDWriteTextLayout3> &layout,
+	const D2D1_RECT_F &bounds, const winrt::com_ptr<ID2D1Brush> &brush
+) const {
 	commonResources.renderTarget->DrawTextLayout(
 		{bounds.left, bounds.top + (bounds.bottom - bounds.top - lineHeight) / 2 + verticalOffset},
-		textLayout.get(), brush.get(), D2D1_DRAW_TEXT_OPTIONS_NO_SNAP
+		layout.get(), brush.get(), D2D1_DRAW_TEXT_OPTIONS_NO_SNAP
 	);
 }
 

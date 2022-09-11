@@ -34,9 +34,11 @@ void RoundsData::receivePhaseData(JSON::dom::object &json) {
 			break;
 		case 'f':
 			currentPhase = Phase::FREEZETIME;
+			beginningOfRound = true;
 			break;
 		case 'l':
 			currentPhase = Phase::LIVE;
+			beginningOfRound = false;
 			break;
 		case 'b':
 			currentPhase = Phase::BOMB;
@@ -49,6 +51,7 @@ void RoundsData::receivePhaseData(JSON::dom::object &json) {
 			break;
 		case 't'/*imeout_*/:
 			currentPhase = phaseString[8] == 'c'/*t*/ ? Phase::TIMEOUT_CT : Phase::TIMEOUT_T;
+			break;
 		default:
 			currentPhase = Phase::OVER;
 			break;
@@ -57,8 +60,10 @@ void RoundsData::receivePhaseData(JSON::dom::object &json) {
 
 void RoundsData::receiveMapData(JSON::dom::object &json) {
 	currentRound = static_cast<int>(json["round"sv].value().get_int64());
-	auto historyData = json["round_wins"sv].value().get_object().value();
 	history.clear();
+	auto historyValue = json["round_wins"sv];
+	if (historyValue.error()) return;
+	auto historyData = historyValue.value().get_object().value();
 	history.reserve(historyData.size());
 	for (auto entry : historyData) {
 		std::string_view winString = entry.value.get_string();
@@ -90,6 +95,10 @@ int RoundsData::getCurrentRound() const {
 
 RoundsData::Phase RoundsData::getCurrentPhase() const {
 	return currentPhase;
+}
+
+bool RoundsData::isBeginningOfRound() const {
+	return beginningOfRound;
 }
 
 } // namespace CsgoHud
