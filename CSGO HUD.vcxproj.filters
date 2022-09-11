@@ -157,6 +157,15 @@
     <ClCompile Include="components\content\TopBarComponent_Special.cpp">
       <Filter>components\content</Filter>
     </ClCompile>
+    <ClCompile Include="components\content\ActivePlayerComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="components\content\BottomBarComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="components\content\TeamBuyComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud\HudWindow.h">
@@ -278,6 +287,15 @@
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="components\content\RoundComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\ActivePlayerComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\BottomBarComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\TeamBuyComponent.h">
       <Filter>components\content</Filter>
     </ClInclude>
   </ItemGroup>

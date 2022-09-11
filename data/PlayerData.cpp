@@ -63,6 +63,7 @@ void PlayerData::receiveData(const WeaponTypes &weaponTypes, JSON::dom::object &
 	for (int i = 0; i != 4; ++i) grenades[i].reset();
 	int nextGrenade = 0;
 
+	activeSlot = SLOT_NONE;
 	const auto &nameMap = weaponTypes.nameMap;
 	for (auto entry : json["weapons"sv].get_object().value()) {
 		auto weapon = entry.value.get_object().value();

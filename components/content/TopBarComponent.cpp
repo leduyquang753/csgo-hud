@@ -235,8 +235,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 	});
 	paddingHeight = &container->children[1].size.height;
 
-	auto &eventBus = commonResources.eventBus;
-	eventBus.listenToDataEvent("map"s, [this](JSON::dom::object &json) { receiveMapData(json); });
+	commonResources.eventBus.listenToDataEvent("map"s, [this](JSON::dom::object &json) { receiveMapData(json); });
 }
 
 void TopBarComponent::receiveMapData(JSON::dom::object &json) {

@@ -7,6 +7,7 @@
 #include "components/base/BagComponent.h"
 #include "components/base/PaddedComponent.h"
 #include "components/content/AllPlayersComponent.h"
+#include "components/content/BottomBarComponent.h"
 #include "components/content/FourCornersComponent.h"
 #include "components/content/RoundComponent.h"
 #include "components/content/TopBarComponent.h"
@@ -26,6 +27,7 @@ HudComponent::HudComponent(CommonResources &commonResources):
 	auto innerBag = std::make_unique<BagComponent>(commonResources);
 	innerBag->children.emplace_back(std::make_unique<RoundComponent>(commonResources));
 	innerBag->children.emplace_back(std::make_unique<TopBarComponent>(commonResources));
+	innerBag->children.emplace_back(std::make_unique<BottomBarComponent>(commonResources));
 	innerBag->children.emplace_back(std::make_unique<AllPlayersComponent>(commonResources));
 	bag->children.emplace_back(
 		std::make_unique<PaddedComponent>(commonResources, 8.f, std::move(innerBag))
