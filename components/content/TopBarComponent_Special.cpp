@@ -4,6 +4,7 @@
 #include "pch.h"
 
 #include "components/base/Component.h"
+#include "data/IconStorage.h"
 #include "movement/TransitionedValue.h"
 #include "resources/CommonResources.h"
 #include "text/TextRenderer.h"
@@ -111,13 +112,25 @@ void TopBarComponent::WinLoseComponent::paint(const D2D1::Matrix3x2F &transform,
 			D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, D2D1_COMPOSITE_MODE_SOURCE_OVER
 		);
 		renderTarget.SetTransform(currentTransform);
-		winTextRenderer.draw(	
+		winTextRenderer.draw(
 			L"WIN"sv, {12 + parentSize.height * 3 / 4, 0, parentSize.width, parentSize.height}, textBrush
 		);
 		if (!streak.empty()) {
-			const D2D1_RECT_F bounds = {0, 0, parentSize.width, parentSize.height};
+			const float middle = parentSize.width / 2;
+			const auto &icon = commonResources.icons[IconStorage::INDEX_FIRE];
+			renderTarget.SetTransform(
+				D2D1::Matrix3x2F::Scale(scale, scale, {0, 0})
+				* D2D1::Matrix3x2F::Translation(middle - icon.width * scale, parentSize.height/8)
+				* currentTransform
+			);
+			renderTarget.DrawImage(
+				icon.source.get(), nullptr, nullptr,
+				D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, D2D1_COMPOSITE_MODE_SOURCE_OVER
+			);
+			renderTarget.SetTransform(currentTransform);
+			
+			const D2D1_RECT_F bounds = {middle + 8, 0, parentSize.width, parentSize.height};
 			auto textLayout = streakTextRenderer.prepareLayout(streak, bounds);
-			textLayout->SetFontSize(12, {0, 1});
 			streakTextRenderer.drawPreparedLayout(textLayout, bounds, textBrush);
 		}
 	}

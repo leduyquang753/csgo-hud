@@ -107,7 +107,7 @@ class TopBarComponent final: public Component {
 			ctNameBackgroundBrush, tNameBackgroundBrush, ctScoreBackgroundBrush, tScoreBackgroundBrush,
 			textBrush, moneyGainBrush;
 		std::optional<NormalTextRenderer> nameTextRenderer, winLoseTextRenderer;
-		std::optional<FixedWidthDigitTextRenderer> scoreTextRenderer, moneyGainTextRenderer;
+		std::optional<FixedWidthDigitTextRenderer> scoreTextRenderer, streakTextRenderer, moneyGainTextRenderer;
 		
 		std::unique_ptr<StackComponent> container;
 		ChildComponent

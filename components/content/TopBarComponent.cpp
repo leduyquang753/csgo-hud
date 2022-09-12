@@ -109,6 +109,16 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		18, L"", textFormat.put()
 	);
+	streakTextRenderer.emplace(
+		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
+	);
+	
+	textFormat = nullptr;
+	writeFactory.CreateTextFormat(
+		L"Stratum2", nullptr,
+		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+		18, L"", textFormat.put()
+	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 	moneyGainTextRenderer.emplace(
 		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
@@ -144,7 +154,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 			backgroundBlackBrush,
 			backgroundBrush, side ? tScoreBackgroundBrush : ctScoreBackgroundBrush,
 			textBrush, moneyGainBrush,
-			*winLoseTextRenderer, *nameTextRenderer, *moneyGainTextRenderer, winLoseTransition
+			*winLoseTextRenderer, *streakTextRenderer, *moneyGainTextRenderer, winLoseTransition
 		);
 		(side ? rightWinLoseDisplay : leftWinLoseDisplay) = winLoseDisplay.get();
 		bag->children.emplace_back(std::move(winLoseDisplay));
@@ -331,14 +341,14 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 			leftWinLoseDisplay->winIconIndex = win ? RoundsData::iconMap[winningCondition] : -1;
 			leftWinLoseDisplay->lossBonusLevel = gain.first;
 			leftWinLoseDisplay->moneyGain = L"+"s + std::to_wstring(gain.second) + L" $"s;
-			if (win) leftWinLoseDisplay->streak = streak > 1 ? L"🔥 "s + std::to_wstring(streak) : L""s;
+			if (win) leftWinLoseDisplay->streak = streak > 1 ? std::to_wstring(streak) : L""s;
 			win = !win;
 			gain = computeGain(!ctToTheLeft, win, winningCondition, rounds);
 			streak = computeStreak(!ctToTheLeft, rounds);
 			rightWinLoseDisplay->winIconIndex = win ? RoundsData::iconMap[winningCondition] : -1;
 			rightWinLoseDisplay->lossBonusLevel = gain.first;
 			rightWinLoseDisplay->moneyGain = L"+" + std::to_wstring(gain.second) + L" $"s;
-			if (win) rightWinLoseDisplay->streak = streak > 1 ? L"🔥 "s + std::to_wstring(streak) : L""s;
+			if (win) rightWinLoseDisplay->streak = streak > 1 ? std::to_wstring(streak) : L""s;
 			winLoseTransition.transition(1);
 		} else {
 			winLoseTransition.transition(0);

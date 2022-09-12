@@ -31,6 +31,7 @@ void RoundsData::receivePhaseData(JSON::dom::object &json) {
 	switch (phaseString[0]) {
 		case 'w':
 			currentPhase = Phase::WARMUP;
+			beginningOfRound = false;
 			break;
 		case 'f':
 			currentPhase = Phase::FREEZETIME;
@@ -42,18 +43,22 @@ void RoundsData::receivePhaseData(JSON::dom::object &json) {
 			break;
 		case 'b':
 			currentPhase = Phase::BOMB;
+			beginningOfRound = false;
 			break;
 		case 'd':
 			currentPhase = Phase::DEFUSE;
+			beginningOfRound = false;
 			break;
 		case 'p':
 			currentPhase = Phase::PAUSED;
 			break;
 		case 't'/*imeout_*/:
 			currentPhase = phaseString[8] == 'c'/*t*/ ? Phase::TIMEOUT_CT : Phase::TIMEOUT_T;
+			beginningOfRound = true;
 			break;
 		default:
 			currentPhase = Phase::OVER;
+			beginningOfRound = false;
 			break;
 	}
 }

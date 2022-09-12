@@ -21,7 +21,7 @@ struct CommonResources;
 */
 class IconStorage final {
 	private:
-		std::array<Icon, 49> icons;
+		std::array<Icon, 50> icons;
 	public:
 		static const int
 			INDEX_ZEUS = 34,
@@ -32,7 +32,8 @@ class IconStorage final {
 			INDEX_HEALTH = 45,
 			INDEX_DEAD = 46,
 			INDEX_EXPLOSION = 47,
-			INDEX_TIMER = 48;
+			INDEX_TIMER = 48,
+			INDEX_FIRE = 49;
 		
 		void loadIcons(CommonResources &commonResources);
 		const Icon& operator[](int index) const;

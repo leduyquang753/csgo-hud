@@ -123,7 +123,7 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		BAR_SPACING = 4,
 		BAR_RESERVED_WIDTH = BAR_WIDTH + BAR_SPACING,
 		AMMO_LENGTH = 74,
-		AMMO_SEPARATION = 40,
+		AMMO_SEPARATION = 42,
 		SPACING = 8;
 	
 	const float alpha = masterTransition.getValue() * selfTransition.getValue();
