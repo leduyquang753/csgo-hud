@@ -2,6 +2,7 @@
 #define CSGO_HUD_DATA_PLAYERDATA_H
 
 #include <array>
+#include <cstdint>
 #include <optional>
 #include <string>
 
@@ -25,6 +26,7 @@ class PlayerData final {
 			SLOT_GRENADE_0 = 5, SLOT_GRENADE_1 = 6, SLOT_GRENADE_2 = 7, SLOT_GRENADE_3 = 8,
 			SLOT_C4 = 9;
 		
+		std::uint64_t steamId;
 		std::wstring name;
 		bool team;
 

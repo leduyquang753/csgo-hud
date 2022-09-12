@@ -20,8 +20,12 @@ class WeaponTypes;
 class AllPlayersData final {
 	private:
 		const WeaponTypes &weaponTypes;
-		std::array<std::optional<PlayerData>, 10> players;
-		std::unordered_map<std::uint64_t, int> steamIdMap;
+		std::array<std::optional<PlayerData>, 10> 
+			players1, players2,
+			*currentPlayers = &players1, *previousPlayers = &players2;
+		std::unordered_map<std::uint64_t, int>
+			steamIdMap1, steamIdMap2,
+			*currentSteamIdMap = &steamIdMap1, *previousSteamIdMap = &steamIdMap2;
 		std::string phase;
 		bool alreadyFreezeTime = false;
 

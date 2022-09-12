@@ -2,6 +2,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "pch.h"
 
@@ -27,7 +28,9 @@ AllPlayersData::AllPlayersData(const WeaponTypes &weaponTypes, EventBus &eventBu
 }
 
 void AllPlayersData::receivePlayersData(JSON::dom::object &json) {
-	steamIdMap.clear();
+	std::swap(currentPlayers, previousPlayers);
+	std::swap(currentSteamIdMap, previousSteamIdMap);
+	currentSteamIdMap->clear();
 	std::array<bool, 10> playerPresent = {};
 	for (auto entry : json) {
 		auto playerData = entry.value.get_object().value();
@@ -36,13 +39,25 @@ void AllPlayersData::receivePlayersData(JSON::dom::object &json) {
 		int slot = static_cast<int>(slotData.value().get_uint64());
 		if (slot == 0) slot = 10;
 		--slot;
-		auto &player = players[slot];
+		const std::uint64_t steamId = std::stoull(std::string(entry.key));
+		auto &player = (*currentPlayers)[slot];
 		if (!player) player.emplace();
+		player->steamId = steamId;
 		player->receiveData(weaponTypes, playerData);
+		// Inherit previously computed properties of the player, if present, or place new initial values.
+		auto &oldPlayer = (*previousPlayers)[slot];
+		if (oldPlayer && steamId == oldPlayer->steamId) {
+			player->startingMoney = oldPlayer->startingMoney;
+		} else {
+			const auto entry = previousSteamIdMap->find(steamId);
+			player->startingMoney = entry == previousSteamIdMap->end()
+				? player->money
+				: (*previousPlayers)[entry->second]->startingMoney;
+		}
 		playerPresent[slot] = true;
-		steamIdMap.insert({std::stoull(std::string(entry.key)), slot});
+		currentSteamIdMap->insert({steamId, slot});
 	}
-	for (int i = 0; i != 10; ++i) if (!playerPresent[i]) players[i].reset();
+	for (int i = 0; i != 10; ++i) if (!playerPresent[i]) (*currentPlayers)[i].reset();
 }
 
 void AllPlayersData::receivePhaseData(JSON::dom::object &json) {
@@ -53,23 +68,23 @@ void AllPlayersData::receivePhaseData(JSON::dom::object &json) {
 		alreadyFreezeTime = false;
 	} else if (!alreadyFreezeTime && phase == "freezetime"s) {
 		alreadyFreezeTime = true;
-		for (auto &player : players) if (player) player->startingMoney = player->money;
+		for (auto &player : *currentPlayers) if (player) player->startingMoney = player->money;
 	}
 }
 
 const std::optional<PlayerData>& AllPlayersData::operator[](const int slot) const {
-	return players[slot];
+	return (*currentPlayers)[slot];
 }
 
 const std::optional<PlayerData>& AllPlayersData::operator()(const std::uint64_t steamId) const {
 	static const std::optional<PlayerData> NO_PLAYER;
 	
-	auto iterator = steamIdMap.find(steamId);
-	return iterator == steamIdMap.end() ? NO_PLAYER : players[iterator->second];
+	auto iterator = currentSteamIdMap->find(steamId);
+	return iterator == currentSteamIdMap->end() ? NO_PLAYER : (*currentPlayers)[iterator->second];
 }
 
 int AllPlayersData::getFirstPlayerIndex() const {
-	for (int i = 0; i != 10; ++i) if (players[i]) return i;
+	for (int i = 0; i != 10; ++i) if ((*currentPlayers)[i]) return i;
 	return -1;
 }
 
