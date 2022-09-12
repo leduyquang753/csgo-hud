@@ -381,14 +381,14 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 				resources.textWhiteBrush
 			);
 			resources.normalTextRenderer.draw(
-				std::to_wstring(player.equipmentValue) + L" $"s,
+				player.money == player.startingMoney
+					? L"-0 $"s
+					: std::to_wstring(player.money - player.startingMoney) + L" $"s,
 				{moneyStart, 0, moneyEnd, verticalMiddle},
 				resources.textWhiteBrush
 			);
 			resources.normalTextRenderer.draw(
-				player.money == player.startingMoney
-					? L"-0 $"s
-					: std::to_wstring(player.money - player.startingMoney) + L" $"s,
+				std::to_wstring(player.equipmentValue) + L" $"s,
 				{moneyStart, verticalMiddle, moneyEnd, parentSize.height},
 				resources.textWhiteBrush
 			);

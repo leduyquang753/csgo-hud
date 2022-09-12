@@ -126,6 +126,7 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		AMMO_SEPARATION = 40,
 		SPACING = 8;
 	
+	const float alpha = masterTransition.getValue() * selfTransition.getValue();
 	if (activeSlot == -1) {
 		if (shown) {
 			shown = false;
@@ -134,12 +135,12 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 	} else {
 		const auto &optionalPlayer = commonResources.players[activeSlot];
 		if (optionalPlayer) {
-			player = *optionalPlayer;
-			const bool currentShown = player.health != 0;
+			const bool currentShown = optionalPlayer->health != 0;
 			if (currentShown != shown) {
 				shown = currentShown;
 				selfTransition.transition(shown ? 1.f : 0.f);
 			}
+			if (shown || alpha != 0) player = *optionalPlayer;
 		} else {
 			if (shown) {
 				shown = false;
@@ -147,7 +148,6 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 			}
 		}
 	}
-	const float alpha = masterTransition.getValue() * selfTransition.getValue();
 	if (alpha == 0) return;
 	const bool transiting = alpha != 1;
 	

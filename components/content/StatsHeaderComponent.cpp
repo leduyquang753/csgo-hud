@@ -66,10 +66,10 @@ void StatsHeaderComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_S
 		L"D"s, {kdStart, verticalMiddle, kdEnd, parentSize.height}, resources.textWhiteBrush
 	);
 	resources.normalTextRenderer.draw(
-		L"Equip."s, {moneyStart, 0, moneyEnd, verticalMiddle}, resources.textWhiteBrush
+		L"Buy"s, {moneyStart, 0, moneyEnd, verticalMiddle}, resources.textWhiteBrush
 	);
 	resources.normalTextRenderer.draw(
-		L"Buy"s, {moneyStart, verticalMiddle, moneyEnd, parentSize.height}, resources.textWhiteBrush
+		L"Equip."s, {moneyStart, verticalMiddle, moneyEnd, parentSize.height}, resources.textWhiteBrush
 	);
 	if (statsTransiting) renderTarget.PopLayer();
 }

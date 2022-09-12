@@ -119,7 +119,7 @@ void TeamBuyComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	) {
 		const int total = leftAmount + rightAmount;
 		if (total == 0) return;
-		const float middle = innerLeft + innerWidth * static_cast<float>(leftAmount) / rightAmount;
+		const float middle = innerLeft + innerWidth * static_cast<float>(leftAmount) / total;
 		renderTarget.FillRectangle({innerLeft, top, middle, bottom}, leftTeam ? ctBrush.get() : tBrush.get());
 		renderTarget.FillRectangle({middle, top, innerRight, bottom}, leftTeam ? tBrush.get() : ctBrush.get());
 	};
