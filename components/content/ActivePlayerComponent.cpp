@@ -200,28 +200,20 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 
 	renderTarget.FillRectangle({0, sideTop, healthArmorRight, parentSize.height}, teamBrush.get());
 
-	winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
-	renderTarget.CreateSpriteBatch(spriteBatch.put());
-	auto drawIcon = [this, sideInnerHeight, &spriteBatch](
-		const int index, const float x, const float y
-	) {
+	const auto bitmap = commonResources.icons.getBitmap();
+	auto drawIcon = [this, &renderTarget, sideInnerHeight, bitmap](const int index, const float x, const float y) {
 		const auto &icon = commonResources.icons[index];
-		const D2D1_RECT_F destinationRect = {x, y, x + sideInnerHeight, y + sideInnerHeight};
-		spriteBatch->AddSprites(1, &destinationRect, &icon.bounds, nullptr, nullptr, 0, 0, 0, 0);
+		renderTarget.DrawBitmap(
+			bitmap,
+			{x, y, x + sideInnerHeight, y + sideInnerHeight},
+			1, D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, icon.floatBounds, nullptr
+		);
 	};
 	drawIcon(IconStorage::INDEX_HEALTH, sideMargin, sideInnerTop);
 	drawIcon(
 		player.armor != 0 && player.hasHelmet ? IconStorage::INDEX_FULL_ARMOR : IconStorage::INDEX_KEVLAR,
 		healthArmorMiddle + sideMargin, sideInnerTop
 	);
-	const auto oldMode = renderTarget.GetAntialiasMode();
-	renderTarget.SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
-	renderTarget.DrawSpriteBatch(
-		spriteBatch.get(), commonResources.icons.getBitmap(),
-		D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
-		D2D1_SPRITE_OPTIONS_NONE
-	);
-	renderTarget.SetAntialiasMode(oldMode);
 	
 	bigNumberTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 	bigNumberRenderer->draw(

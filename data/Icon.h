@@ -8,6 +8,7 @@ namespace CsgoHud {
 struct Icon final {
 	UINT width, height;
 	D2D1_RECT_U bounds;
+	D2D1_RECT_F floatBounds;
 };
 
 } // namespace CsgoHud

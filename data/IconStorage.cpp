@@ -123,15 +123,14 @@ void IconStorage::loadIcons(CommonResources &commonResources) {
 			newImageX = imageX + icon.width + PADDING;
 		}
 		icon.bounds = {imageX, imageY, newImageX, imageY + ICON_HEIGHT};
+		icon.floatBounds = {
+			static_cast<float>(imageX), static_cast<float>(imageY),
+			static_cast<float>(newImageX), static_cast<float>(imageY + ICON_HEIGHT)
+		};
 		bitmap = nullptr;
 		commonResources.renderTarget->CreateBitmapFromWicBitmap(converter.get(), nullptr, bitmap.put());
 		spriteTarget->DrawBitmap(
-			bitmap.get(),
-			{
-				static_cast<float>(imageX), static_cast<float>(imageY),
-				static_cast<float>(newImageX), static_cast<float>(imageY + ICON_HEIGHT)
-			},
-			1, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, nullptr
+			bitmap.get(), icon.floatBounds, 1, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, nullptr
 		);
 		imageX = newImageX;
 	}

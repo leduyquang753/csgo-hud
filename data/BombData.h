@@ -23,6 +23,7 @@ class BombData final {
 		D2D1_VECTOR_3F bombPosition;
 
 		std::uint64_t planterSteamId, defuserSteamId;
+		bool planterFound = false, defuserFound = false;
 		std::wstring planterName, defuserName;
 		int bombTimeLeft, defuseTimeLeft;
 

@@ -129,23 +129,18 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 	} else if (bombPlanted && phase != "over"s) {
 		const float center = parentSize.width / 2;
 		
-		winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
-		renderTarget.CreateSpriteBatch(spriteBatch.put());
 		const auto &icon = commonResources.icons[IconStorage::INDEX_C4];
 		const float iconWidth
 			= icon.width * parentSize.height / CommonConstants::ICON_HEIGHT * 3 / 4;
-		const D2D1_RECT_F destinationRect = map.mapAvailable
-			? D2D1_RECT_F{center - iconWidth - 4, parentSize.height/8, center - 4, parentSize.height*7/8}
-			: D2D1_RECT_F{center - iconWidth/2, parentSize.height/8, center + iconWidth/2, parentSize.height*7/8};
-		spriteBatch->AddSprites(1, &destinationRect, &icon.bounds, nullptr, nullptr, 0, 0, 0, 0);
-		const auto oldMode = renderTarget.GetAntialiasMode();
-		renderTarget.SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
-		renderTarget.DrawSpriteBatch(
-			spriteBatch.get(), commonResources.icons.getBitmap(),
-			D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
-			D2D1_SPRITE_OPTIONS_NONE
+		renderTarget.DrawBitmap(
+			commonResources.icons.getBitmap(),
+			map.mapAvailable
+				? D2D1_RECT_F{center - iconWidth - 4, parentSize.height/8, center - 4, parentSize.height*7/8}
+				: D2D1_RECT_F{
+					center - iconWidth/2, parentSize.height/8, center + iconWidth/2, parentSize.height*7/8
+				},
+			1, D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, icon.floatBounds, nullptr
 		);
-		renderTarget.SetAntialiasMode(oldMode);
 
 		if (map.mapAvailable) bombsiteNameRenderer->draw(
 			bombsiteA ? L"A"sv : L"B"sv, {center + 4, 0, parentSize.width, parentSize.height}, textWhiteBrush

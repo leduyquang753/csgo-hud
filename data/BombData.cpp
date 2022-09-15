@@ -37,6 +37,25 @@ void BombData::advanceTime(const int timePassed) {
 		bombTimeLeft = std::max(0, bombTimeLeft - timePassed);
 	}
 
+	if (
+		(bombState == State::PLANTING || bombState == State::PLANTED || bombState == State::DEFUSING)
+		&& !planterFound
+	) {
+		const auto &planter = commonResources.players(planterSteamId);
+		if (planter) {
+			planterFound = true;
+			planterName = planter->name;
+		}
+
+		if (bombState == State::DEFUSING && !defuserFound) {
+			const auto &defuser = commonResources.players(planterSteamId);
+			if (defuser) {
+				planterFound = true;
+				planterName = defuser->name;
+			}
+		}
+	}
+
 	if (bombState == State::DEFUSING) defuseTimeLeft = std::max(0, defuseTimeLeft - timePassed);
 }
 
@@ -76,18 +95,24 @@ void BombData::receiveBombData(JSON::dom::object &json) {
 					defuseTimeLeft = timeLeft;
 			}
 		}
-	} else if (bombState != State::DETONATING || currentState == State::EXPLODED || timeLeft > 0) {
+	} else if (bombState != State::DETONATING || currentState != State::PLANTED || timeLeft > 0) {
 		bombState = currentState;
 		if (currentState == State::PLANTING || currentState == State::PLANTED) {
 			if (currentState == State::PLANTING) {
 				planterSteamId = json["player"sv].value().get_uint64();
-				planterName = commonResources.players(planterSteamId)->name;
+				const auto &planter = commonResources.players(planterSteamId);
+				planterFound = planter.has_value();
+				if (planterFound) planterName = planter->name;
+				else planterName = L"?"s;
 			}
 			bombTimeLeft = timeLeft;
 		} else if (currentState == State::DEFUSING) {
 			defuseTimeLeft = timeLeft;
 			defuserSteamId = json["player"sv].value().get_uint64();
-			defuserName = commonResources.players(defuserSteamId)->name;
+			const auto &defuser = commonResources.players(defuserSteamId);
+			defuserFound = defuser.has_value();
+			if (defuser) defuserName = defuser->name;
+			else defuserName = L"?"s;
 		}
 	}
 }

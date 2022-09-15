@@ -70,18 +70,16 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	if (!map.mapAvailable) return;
 	
 	auto &renderTarget = *commonResources.renderTarget;
+	renderTarget.SetTransform(transform);
 
 	// Draw the map image.
 	const float
 		imageScale = parentSize.width / map.mapWidth,
 		effectiveScale = map.mapScale / imageScale;
-	renderTarget.SetTransform(D2D1::Matrix3x2F::Scale(imageScale, imageScale, {0, 0}) * transform);
 	renderTarget.DrawBitmap(
-		map.mapImage.get(), {0, 0, map.mapWidth, map.mapHeight}, 1,
+		map.mapImage.get(), {0, 0, parentSize.width, map.mapHeight * imageScale}, 1,
 		D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, nullptr, nullptr
 	);
-	
-	renderTarget.SetTransform(transform);
 
 	// Draw bombsite names.
 	auto drawBombsiteName = [this, &renderTarget, &map, imageScale, effectiveScale](

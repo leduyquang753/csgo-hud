@@ -105,12 +105,14 @@ void TopBarComponent::WinLoseComponent::paint(const D2D1::Matrix3x2F &transform,
 		const float
 			iconY = parentSize.height / 8,
 			iconSize = parentSize.height * 3 / 4;
-		winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
-		renderTarget.CreateSpriteBatch(spriteBatch.put());
-		auto drawIcon = [this, iconY, iconSize, &spriteBatch](const int index, const float x) {
+		const auto bitmap = commonResources.icons.getBitmap();
+		auto drawIcon = [this, &renderTarget, iconY, iconSize, bitmap](const int index, const float x) {
 			const auto &icon = commonResources.icons[index];
-			const D2D1_RECT_F destinationRect = {x, iconY, x + iconSize, iconY + iconSize};
-			spriteBatch->AddSprites(1, &destinationRect, &icon.bounds, nullptr, nullptr, 0, 0, 0, 0);
+			renderTarget.DrawBitmap(
+				bitmap,
+				{x, iconY, x + iconSize, iconY + iconSize},
+				1, D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, icon.floatBounds, nullptr
+			);
 		};
 	
 		drawIcon(winIconIndex, 8);
@@ -125,15 +127,6 @@ void TopBarComponent::WinLoseComponent::paint(const D2D1::Matrix3x2F &transform,
 			auto textLayout = streakTextRenderer.prepareLayout(streak, bounds);
 			streakTextRenderer.drawPreparedLayout(textLayout, bounds, textBrush);
 		}
-		
-		const auto oldMode = renderTarget.GetAntialiasMode();
-		renderTarget.SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
-		renderTarget.DrawSpriteBatch(
-			spriteBatch.get(), commonResources.icons.getBitmap(),
-			D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
-			D2D1_SPRITE_OPTIONS_NONE
-		);
-		renderTarget.SetAntialiasMode(oldMode);
 	}
 	moneyGainTextRenderer.draw(moneyGain, {0, 0, parentSize.width - 8, parentSize.height}, moneyGainBrush);
 	if (transiting) renderTarget.PopLayer();
