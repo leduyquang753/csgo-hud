@@ -71,11 +71,16 @@ void AllPlayersData::receivePlayersData(JSON::dom::object &json) {
 				player->startingMoney = player->money;
 			} else {
 				const auto &oldPlayer = (*previousPlayers)[entry->second];
-				if (player->health == 0 && oldPlayer->health != 0)
-					player->lastDeathTime = commonResources.time;
-				else
-					player->lastDeathTime = oldPlayer->lastDeathTime;
-				player->startingMoney = oldPlayer->startingMoney;
+				if (oldPlayer) {
+					if (player->health == 0 && oldPlayer->health != 0)
+						player->lastDeathTime = commonResources.time;
+					else
+						player->lastDeathTime = oldPlayer->lastDeathTime;
+					player->startingMoney = oldPlayer->startingMoney;
+				} else {
+					player->lastDeathTime = -10000;
+					player->startingMoney = player->money;
+				}
 			}
 		}
 		playerPresent[slot] = true;

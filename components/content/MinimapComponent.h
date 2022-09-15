@@ -2,6 +2,7 @@
 #define CSGO_HUD_COMPONENTS_CONTENT_MINIMAP_COMPONENT_H
 
 #include <optional>
+#include <vector>
 
 #include "pch.h"
 
@@ -17,10 +18,11 @@ struct CommonResources;
 */
 class MinimapComponent final: public Component {
 	private:
+		std::vector<int> flashTimes;
+		
 		D2D1_COLOR_F
 			droppedBombColor, plantedBombColor, defusedBombColor,
-			ctColor, tColor;
-
+			ctColor, tColor, bombRedFlashColor, bombWhiteFlashColor;
 		winrt::com_ptr<ID2D1Layer> layer1, layer2;
 		winrt::com_ptr<ID2D1SolidColorBrush>
 			whiteBrush, ctBrush, tBrush, bombsiteNameBrush, bombBrush, flashBrush, smokeBrush, fireBrush;

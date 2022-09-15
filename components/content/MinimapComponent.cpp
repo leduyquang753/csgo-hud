@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <cmath>
+#include <functional>
 #include <string>
 #include <string_view>
 
@@ -26,8 +28,16 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	plantedBombColor{1, 0, 0, 1},
 	defusedBombColor{0, 1, 0, 1},
 	ctColor{0.35f, 0.72f, 0.96f, 1},
-	tColor{0.94f, 0.79f, 0.25f, 1}
+	tColor{0.94f, 0.79f, 0.25f, 1},
+	bombRedFlashColor{1, 0.6f, 0.6f, 1},
+	bombWhiteFlashColor{1, 1, 1, 1}
 {
+	float currentFlashTime = 40000;
+	while (currentFlashTime > 1000) {
+		flashTimes.push_back(static_cast<int>(currentFlashTime));
+		currentFlashTime -= std::max(150.f, 100.f + 900.f * currentFlashTime / 40000);
+	}
+	
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, whiteBrush.put());
 	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, ctBrush.put());
@@ -35,7 +45,7 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 0.7f}, bombsiteNameBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 0, 0, 1}, bombBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, flashBrush.put());
-	renderTarget.CreateSolidColorBrush({1, 0.5f, 0.5f, 1}, smokeBrush.put());
+	renderTarget.CreateSolidColorBrush({0.8f, 0.8f, 0.8f, 1}, smokeBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 0.5f, 0.5f, 1}, fireBrush.put());
 	
 	auto &writeFactory = *commonResources.writeFactory;
@@ -124,7 +134,7 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		const winrt::com_ptr<ID2D1SolidColorBrush> &brush
 	) {
 		const float radius = big ? 10.f : 8.f;
-		renderTarget.FillEllipse({{x, y}, radius, radius}, brush.get());
+		renderTarget.FillEllipse({x, y, radius, radius}, brush.get());
 		winrt::com_ptr<ID2D1PathGeometry> path;
 		commonResources.d2dFactory->CreatePathGeometry(path.put());
 		winrt::com_ptr<ID2D1GeometrySink> sink;
@@ -259,7 +269,6 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			x = (bomb.bombPosition.x - map.leftCoordinate) / effectiveScale,
 			y = (map.topCoordinate - bomb.bombPosition.y) / effectiveScale,
 			z = bomb.bombPosition.z;
-		static const float BOMB_HALF_SIZE = 8;
 		auto color
 			= bomb.bombState == BombData::State::DROPPED ? droppedBombColor
 			: bomb.bombState == BombData::State::PLANTED
@@ -267,30 +276,48 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 				|| bomb.bombState == BombData::State::DETONATING
 				? plantedBombColor
 			: defusedBombColor;
+		const bool shouldDrawFlash
+			= bomb.bombState == BombData::State::PLANTED || bomb.bombState == BombData::State::DEFUSING
+				? (
+					bomb.bombTimeLeft < 1000
+					|| std::ranges::upper_bound(
+						flashTimes, std::min(40000, bomb.bombTimeLeft), std::ranges::greater()
+					)[-1] - bomb.bombTimeLeft < 125
+				)
+				: (
+					bomb.bombState == BombData::State::DETONATING
+					&& bomb.bombTimeLeft * 22 / 1000 % 2 == 1
+				);
+		const auto flashColor
+			= bomb.bombState == BombData::State::DETONATING || bomb.bombTimeLeft < 1000
+				? bombWhiteFlashColor : bombRedFlashColor;
+		auto drawBomb = [
+			&transform, &renderTarget, &spriteBatch, &drawIcon, &commitIconDraws, &color,
+			shouldDrawFlash, flashColor
+		](const float x, const float y, const D2D1_COLOR_F &color) {
+			drawIcon(IconStorage::INDEX_C4, x, y, 8, color);
+			if (shouldDrawFlash) drawIcon(IconStorage::INDEX_LED, x-2, y-1, 12, flashColor);
+		};
 		if (map.hasLowerLevel) {
 			if (z >= map.levelSeparationTop) {
-				drawIcon(IconStorage::INDEX_C4, x, y, BOMB_HALF_SIZE, color);
+				drawBomb(x, y, color);
 			} else if (z > map.levelSeparationBottom) {
 				color.a = (z - map.levelSeparationBottom) / map.levelTransitionRange;
-				drawIcon(IconStorage::INDEX_C4, x, y, BOMB_HALF_SIZE, color);
-				drawIcon(
-					IconStorage::INDEX_C4,
-					x + map.lowerLevelOffsetX * imageScale, y + map.lowerLevelOffsetY * imageScale,
-					BOMB_HALF_SIZE, color
+				drawBomb(x, y, color);
+				drawBomb(
+					x + map.lowerLevelOffsetX * imageScale, y + map.lowerLevelOffsetY * imageScale, color
 				);
 			} else {
-				drawIcon(
-					IconStorage::INDEX_C4,
-					x + map.lowerLevelOffsetX * imageScale, y + map.lowerLevelOffsetY * imageScale,
-					BOMB_HALF_SIZE, color
+				drawBomb(
+					x + map.lowerLevelOffsetX * imageScale, y + map.lowerLevelOffsetY * imageScale, color
 				);
 			}
 		} else {
-			drawIcon(IconStorage::INDEX_C4, x, y, BOMB_HALF_SIZE, color);
+			drawBomb(x, y, color);
 		}
 	}
-	
 	commitIconDraws();
+	
 	// Draw alive players on top.
 	for (int i = 0; i != 10; ++i) {
 		const auto &player = players[i];

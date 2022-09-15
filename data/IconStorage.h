@@ -23,7 +23,7 @@ class IconStorage final {
 	private:
 		winrt::com_ptr<ID2D1BitmapRenderTarget> spriteTarget;
 		winrt::com_ptr<ID2D1Bitmap> sprite;
-		std::array<Icon, 51> icons;
+		std::array<Icon, 52> icons;
 	public:
 		static const int
 			INDEX_ZEUS = 34,
@@ -36,7 +36,8 @@ class IconStorage final {
 			INDEX_EXPLOSION = 47,
 			INDEX_TIMER = 48,
 			INDEX_FIRE = 49,
-			INDEX_X = 50;
+			INDEX_X = 50,
+			INDEX_LED = 51;
 		
 		void loadIcons(CommonResources &commonResources);
 		const Icon& operator[](int index) const;
