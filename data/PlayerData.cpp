@@ -3,7 +3,7 @@
 
 #include "pch.h"
 
-#include "data/WeaponTypes.h"
+#include "resources/CommonResources.h"
 #include "utils/Utils.h"
 
 #include "data/PlayerData.h"
@@ -13,18 +13,9 @@ using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
-static D2D_VECTOR_3F parseVector(std::string_view string) {
-	const auto leftComma = string.find(','), rightComma = string.rfind(',');
-	return {
-		.x = std::stof(std::string(string.substr(0, leftComma))),
-		.y = std::stof(std::string(string.substr(leftComma + 2, rightComma - leftComma - 2))),
-		.z = std::stof(std::string(string.substr(rightComma + 2, string.size() - rightComma - 2)))
-	};
-}
-
 // == PlayerData ==
 
-void PlayerData::receiveData(const WeaponTypes &weaponTypes, JSON::dom::object &json) {
+void PlayerData::receiveData(CommonResources &commonResources, JSON::dom::object &json) {
 	name = Utils::widenString(json["name"sv].value().get_string());
 	team = json["team"sv].value().get_string().value()[0] == 'C'/*T*/;
 
@@ -47,8 +38,8 @@ void PlayerData::receiveData(const WeaponTypes &weaponTypes, JSON::dom::object &
 	equipmentValue = getInt(state, "equip_value"sv);
 	if (!state["defusekit"sv].error()) hasC4OrDefuseKit = true;
 
-	position = parseVector(json["position"sv].value().get_string());
-	forward = parseVector(json["forward"sv].value().get_string());
+	position = Utils::parseVector(json["position"sv].value().get_string());
+	forward = Utils::parseVector(json["forward"sv].value().get_string());
 
 	auto matchStats = json["match_stats"sv].value().get_object().value();
 	totalKills = getInt(matchStats, "kills"sv);
@@ -64,6 +55,7 @@ void PlayerData::receiveData(const WeaponTypes &weaponTypes, JSON::dom::object &
 	int nextGrenade = 0;
 
 	activeSlot = SLOT_NONE;
+	const auto &weaponTypes = commonResources.weaponTypes;
 	const auto &nameMap = weaponTypes.nameMap;
 	for (auto entry : json["weapons"sv].get_object().value()) {
 		auto weapon = entry.value.get_object().value();

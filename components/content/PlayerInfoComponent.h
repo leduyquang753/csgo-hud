@@ -20,6 +20,7 @@ class PlayerInfoComponent final: public Component {
 		struct Resources {
 			D2D1_COLOR_F
 				backgroundInactiveColor, backgroundActiveColor, activeOutlineColor,
+				weaponInactiveColor, weaponEmptyActiveColor, weaponEmptyInactiveColor,
 				flashColor, smokeColor, fireColor;
 			winrt::com_ptr<ID2D1SolidColorBrush>
 				teamCtBrush, teamTBrush, healthBrush, textWhiteBrush, textGreenBrush;
@@ -29,7 +30,6 @@ class PlayerInfoComponent final: public Component {
 		};
 	private:
 		const Resources &resources;
-		winrt::com_ptr<ID2D1Effect> inactiveEffect, emptyActiveEffect, emptyInactiveEffect;
 		winrt::com_ptr<ID2D1Layer> statsLayer;
 		
 		const bool rightSide;

@@ -166,6 +166,18 @@
     <ClCompile Include="components\content\TeamBuyComponent.cpp">
       <Filter>components\content</Filter>
     </ClCompile>
+    <ClCompile Include="components\content\MinimapComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="components\content\FpsComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
+    <ClCompile Include="data\MapData.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
+    <ClCompile Include="data\BombData.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud\HudWindow.h">
@@ -297,6 +309,18 @@
     </ClInclude>
     <ClInclude Include="components\content\TeamBuyComponent.h">
       <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\MinimapComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\FpsComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="data\MapData.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="data\BombData.h">
+      <Filter>data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

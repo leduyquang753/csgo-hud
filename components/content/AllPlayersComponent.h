@@ -34,10 +34,6 @@ class AllPlayersComponent final: public Component {
 		std::string phase;
 		bool statsOn = false;
 		TransitionedValue statsTransition;
-		
-		int activeSlot = -1;
-
-		void receivePlayerData(JSON::dom::object &json);
 	public:
 		AllPlayersComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

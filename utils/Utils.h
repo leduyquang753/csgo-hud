@@ -4,11 +4,14 @@
 #include <string>
 #include <string_view>
 
+#include "pch.h"
+
 namespace CsgoHud {
 
 namespace Utils {
 	std::wstring widenString(std::string_view string);
 	std::wstring formatTimeAmount(int millis);
+	D2D_VECTOR_3F parseVector(std::string_view string);
 }
 
 } // namespace CsgoHud

@@ -7,6 +7,8 @@
 #include <string_view>
 
 #include "components/base/Component.h"
+#include "data/BombData.h"
+#include "data/IconStorage.h"
 #include "resources/CommonResources.h"
 #include "utils/CommonConstants.h"
 #include "utils/Utils.h"
@@ -36,8 +38,16 @@ ClockComponent::ClockComponent(CommonResources &commonResources): Component(comm
 		24, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	
-	textRenderer.emplace(
+	timeTextRenderer.emplace(
+		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
+	);
+	textFormat = nullptr;
+	writeFactory.CreateTextFormat(
+		L"Stratum2", nullptr,
+		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+		24, L"", textFormat.put()
+	);
+	bombsiteNameRenderer.emplace(
 		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
 	);
 
@@ -55,7 +65,6 @@ void ClockComponent::advanceTime(const int timePassed) {
 
 void ClockComponent::receivePhaseData(JSON::dom::object &json) {
 	std::string currentPhase(json["phase"sv].value().get_string().value());
-	if (currentPhase == "bomb"s || currentPhase == "defuse"s) currentPhase.clear();
 	int timeLeft;
 	if (!currentPhase.empty()) {
 		const std::string timeString(json["phase_ends_in"sv].value().get_string().value());
@@ -93,6 +102,17 @@ int ClockComponent::getPhaseTime() {
 }
 
 void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
+	const auto &map = commonResources.map;
+	const auto &bomb = commonResources.bomb;
+	const bool currentBombPlanted
+		= bomb.bombState == BombData::State::PLANTED || bomb.bombState == BombData::State::DEFUSING;
+	if (currentBombPlanted != bombPlanted) {
+		bombPlanted = currentBombPlanted;
+		if (bombPlanted && map.mapAvailable) bombsiteA
+			= map.getDistinguishingAxisValue(bomb.bombPosition) > map.bombsiteDistinguishingValue
+			== map.bombsiteAToPositiveSide;
+	}
+	
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 	
@@ -106,7 +126,31 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 			iconBottom = parentSize.height * 3 / 4;
 		renderTarget.FillRectangle({center-outer, iconTop, center-inner, iconBottom}, textWhiteBrush.get());
 		renderTarget.FillRectangle({center+inner, iconTop, center+outer, iconBottom}, textWhiteBrush.get());
-	} else if (!phase.empty()) {
+	} else if (bombPlanted && phase != "over"s) {
+		const float center = parentSize.width / 2;
+		
+		winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
+		renderTarget.CreateSpriteBatch(spriteBatch.put());
+		const auto &icon = commonResources.icons[IconStorage::INDEX_C4];
+		const float iconWidth
+			= icon.width * parentSize.height / CommonConstants::ICON_HEIGHT * 3 / 4;
+		const D2D1_RECT_F destinationRect = map.mapAvailable
+			? D2D1_RECT_F{center - iconWidth - 4, parentSize.height/8, center - 4, parentSize.height*7/8}
+			: D2D1_RECT_F{center - iconWidth/2, parentSize.height/8, center + iconWidth/2, parentSize.height*7/8};
+		spriteBatch->AddSprites(1, &destinationRect, &icon.bounds, nullptr, nullptr, 0, 0, 0, 0);
+		const auto oldMode = renderTarget.GetAntialiasMode();
+		renderTarget.SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+		renderTarget.DrawSpriteBatch(
+			spriteBatch.get(), commonResources.icons.getBitmap(),
+			D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+			D2D1_SPRITE_OPTIONS_NONE
+		);
+		renderTarget.SetAntialiasMode(oldMode);
+
+		if (map.mapAvailable) bombsiteNameRenderer->draw(
+			bombsiteA ? L"A"sv : L"B"sv, {center + 4, 0, parentSize.width, parentSize.height}, textWhiteBrush
+		);
+	} else {
 		const bool red = phase == "live"s && phaseTimeLeft <= 10000;
 		if (phaseTime != 0) {
 			renderTarget.FillRectangle(
@@ -118,7 +162,7 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 				red ? progressRedBrush.get() : progressWhiteBrush.get()
 			);
 		}
-		textRenderer->draw(
+		timeTextRenderer->draw(
 			Utils::formatTimeAmount(phaseTimeLeft),
 			{0, 0, parentSize.width, parentSize.height},
 			red ? textRedBrush : textWhiteBrush

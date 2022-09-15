@@ -137,32 +137,35 @@ LRESULT HudWindow::handleWindowMessage(const UINT message, const WPARAM wParam, 
 }
 
 void HudWindow::tick() {
+	int &time = commonResources.time;
 	const auto now = std::chrono::steady_clock::now();
-	if (lastTickTime == -1) {
+	if (time == -1) {
 		firstTick = now;
-		lastTickTime = 0;
+		time = 0;
 	} else {
+		int lastTickTime = time;
 		auto &eventBus = commonResources.eventBus;
 		auto &httpServer = commonResources.httpServer;
 		httpServer.mutex.lock();
 		const auto &jsons = httpServer.getCurrentJsons();
 		const auto &timestamps = httpServer.getCurrentTimestamps();
+		const auto &startLengths = httpServer.getCurrentStartLengths();
 		httpServer.swapBuffers();
 		httpServer.mutex.unlock();
-		std::size_t nextJson = 0;
+		auto currentStartLength = startLengths.begin();
 		for (const auto &timestamp : timestamps) {
-			const std::size_t
-				jsonEnd = jsons.find('\0', nextJson),
-				jsonSize = jsonEnd - nextJson;
-			if (jsonSize != 0) {
-				const int time = static_cast<int>(
+			if (currentStartLength->second != 0) {
+				time = static_cast<int>(
 					std::chrono::duration_cast<std::chrono::milliseconds>(timestamp - firstTick).count()
 				);
 				eventBus.notifyTimeEvent(time - lastTickTime);
 				lastTickTime = time;
 				
 				JSON::dom::element jsonDocument
-					= jsonParser.parse(jsons.c_str() + nextJson, jsonSize, jsonSize + JSON::SIMDJSON_PADDING);
+					= jsonParser.parse(
+						jsons.c_str() + currentStartLength->first,
+						currentStartLength->second, currentStartLength->second + JSON::SIMDJSON_PADDING
+					);
 				JSON::dom::object json = jsonDocument.get_object();
 				eventBus.notifyDataEvent("", json);
 				for (auto field : json) {
@@ -170,13 +173,12 @@ void HudWindow::tick() {
 					eventBus.notifyDataEvent(std::string(field.key), subJson);
 				}
 			}
-			nextJson = jsonEnd + JSON::SIMDJSON_PADDING;
+			++currentStartLength;
 		}
-		const int currentTickTime = static_cast<int>(
+		time = static_cast<int>(
 			std::chrono::duration_cast<std::chrono::milliseconds>(now - firstTick).count()
 		);
-		eventBus.notifyTimeEvent(currentTickTime - lastTickTime);
-		lastTickTime = currentTickTime;
+		eventBus.notifyTimeEvent(time - lastTickTime);
 	}
 }
 

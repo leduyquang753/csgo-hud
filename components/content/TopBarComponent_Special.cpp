@@ -89,6 +89,7 @@ void TopBarComponent::WinLoseComponent::paint(const D2D1::Matrix3x2F &transform,
 		{0, 0, parentSize.width, parentSize.height},
 		winIconIndex == -1 ? backgroundBlackBrush.get() : backgroundTeamBrush.get()
 	);
+	
 	if (winIconIndex == -1) {
 		const float
 			length = parentSize.height * 3 / 4,
@@ -101,38 +102,38 @@ void TopBarComponent::WinLoseComponent::paint(const D2D1::Matrix3x2F &transform,
 			);
 		}
 	} else {
-		const float scale = parentSize.height / CommonConstants::ICON_HEIGHT * 3 / 4;
-		renderTarget.SetTransform(
-			D2D1::Matrix3x2F::Scale(scale, scale, {0, 0})
-			* D2D1::Matrix3x2F::Translation(8, parentSize.height/8)
-			* currentTransform
-		);
-		renderTarget.DrawImage(
-			commonResources.icons[winIconIndex].source.get(), nullptr, nullptr,
-			D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, D2D1_COMPOSITE_MODE_SOURCE_OVER
-		);
-		renderTarget.SetTransform(currentTransform);
+		const float
+			iconY = parentSize.height / 8,
+			iconSize = parentSize.height * 3 / 4;
+		winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
+		renderTarget.CreateSpriteBatch(spriteBatch.put());
+		auto drawIcon = [this, iconY, iconSize, &spriteBatch](const int index, const float x) {
+			const auto &icon = commonResources.icons[index];
+			const D2D1_RECT_F destinationRect = {x, iconY, x + iconSize, iconY + iconSize};
+			spriteBatch->AddSprites(1, &destinationRect, &icon.bounds, nullptr, nullptr, 0, 0, 0, 0);
+		};
+	
+		drawIcon(winIconIndex, 8);
 		winTextRenderer.draw(
 			L"WIN"sv, {12 + parentSize.height * 3 / 4, 0, parentSize.width, parentSize.height}, textBrush
 		);
 		if (!streak.empty()) {
 			const float middle = parentSize.width / 2;
-			const auto &icon = commonResources.icons[IconStorage::INDEX_FIRE];
-			renderTarget.SetTransform(
-				D2D1::Matrix3x2F::Scale(scale, scale, {0, 0})
-				* D2D1::Matrix3x2F::Translation(middle - icon.width * scale, parentSize.height/8)
-				* currentTransform
-			);
-			renderTarget.DrawImage(
-				icon.source.get(), nullptr, nullptr,
-				D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, D2D1_COMPOSITE_MODE_SOURCE_OVER
-			);
-			renderTarget.SetTransform(currentTransform);
+			drawIcon(IconStorage::INDEX_FIRE, middle - iconSize);
 			
 			const D2D1_RECT_F bounds = {middle + 8, 0, parentSize.width, parentSize.height};
 			auto textLayout = streakTextRenderer.prepareLayout(streak, bounds);
 			streakTextRenderer.drawPreparedLayout(textLayout, bounds, textBrush);
 		}
+		
+		const auto oldMode = renderTarget.GetAntialiasMode();
+		renderTarget.SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+		renderTarget.DrawSpriteBatch(
+			spriteBatch.get(), commonResources.icons.getBitmap(),
+			D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+			D2D1_SPRITE_OPTIONS_NONE
+		);
+		renderTarget.SetAntialiasMode(oldMode);
 	}
 	moneyGainTextRenderer.draw(moneyGain, {0, 0, parentSize.width - 8, parentSize.height}, moneyGainBrush);
 	if (transiting) renderTarget.PopLayer();

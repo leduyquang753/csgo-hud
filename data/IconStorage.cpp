@@ -15,7 +15,7 @@ namespace CsgoHud {
 // == IconStorage ==
 
 void IconStorage::loadIcons(CommonResources &commonResources) {
-	const std::array<std::wstring, 50> fileNames = {
+	const std::array<std::wstring, 51> fileNames = {
 		/*
 			Weapons in the order corresponding to that in `data\WeaponTypes.cpp` so that lookup can be
 			easily done.
@@ -74,7 +74,8 @@ void IconStorage::loadIcons(CommonResources &commonResources) {
 		L"Dead"s,
 		L"Explosion"s,
 		L"Timer"s,
-		L"Fire"s // 50
+		L"Fire"s,
+		L"X"s // 50
 	};
 
 	winrt::com_ptr<IWICImagingFactory> imagingFactory;
@@ -82,6 +83,22 @@ void IconStorage::loadIcons(CommonResources &commonResources) {
 		CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(imagingFactory.put())
 	);
 
+	static const UINT32 SPRITE_SIZE = 2048;
+	static const D2D1_SIZE_U SPRITE_SIZE_STRUCT = {SPRITE_SIZE, SPRITE_SIZE};
+	static const D2D1_PIXEL_FORMAT SPRITE_FORMAT = {
+		.format = DXGI_FORMAT_B8G8R8A8_UNORM, .alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED
+	};
+	commonResources.renderTarget->CreateCompatibleRenderTarget(
+		nullptr, &SPRITE_SIZE_STRUCT,
+		&SPRITE_FORMAT, D2D1_COMPATIBLE_RENDER_TARGET_OPTIONS_NONE,
+		spriteTarget.put()
+	);
+	winrt::com_ptr<ID2D1Bitmap> bitmap;
+
+	static const UINT32 PADDING = 10, ICON_HEIGHT = 128;
+	UINT32 imageX = PADDING, imageY = PADDING;
+
+	spriteTarget->BeginDraw();
 	for (int i = 0; i != fileNames.size(); ++i) {
 		const std::wstring path = L"Icons\\"s + fileNames[i] + L".png"s;
 		
@@ -99,13 +116,35 @@ void IconStorage::loadIcons(CommonResources &commonResources) {
 		);
 		auto &icon = icons[i];
 		converter->GetSize(&icon.width, &icon.height);
-		commonResources.renderTarget->CreateEffect(CLSID_D2D1BitmapSource, icon.source.put());
-		icon.source->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, converter.get());
+		UINT32 newImageX = imageX + icon.width + PADDING;
+		if (newImageX > SPRITE_SIZE) {
+			imageY += ICON_HEIGHT + PADDING;
+			imageX = PADDING;
+			newImageX = imageX + icon.width + PADDING;
+		}
+		icon.bounds = {imageX, imageY, newImageX, imageY + ICON_HEIGHT};
+		bitmap = nullptr;
+		commonResources.renderTarget->CreateBitmapFromWicBitmap(converter.get(), nullptr, bitmap.put());
+		spriteTarget->DrawBitmap(
+			bitmap.get(),
+			{
+				static_cast<float>(imageX), static_cast<float>(imageY),
+				static_cast<float>(newImageX), static_cast<float>(imageY + ICON_HEIGHT)
+			},
+			1, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, nullptr
+		);
+		imageX = newImageX;
 	}
+	auto res = spriteTarget->EndDraw();
+	spriteTarget->GetBitmap(sprite.put());
 }
 
 const Icon& IconStorage::operator[](const int index) const {
 	return icons[index];
+}
+
+ID2D1Bitmap* IconStorage::getBitmap() const {
+	return sprite.get();
 }
 
 } // namespace CsgoHud

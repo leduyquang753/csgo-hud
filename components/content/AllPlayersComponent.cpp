@@ -69,6 +69,9 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 		.backgroundInactiveColor = {0, 0, 0, 0.3f},
 		.backgroundActiveColor = {0, 0, 0, 0.7f},
 		.activeOutlineColor = {1, 1, 1, 1},
+		.weaponInactiveColor = {1, 1, 1, 0.6f},
+		.weaponEmptyActiveColor = {1, 0.5f, 0.5f, 1},
+		.weaponEmptyInactiveColor = {1, 0.5f, 0.5f, 0.6f},
 		.flashColor = {1, 1, 1, 0.5f},
 		.smokeColor = {0.8f, 0.8f, 0.8f, 0.5f},
 		.fireColor = {1, 0.6f, 0, 0.5f},
@@ -126,18 +129,6 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 	
 	makeSide(0, 0, leftStatsHeader);
 	makeSide(5, 1, rightStatsHeader);
-
-	auto &eventBus = commonResources.eventBus;
-	eventBus.listenToDataEvent("player"s, [this](JSON::dom::object &json) { receivePlayerData(json); });
-}
-
-void AllPlayersComponent::receivePlayerData(JSON::dom::object &json) {
-	auto slotData = json["observer_slot"sv];
-	activeSlot = slotData.error() ? -1 : static_cast<int>(slotData.value().get_int64().value());
-	if (activeSlot != -1) {
-		if (activeSlot == 0) activeSlot = 9;
-		else --activeSlot;
-	}
 }
 
 void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
@@ -152,6 +143,7 @@ void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	}
 	
 	const bool leftTeam = players[firstPlayerIndex]->team;
+	const int activeSlot = players.getActivePlayerIndex();
 	int leftSideSlot = 0, rightSideSlot = 5;
 	for (int i = 0; i != 10; ++i) {
 		const auto &player = players[i];

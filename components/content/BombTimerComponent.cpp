@@ -1,13 +1,12 @@
 #include "pch.h"
 
-#include <algorithm>
-#include <cmath>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include "components/base/Component.h"
+#include "data/BombData.h"
 #include "movement/CubicBezierMovementFunction.h"
 #include "movement/TransitionedValue.h"
 #include "resources/CommonResources.h"
@@ -67,151 +66,117 @@ BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
 	textRenderer.emplace(
 		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
 	);
-
-	auto &eventBus = commonResources.eventBus;
-	eventBus.listenToTimeEvent([this](const int timePassed) { advanceTime(timePassed); });
-	eventBus.listenToDataEvent("bomb"s, [this](JSON::dom::object &json) { receiveData(json); });
-}
-
-void BombTimerComponent::advanceTime(const int timePassed) {
-	if (bombState == "planting"s || bombState == "planted"s || bombState == "defusing"s) {
-		bombTimeLeft = std::max(0, bombTimeLeft - timePassed);
-		if (bombState == "defusing"s)
-			defuseTimeLeft = std::max(0, defuseTimeLeft - timePassed);
-	}
-}
-
-void BombTimerComponent::receiveData(JSON::dom::object &json) {
-	const auto getTimeLeft = [&json]() {
-		return static_cast<int>(std::stod(std::string(json["countdown"sv].value().get_string().value())) * 1000);
-	};
-	const std::string currentState(json["state"sv].value().get_string().value());
-	if (currentState == bombState) {
-		// Need to check as there might be a brief moment the payload doesn't contain the field.
-		auto countdown = json["countdown"sv];
-		if (!countdown.error()) {
-			const int timeLeft = getTimeLeft();
-			if (currentState == "planting"s || currentState == "planted"s) {
-				if (std::abs(timeLeft - bombTimeLeft) > CommonConstants::DESYNC_THRESHOLD)
-					bombTimeLeft = timeLeft;
-			} else if (currentState == "defusing"s) {
-				if (std::abs(timeLeft - defuseTimeLeft) > CommonConstants::DESYNC_THRESHOLD)
-					defuseTimeLeft = timeLeft;
-			}
-		}
-	} else {
-		if (bombState == "defusing"s) {
-			defuseTransition.transition(0);
-			oldBombTime = bombTimeLeft;
-		}
-		bombState = currentState;
-		if (currentState == "planting"s || currentState == "planted"s) {
-			displayedBombState = currentState;
-			if (currentState == "planting"s) {
-				bombTransition.transition(1);
-				planterName = commonResources.players(json["player"sv].value().get_uint64())->name;
-			}
-			bombTimeLeft = getTimeLeft();
-		} else if (currentState == "defusing"s) {
-			defuseTimeLeft = getTimeLeft();
-			defuseTransition.transition(1);
-			defuserName = commonResources.players(json["player"sv].value().get_uint64())->name;
-		} else {
-			bombTransition.transition(0);
-		}
-	}
 }
 
 void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
-	auto &renderTarget = *commonResources.renderTarget;
-	renderTarget.SetTransform(transform);
+	const auto &bomb = commonResources.bomb;
+	const auto currentState = bomb.bombState;
+	if (currentState != bombState) {
+		if (bombState == BombData::State::DEFUSING)
+			defuseTransition.transition(0);
+		bombState = currentState;
+		if (bombState == BombData::State::PLANTING || bombState == BombData::State::PLANTED) {
+			displayedBombState = bombState;
+			bombTransition.transition(1);
+		} else if (bombState == BombData::State::DEFUSING) {
+			oldBombTime = bomb.bombTimeLeft;
+			defuseTransition.transition(1);
+		} else if (bombState != BombData::State::DETONATING) {
+			bombTransition.transition(0);
+		}
+	}
 	
 	const float bombTransitionValue = bombTransition.getValue();
-	if (bombTransitionValue != 0) {
-		const bool bombTransiting = bombTransition.transiting();
-		const float
-			outerLeft = parentSize.width * 0.25f,
-			outerRight = parentSize.width * 0.75f,
-			innerLeft = outerLeft + 4,
-			innerRight = outerRight - 4,
-			innerWidth = innerRight - innerLeft,
-			gaugeHeight = parentSize.height / 2;
-		if (bombTransiting) renderTarget.PushLayer(
+	if (bombTransitionValue == 0) return;
+	
+	auto &renderTarget = *commonResources.renderTarget;
+	renderTarget.SetTransform(transform);
+	const bool bombTransiting = bombTransition.transiting();
+	const float
+		outerLeft = parentSize.width * 0.25f,
+		outerRight = parentSize.width * 0.75f,
+		innerLeft = outerLeft + 4,
+		innerRight = outerRight - 4,
+		innerWidth = innerRight - innerLeft,
+		gaugeHeight = parentSize.height / 2;
+	if (bombTransiting) renderTarget.PushLayer(
+		{
+			{0, 0, parentSize.width, parentSize.height},
+			nullptr, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE, D2D1::Matrix3x2F::Identity(),
+			bombTransitionValue, nullptr,
+			D2D1_LAYER_OPTIONS_NONE
+		},
+		bombLayer.get()
+	);
+	const bool planting = displayedBombState == BombData::State::PLANTING;
+	const float
+		bombY = gaugeHeight * (bombTransitionValue - 1),
+		bombInnerBottom = gaugeHeight - 4;
+	// The reported bomb time from the game tends to exceed 40" when the bomb has just been planted.
+	const int displayedBombTime
+		= bombState == BombData::State::DETONATING ? 0 : std::min(40000, bomb.bombTimeLeft);
+	renderTarget.FillRectangle({outerLeft, bombY, outerRight, gaugeHeight + bombY}, gaugeOuterBrush.get());
+	renderTarget.FillRectangle(
+		{innerLeft, 4 + bombY, innerRight, bombInnerBottom + bombY},
+		planting ? gaugeInnerPlantingBrush.get() : gaugeInnerPlantedBrush.get()
+	);
+	renderTarget.FillRectangle(
+		{
+			innerLeft, 4 + bombY,
+			innerLeft + innerWidth * (planting ? 1 - displayedBombTime / 3000.f : displayedBombTime / 40000.f),
+			bombInnerBottom + bombY
+		},
+		planting ? bombTransparentBrush.get() : bombOpaqueBrush.get()
+	);
+	textRenderer->draw(
+		Utils::formatTimeAmount(displayedBombTime) + L" | "s + bomb.planterName,
+		{outerRight+4, bombY, parentSize.width, bombY + gaugeHeight},
+		textBrush
+	);
+
+	const float defuseTransitionValue = defuseTransition.getValue();
+	if (defuseTransitionValue != 0) {
+		const bool shouldApplyDefuseLayer = bombTransiting || defuseTransition.transiting();
+		if (shouldApplyDefuseLayer) renderTarget.PushLayer(
 			{
-				{0, 0, parentSize.width, parentSize.height},
+				{0, bombTransiting ? bombY : gaugeHeight, parentSize.width, parentSize.height},
 				nullptr, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE, D2D1::Matrix3x2F::Identity(),
-				bombTransitionValue, nullptr,
+				bombTransiting ? bombTransitionValue : defuseTransitionValue, nullptr,
 				D2D1_LAYER_OPTIONS_NONE
 			},
-			bombLayer.get()
+			defuseLayer.get()
 		);
-		const bool planting = displayedBombState == "planting"s;
 		const float
-			bombY = gaugeHeight * (bombTransitionValue - 1),
-			bombInnerBottom = gaugeHeight - 4;
-		// The reported bomb time from the game tends to exceed 40" when the bomb has just been planted.
-		const int displayedBombTime = std::min(40000, bombTimeLeft);
-		renderTarget.FillRectangle({outerLeft, bombY, outerRight, gaugeHeight + bombY}, gaugeOuterBrush.get());
+			defuseY = bombTransiting ? bombY : gaugeHeight * (defuseTransition.getValue() - 1),
+			defuseInnerTop = gaugeHeight + 4,
+			defuseInnerBottom = parentSize.height - 4;
 		renderTarget.FillRectangle(
-			{innerLeft, 4 + bombY, innerRight, bombInnerBottom + bombY},
-			planting ? gaugeInnerPlantingBrush.get() : gaugeInnerPlantedBrush.get()
+			{outerLeft, gaugeHeight + defuseY, outerRight, gaugeHeight*2 + defuseY}, gaugeOuterBrush.get()
 		);
 		renderTarget.FillRectangle(
+			{innerLeft, defuseInnerTop + defuseY, innerRight, defuseInnerBottom + defuseY},
+			gaugeInnerPlantedBrush.get()
+		);
+		if (bombState != BombData::State::DEFUSED) renderTarget.FillRectangle(
 			{
-				innerLeft, 4 + bombY,
-				innerLeft + innerWidth * (planting ? 1 - displayedBombTime / 3000.f : displayedBombTime / 40000.f),
-				bombInnerBottom + bombY
+				innerLeft + innerWidth * std::max(0, bomb.bombTimeLeft - bomb.defuseTimeLeft) / 40000,
+				defuseInnerTop + defuseY,
+				innerLeft + innerWidth * (
+					bombState == BombData::State::DEFUSING ? bomb.bombTimeLeft : oldBombTime
+				) / 40000.f,
+				defuseInnerBottom + defuseY
 			},
-			planting ? bombTransparentBrush.get() : bombOpaqueBrush.get()
+			bomb.defuseTimeLeft > bomb.bombTimeLeft ? defuseRedBrush.get() : defuseBlueBrush.get()
 		);
 		textRenderer->draw(
-			Utils::formatTimeAmount(displayedBombTime) + L" | "s + planterName,
-			{outerRight+4, bombY, parentSize.width, bombY + gaugeHeight},
+			Utils::formatTimeAmount(bomb.defuseTimeLeft) + L" | "s + bomb.defuserName,
+			{outerRight+4, gaugeHeight + defuseY, parentSize.width, gaugeHeight*2 + defuseY},
 			textBrush
 		);
-
-		const float defuseTransitionValue = defuseTransition.getValue();
-		if (defuseTransitionValue != 0) {
-			const bool shouldApplyDefuseLayer = bombTransiting || defuseTransition.transiting();
-			if (shouldApplyDefuseLayer) renderTarget.PushLayer(
-				{
-					{0, bombTransiting ? bombY : gaugeHeight, parentSize.width, parentSize.height},
-					nullptr, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE, D2D1::Matrix3x2F::Identity(),
-					bombTransiting ? bombTransitionValue : defuseTransitionValue, nullptr,
-					D2D1_LAYER_OPTIONS_NONE
-				},
-				defuseLayer.get()
-			);
-			const float
-				defuseY = bombTransiting ? bombY : gaugeHeight * (defuseTransition.getValue() - 1),
-				defuseInnerTop = gaugeHeight + 4,
-				defuseInnerBottom = parentSize.height - 4;
-			renderTarget.FillRectangle(
-				{outerLeft, gaugeHeight + defuseY, outerRight, gaugeHeight*2 + defuseY}, gaugeOuterBrush.get()
-			);
-			renderTarget.FillRectangle(
-				{innerLeft, defuseInnerTop + defuseY, innerRight, defuseInnerBottom + defuseY},
-				gaugeInnerPlantedBrush.get()
-			);
-			if (bombState != "defused"s) renderTarget.FillRectangle(
-				{
-					innerLeft + innerWidth * std::max(0, bombTimeLeft - defuseTimeLeft) / 40000,
-					defuseInnerTop + defuseY,
-					innerLeft + innerWidth * (bombState == "defusing"s ? bombTimeLeft : oldBombTime) / 40000.f,
-					defuseInnerBottom + defuseY
-				},
-				defuseTimeLeft > bombTimeLeft ? defuseRedBrush.get() : defuseBlueBrush.get()
-			);
-			textRenderer->draw(
-				Utils::formatTimeAmount(defuseTimeLeft) + L" | "s + defuserName,
-				{outerRight+4, gaugeHeight + defuseY, parentSize.width, gaugeHeight*2 + defuseY},
-				textBrush
-			);
-			if (shouldApplyDefuseLayer) renderTarget.PopLayer();
-		}
-		
-		if (bombTransiting) renderTarget.PopLayer();
+		if (shouldApplyDefuseLayer) renderTarget.PopLayer();
 	}
+	
+	if (bombTransiting) renderTarget.PopLayer();
 	
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
 }

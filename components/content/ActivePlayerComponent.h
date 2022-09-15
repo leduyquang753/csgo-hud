@@ -31,10 +31,7 @@ class ActivePlayerComponent final: public Component {
 		TransitionedValue selfTransition;
 
 		PlayerData player;
-		int activeSlot = -1;
 		bool shown = false;
-
-		void receivePlayerData(JSON::dom::object &json);
 	public:
 		ActivePlayerComponent(CommonResources &commonResources, const TransitionedValue &masterTransition);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

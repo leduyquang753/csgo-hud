@@ -72,8 +72,10 @@ void HttpServer::run(const HWND windowHandle) {
 										nullptr, 0, nullptr, nullptr
 									);
 									mutex.lock();
+									currentStartLengths->emplace_back(jsonStart, currentJsons->size() - jsonStart);
 									currentJsons->append(JSON::SIMDJSON_PADDING, '\0');
 									currentTimestamps->push_back(std::chrono::steady_clock::now());
+									jsonStart = currentJsons->size();
 									if (!notificationSent) {
 										PostMessage(windowHandle, CommonConstants::WM_JSON_ARRIVED, 0, 0);
 										notificationSent = true;
@@ -131,12 +133,25 @@ const std::vector<std::chrono::time_point<std::chrono::steady_clock>>& HttpServe
 	return *currentTimestamps;
 }
 
+const std::vector<std::pair<std::size_t, std::size_t>> HttpServer::getCurrentStartLengths() {
+	return *currentStartLengths;
+}
+
 void HttpServer::swapBuffers() {
 	bufferSwitch = !bufferSwitch;
-	currentJsons = bufferSwitch ? &jsons1 : &jsons2;
-	currentTimestamps = bufferSwitch ? &timestamps1 : &timestamps2;
+	if (bufferSwitch) {
+		currentJsons = &jsons1;
+		currentTimestamps = &timestamps1;
+		currentStartLengths = &startLengths1;
+	} else {
+		currentJsons = &jsons2;
+		currentTimestamps = &timestamps2;
+		currentStartLengths = &startLengths2;
+	}
 	currentJsons->clear();
 	currentTimestamps->clear();
+	currentStartLengths->clear();
+	jsonStart = 0;
 	notificationSent = false;
 }
 

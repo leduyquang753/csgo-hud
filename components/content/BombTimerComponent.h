@@ -7,6 +7,7 @@
 #include "pch.h"
 
 #include "components/base/Component.h"
+#include "data/BombData.h"
 #include "movement/CubicBezierMovementFunction.h"
 #include "movement/TransitionedValue.h"
 #include "text/FixedWidthDigitTextRenderer.h"
@@ -31,12 +32,8 @@ class BombTimerComponent final: public Component {
 
 		TransitionedValue bombTransition, defuseTransition;
 		// A "displayed bomb state" is needed for the fade out of the component.
-		std::string bombState, displayedBombState;
-		int bombTimeLeft = 0, defuseTimeLeft = 0, oldBombTime;
-		std::wstring planterName, defuserName;
-
-		void advanceTime(const int timePassed);
-		void receiveData(JSON::dom::object &json);
+		BombData::State bombState = BombData::State::DROPPED, displayedBombState;
+		int oldBombTime;
 	public:
 		BombTimerComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

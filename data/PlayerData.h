@@ -12,7 +12,7 @@
 
 namespace CsgoHud {
 
-class WeaponTypes;
+struct CommonResources;
 
 /*
 	The data of an in-game player.
@@ -31,6 +31,7 @@ class PlayerData final {
 		bool team;
 
 		int health;
+		int lastDeathTime = -10000;
 		int armor;
 		bool hasHelmet;
 		int flashAmount;
@@ -59,7 +60,7 @@ class PlayerData final {
 
 		int activeSlot;
 
-		void receiveData(const WeaponTypes &weaponTypes, JSON::dom::object &json);
+		void receiveData(CommonResources &comonResources, JSON::dom::object &json);
 };
 
 } // namespace CsgoHud

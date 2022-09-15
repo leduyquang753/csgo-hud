@@ -7,6 +7,7 @@
 #include "pch.h"
 
 #include "components/base/Component.h"
+#include "text/NormalTextRenderer.h"
 #include "text/FixedWidthDigitTextRenderer.h"
 
 namespace CsgoHud {
@@ -21,10 +22,13 @@ class ClockComponent final: public Component {
 		winrt::com_ptr<ID2D1SolidColorBrush>
 			textWhiteBrush, textRedBrush,
 			backgroundBrush, progressWhiteBrush, progressRedBrush;
-		std::optional<FixedWidthDigitTextRenderer> textRenderer;
+		std::optional<FixedWidthDigitTextRenderer> timeTextRenderer;
+		std::optional<NormalTextRenderer> bombsiteNameRenderer;
 
 		std::string phase, mapPhase;
-		int phaseTime, phaseTimeLeft;
+		int phaseTime = 0, phaseTimeLeft = 0;
+
+		bool bombPlanted = false, bombsiteA;
 
 		void advanceTime(const int timePassed);
 		void receivePhaseData(JSON::dom::object &json);

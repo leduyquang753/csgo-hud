@@ -41,4 +41,13 @@ std::wstring Utils::formatTimeAmount(int millis) {
 	return res;
 }
 
+D2D_VECTOR_3F Utils::parseVector(std::string_view string) {
+	const auto leftComma = string.find(','), rightComma = string.rfind(',');
+	return {
+		.x = std::stof(std::string(string.substr(0, leftComma))),
+		.y = std::stof(std::string(string.substr(leftComma + 2, rightComma - leftComma - 2))),
+		.z = std::stof(std::string(string.substr(rightComma + 2, string.size() - rightComma - 2)))
+	};
+}
+
 } // namespace CsgoHud

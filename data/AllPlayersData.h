@@ -11,15 +11,15 @@
 
 namespace CsgoHud {
 
+struct CommonResources;
 class EventBus;
-class WeaponTypes;
 
 /*
 	This class processes and stores all players' data for easy retrieval during rendering.
 */
 class AllPlayersData final {
 	private:
-		const WeaponTypes &weaponTypes;
+		CommonResources &commonResources;
 		std::array<std::optional<PlayerData>, 10> 
 			players1, players2,
 			*currentPlayers = &players1, *previousPlayers = &players2;
@@ -28,14 +28,18 @@ class AllPlayersData final {
 			*currentSteamIdMap = &steamIdMap1, *previousSteamIdMap = &steamIdMap2;
 		std::string phase;
 		bool alreadyFreezeTime = false;
+		int firstPlayerIndex = -1;
+		int activePlayerIndex = -1;
 
+		void receivePlayerData(JSON::dom::object &json);
 		void receivePlayersData(JSON::dom::object &json);
 		void receivePhaseData(JSON::dom::object &json);
 	public:
-		AllPlayersData(const WeaponTypes &weaponTypes, EventBus &eventBus);
+		AllPlayersData(CommonResources &commonResources);
 		const std::optional<PlayerData>& operator[](int slot) const;
 		const std::optional<PlayerData>& operator()(std::uint64_t steamId) const;
 		int getFirstPlayerIndex() const;
+		int getActivePlayerIndex() const;
 };
 
 } // namespace CsgoHud

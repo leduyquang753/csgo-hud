@@ -27,7 +27,6 @@ class HudWindow final {
 		JSON::dom::parser jsonParser;
 
 		std::chrono::time_point<std::chrono::steady_clock> firstTick;
-		int lastTickTime = -1;
 
 		LRESULT handleWindowMessage(UINT message, WPARAM wParam, LPARAM lParam);
 		void tick();

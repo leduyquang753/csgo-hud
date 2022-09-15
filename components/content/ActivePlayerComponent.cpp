@@ -100,19 +100,6 @@ ActivePlayerComponent::ActivePlayerComponent(
 	);
 
 	renderTarget.CreateLayer(layer.put());
-	
-	commonResources.eventBus.listenToDataEvent(
-		"player"s, [this](JSON::dom::object &json) { receivePlayerData(json); }
-	);
-}
-
-void ActivePlayerComponent::receivePlayerData(JSON::dom::object &json) {
-	auto slotData = json["observer_slot"sv];
-	activeSlot = slotData.error() ? -1 : static_cast<int>(slotData.value().get_int64().value());
-	if (activeSlot != -1) {
-		if (activeSlot == 0) activeSlot = 9;
-		else --activeSlot;
-	}
 }
 
 void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
@@ -127,6 +114,7 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		SPACING = 8;
 	
 	const float alpha = masterTransition.getValue() * selfTransition.getValue();
+	const int activeSlot = commonResources.players.getActivePlayerIndex();
 	if (activeSlot == -1) {
 		if (shown) {
 			shown = false;
@@ -175,7 +163,6 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		ammoRight = ammoLeft + AMMO_LENGTH,
 		ammoMiddle = ammoLeft + AMMO_SEPARATION,
 		sideTop = parentSize.height - NAME_HEIGHT,
-		iconScale = NAME_HEIGHT / CommonConstants::ICON_HEIGHT * 3 / 4,
 		sideMargin = NAME_HEIGHT / 8,
 		sideInnerTop = parentSize.height - NAME_HEIGHT + sideMargin,
 		sideInnerBottom = parentSize.height - sideMargin,
@@ -213,24 +200,28 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 
 	renderTarget.FillRectangle({0, sideTop, healthArmorRight, parentSize.height}, teamBrush.get());
 
-	auto drawIcon = [this, &transform, &renderTarget, iconScale](const int index, const float x, const float y) {
+	winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
+	renderTarget.CreateSpriteBatch(spriteBatch.put());
+	auto drawIcon = [this, sideInnerHeight, &spriteBatch](
+		const int index, const float x, const float y
+	) {
 		const auto &icon = commonResources.icons[index];
-		renderTarget.SetTransform(
-			D2D1::Matrix3x2F::Scale(iconScale, iconScale, {0, 0})
-			* D2D1::Matrix3x2F::Translation(x, y)
-			* transform
-		);
-		renderTarget.DrawImage(
-			icon.source.get(), nullptr, nullptr,
-			D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, D2D1_COMPOSITE_MODE_SOURCE_OVER
-		);
+		const D2D1_RECT_F destinationRect = {x, y, x + sideInnerHeight, y + sideInnerHeight};
+		spriteBatch->AddSprites(1, &destinationRect, &icon.bounds, nullptr, nullptr, 0, 0, 0, 0);
 	};
 	drawIcon(IconStorage::INDEX_HEALTH, sideMargin, sideInnerTop);
 	drawIcon(
 		player.armor != 0 && player.hasHelmet ? IconStorage::INDEX_FULL_ARMOR : IconStorage::INDEX_KEVLAR,
 		healthArmorMiddle + sideMargin, sideInnerTop
 	);
-	renderTarget.SetTransform(transform);
+	const auto oldMode = renderTarget.GetAntialiasMode();
+	renderTarget.SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+	renderTarget.DrawSpriteBatch(
+		spriteBatch.get(), commonResources.icons.getBitmap(),
+		D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+		D2D1_SPRITE_OPTIONS_NONE
+	);
+	renderTarget.SetAntialiasMode(oldMode);
 	
 	bigNumberTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 	bigNumberRenderer->draw(

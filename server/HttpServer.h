@@ -3,8 +3,10 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstdlib>
 #include <mutex>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "pch.h"
@@ -23,6 +25,10 @@ class HttpServer final {
 		std::vector<std::chrono::time_point<std::chrono::steady_clock>>
 			timestamps1, timestamps2,
 			*currentTimestamps = &timestamps1;
+		std::vector<std::pair<std::size_t, std::size_t>>
+			startLengths1, startLengths2,
+			*currentStartLengths = &startLengths1;
+		std::size_t jsonStart = 0;
 		bool bufferSwitch = true;
 		bool notificationSent = false;
 		std::atomic_bool finished = false;
@@ -33,6 +39,7 @@ class HttpServer final {
 		void stop();
 		const std::string& getCurrentJsons();
 		const std::vector<std::chrono::time_point<std::chrono::steady_clock>>& getCurrentTimestamps();
+		const std::vector<std::pair<std::size_t, std::size_t>> getCurrentStartLengths();
 		void swapBuffers();
 };
 

@@ -7,7 +7,7 @@ namespace CsgoHud {
 
 struct Icon final {
 	UINT width, height;
-	winrt::com_ptr<ID2D1Effect> source;
+	D2D1_RECT_U bounds;
 };
 
 } // namespace CsgoHud

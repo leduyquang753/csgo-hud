@@ -6,11 +6,15 @@
 #include "components/base/Component.h"
 #include "components/base/BagComponent.h"
 #include "components/base/PaddedComponent.h"
+#include "components/base/SizedComponent.h"
 #include "components/content/AllPlayersComponent.h"
 #include "components/content/BottomBarComponent.h"
 #include "components/content/FourCornersComponent.h"
+#include "components/content/FpsComponent.h"
+#include "components/content/MinimapComponent.h"
 #include "components/content/RoundComponent.h"
 #include "components/content/TopBarComponent.h"
+#include "resources/CommonResources.h"
 
 #include "components/content/HudComponent.h"
 
@@ -25,10 +29,18 @@ HudComponent::HudComponent(CommonResources &commonResources):
 {
 	bag->children.emplace_back(std::make_unique<FourCornersComponent>(commonResources));
 	auto innerBag = std::make_unique<BagComponent>(commonResources);
+	innerBag->children.emplace_back(std::make_unique<SizedComponent>(
+		commonResources,
+		D2D1_SIZE_F{0.25f, 1}, D2D1_POINT_2U{SizedComponent::MODE_RATIO, SizedComponent::MODE_RATIO},
+		D2D1_POINT_2F{0, 0}, D2D1_POINT_2U{SizedComponent::MODE_PIXELS, SizedComponent::MODE_PIXELS},
+		D2D1_POINT_2F{0, 0}, D2D1_POINT_2U{SizedComponent::MODE_PIXELS, SizedComponent::MODE_PIXELS},
+		std::make_unique<MinimapComponent>(commonResources)
+	));
 	innerBag->children.emplace_back(std::make_unique<RoundComponent>(commonResources));
 	innerBag->children.emplace_back(std::make_unique<TopBarComponent>(commonResources));
 	innerBag->children.emplace_back(std::make_unique<BottomBarComponent>(commonResources));
 	innerBag->children.emplace_back(std::make_unique<AllPlayersComponent>(commonResources));
+	innerBag->children.emplace_back(std::make_unique<FpsComponent>(commonResources));
 	bag->children.emplace_back(
 		std::make_unique<PaddedComponent>(commonResources, 8.f, std::move(innerBag))
 	);

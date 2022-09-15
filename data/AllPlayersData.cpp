@@ -7,6 +7,7 @@
 #include "pch.h"
 
 #include "events/EventBus.h"
+#include "resources/CommonResources.h"
 
 #include "data/AllPlayersData.h"
 
@@ -15,16 +16,27 @@ using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
+struct CommonResources;
 class PlayerData;
-class WeaponTypes;
 
 // == AllPlayersData ==
 
-AllPlayersData::AllPlayersData(const WeaponTypes &weaponTypes, EventBus &eventBus): weaponTypes(weaponTypes) {
+AllPlayersData::AllPlayersData(CommonResources &commonResources): commonResources(commonResources) {
+	auto &eventBus = commonResources.eventBus;
+	eventBus.listenToDataEvent("player"s, [this](JSON::dom::object &json) { receivePlayerData(json); });
 	eventBus.listenToDataEvent("allplayers"s, [this](JSON::dom::object &json) { receivePlayersData(json); });
 	eventBus.listenToDataEvent(
 		"phase_countdowns"s, [this](JSON::dom::object &json) { receivePhaseData(json); }
 	);	
+}
+
+void AllPlayersData::receivePlayerData(JSON::dom::object &json) {
+	auto slotData = json["observer_slot"sv];
+	activePlayerIndex = slotData.error() ? -1 : static_cast<int>(slotData.value().get_int64().value());
+	if (activePlayerIndex != -1) {
+		if (activePlayerIndex == 0) activePlayerIndex = 9;
+		else --activePlayerIndex;
+	}
 }
 
 void AllPlayersData::receivePlayersData(JSON::dom::object &json) {
@@ -43,21 +55,39 @@ void AllPlayersData::receivePlayersData(JSON::dom::object &json) {
 		auto &player = (*currentPlayers)[slot];
 		if (!player) player.emplace();
 		player->steamId = steamId;
-		player->receiveData(weaponTypes, playerData);
+		player->receiveData(commonResources, playerData);
 		// Inherit previously computed properties of the player, if present, or place new initial values.
 		auto &oldPlayer = (*previousPlayers)[slot];
 		if (oldPlayer && steamId == oldPlayer->steamId) {
+			if (player->health == 0 && oldPlayer->health != 0)
+				player->lastDeathTime = commonResources.time;
+			else
+				player->lastDeathTime = oldPlayer->lastDeathTime;
 			player->startingMoney = oldPlayer->startingMoney;
 		} else {
 			const auto entry = previousSteamIdMap->find(steamId);
-			player->startingMoney = entry == previousSteamIdMap->end()
-				? player->money
-				: (*previousPlayers)[entry->second]->startingMoney;
+			if (entry == previousSteamIdMap->end()) {
+				player->lastDeathTime = -10000;
+				player->startingMoney = player->money;
+			} else {
+				const auto &oldPlayer = (*previousPlayers)[entry->second];
+				if (player->health == 0 && oldPlayer->health != 0)
+					player->lastDeathTime = commonResources.time;
+				else
+					player->lastDeathTime = oldPlayer->lastDeathTime;
+				player->startingMoney = oldPlayer->startingMoney;
+			}
 		}
 		playerPresent[slot] = true;
 		currentSteamIdMap->insert({steamId, slot});
 	}
-	for (int i = 0; i != 10; ++i) if (!playerPresent[i]) (*currentPlayers)[i].reset();
+	for (int i = 0; i != 10; ++i) {
+		if (playerPresent[i]) {
+			if (firstPlayerIndex == -1) firstPlayerIndex = i;
+		} else {
+			(*currentPlayers)[i].reset();
+		}
+	}
 }
 
 void AllPlayersData::receivePhaseData(JSON::dom::object &json) {
@@ -84,8 +114,11 @@ const std::optional<PlayerData>& AllPlayersData::operator()(const std::uint64_t 
 }
 
 int AllPlayersData::getFirstPlayerIndex() const {
-	for (int i = 0; i != 10; ++i) if ((*currentPlayers)[i]) return i;
-	return -1;
+	return firstPlayerIndex;
+}
+
+int AllPlayersData::getActivePlayerIndex() const {
+	return activePlayerIndex;
 }
 
 } // namespace CsgoHud

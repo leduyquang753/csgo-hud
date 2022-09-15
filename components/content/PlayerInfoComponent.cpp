@@ -35,16 +35,7 @@ PlayerInfoComponent::PlayerInfoComponent(
 		300, 0
 	)
 {
-	auto &renderTarget = *commonResources.renderTarget;
-	renderTarget.CreateEffect(CLSID_D2D1Tint, inactiveEffect.put());
-	inactiveEffect->SetValue(D2D1_TINT_PROP_COLOR, D2D1_VECTOR_4F{1, 1, 1, 0.6f});
-	renderTarget.CreateEffect(CLSID_D2D1Tint, emptyActiveEffect.put());
-	emptyActiveEffect->SetValue(D2D1_TINT_PROP_COLOR, D2D1_VECTOR_4F{1, 0.5f, 0.5f, 1});
-	renderTarget.CreateEffect(CLSID_D2D1Tint, emptyInactiveEffect.put());
-	emptyInactiveEffect->SetValue(D2D1_TINT_PROP_COLOR, D2D1_VECTOR_4F{1, 0.5f, 0.5f, 0.6f});
-	
-	renderTarget.CreateLayer(statsLayer.put());
-
+	commonResources.renderTarget->CreateLayer(statsLayer.put());
 	commonResources.eventBus.listenToTimeEvent([this](const int timePassed) { advanceTime(timePassed); });
 }
 
@@ -106,29 +97,29 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		scaledMaxPrimaryGunLength = MAX_PRIMARY_GUN_LENGTH * scale;
 	std::wstring textToRender;
 
-	auto drawIcon = [this, &transform, &renderTarget](
+	winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
+	renderTarget.CreateSpriteBatch(spriteBatch.put());
+	auto drawIcon = [this, &spriteBatch](
 		const int index, const float x, const float y, const float scale,
 		const bool active, const bool empty, const bool rightSide, const bool flipped
 	) {
 		const auto &icon = commonResources.icons[index];
-		auto iconTransform
-			= D2D1::Matrix3x2F::Scale(scale, scale, {0, 0})
-			* D2D1::Matrix3x2F::Translation(rightSide ? x - icon.width * scale : x, y)
-			* transform;
-		if (flipped) iconTransform = D2D1::Matrix3x2F::Scale(-1, 1, {icon.width / 2.f, 0}) * iconTransform;
-		renderTarget.SetTransform(iconTransform);
-		if (active && !empty) {
-			renderTarget.DrawImage(
-				icon.source.get(), nullptr, nullptr,
-				D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, D2D1_COMPOSITE_MODE_SOURCE_OVER
-			);
-		} else {
-			auto effect = empty
-				? active ? emptyActiveEffect.get() : emptyInactiveEffect.get()
-				: inactiveEffect.get();
-			effect->SetInputEffect(0, icon.source.get());
-			renderTarget.DrawImage(effect);
-		}
+		const float width = icon.width * scale, height = icon.height * scale;
+		const D2D1_RECT_F destinationRect
+			= rightSide
+				? flipped
+					? D2D1_RECT_F{x, y, x - width, y + height}
+					: D2D1_RECT_F{x - width, y, x, y + height}
+				: flipped
+					? D2D1_RECT_F{x + width, y, x, y + height}
+					: D2D1_RECT_F{x, y, x + width, y + height};
+		spriteBatch->AddSprites(
+			1, &destinationRect, &icon.bounds,
+			active
+				? empty ? &resources.weaponEmptyActiveColor : nullptr
+				: empty ? &resources.weaponEmptyInactiveColor : &resources.weaponInactiveColor,
+			nullptr, 0, 0, 0, 0
+		);
 	};
 	
 	winrt::com_ptr<ID2D1SolidColorBrush> backgroundBrush;
@@ -341,6 +332,14 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		);
 		renderTarget.SetTransform(transform);
 	}
+	const auto oldMode = renderTarget.GetAntialiasMode();
+	renderTarget.SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+	renderTarget.DrawSpriteBatch(
+		spriteBatch.get(), commonResources.icons.getBitmap(),
+		D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+		D2D1_SPRITE_OPTIONS_NONE
+	);
+	renderTarget.SetAntialiasMode(oldMode);
 
 	{
 		const float statsTransitionValue = resources.statsTransition.getValue();
