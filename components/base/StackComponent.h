@@ -18,17 +18,17 @@ struct CommonResources;
 class StackComponent final: public Component {
 	public:
 		// If the axis member is `false`, it is horizontal, if it's `true`, it's vertical.
-		static const bool AXIS_HORIZONTAL = false, AXIS_VERTICAL = true;
+		static constexpr bool AXIS_HORIZONTAL = false, AXIS_VERTICAL = true;
 		/*
 			If the axis direction member is `false`, the axis goes right or down, if it's true, the axis goes left
 			or up.
 		*/
-		static const bool AXIS_INCREASE = false, AXIS_DECREASE = true;
+		static constexpr bool AXIS_INCREASE = false, AXIS_DECREASE = true;
 		/*
 			If the axis position mode is `false`, the axis position is in pixels, if it's true, the axis position is
 			a ratio of the dimension perpendicular to the axis.
 		*/
-		static const bool MODE_PIXELS = false, MODE_RATIO = true;
+		static constexpr bool MODE_PIXELS = false, MODE_RATIO = true;
 
 		bool axis;
 		bool axisDirection;

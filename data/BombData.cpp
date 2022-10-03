@@ -32,6 +32,9 @@ void BombData::advanceTime(const int timePassed) {
 		} else {
 			bombTimeLeft -= timePassed;
 		}
+	} else if (bombState == State::EXPLODED) {
+		// Used for the explosion animation.
+		bombTimeLeft += timePassed;
 	} else {
 		// Just clamp the time, the game will tell about the state transition.
 		bombTimeLeft = std::max(0, bombTimeLeft - timePassed);
@@ -113,6 +116,8 @@ void BombData::receiveBombData(JSON::dom::object &json) {
 			defuserFound = defuser.has_value();
 			if (defuser) defuserName = defuser->name;
 			else defuserName = L"?"s;
+		} else if (currentState == State::DEFUSED) {
+			bombTimeLeft = 0;
 		}
 	}
 }

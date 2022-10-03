@@ -19,7 +19,7 @@ class SizedComponent final: public SingleChildComponent {
 		void paintChild(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;
 	public:
 		// If a mode value is zero, the corresponding value is in pixels; otherwise, the value is a ratio.
-		static const UINT32	MODE_PIXELS = 0, MODE_RATIO = 1;
+		static constexpr UINT32 MODE_PIXELS = 0, MODE_RATIO = 1;
 		
 		// The size of the component. The ratio is relative to the size of the containing component.
 		D2D1_SIZE_F size;

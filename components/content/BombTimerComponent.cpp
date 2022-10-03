@@ -20,8 +20,6 @@ using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
-static const int FONT_SIZE = 12;
-
 // == BombTimerComponent ==
 
 BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
@@ -56,7 +54,7 @@ BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
 	commonResources.writeFactory->CreateTextFormat(
 		L"Stratum2", nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-		FONT_SIZE, L"", textFormat.put()
+		12, L"", textFormat.put()
 	);
 	winrt::com_ptr<IDWriteInlineObject> trimmingSign;
 	static const DWRITE_TRIMMING TRIMMING_OPTIONS = {DWRITE_TRIMMING_GRANULARITY_CHARACTER, 0, 0};
@@ -79,7 +77,6 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 			displayedBombState = bombState;
 			bombTransition.transition(1);
 		} else if (bombState == BombData::State::DEFUSING) {
-			oldBombTime = bomb.bombTimeLeft;
 			defuseTransition.transition(1);
 		} else if (bombState != BombData::State::DETONATING) {
 			bombTransition.transition(0);
@@ -123,7 +120,9 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 	renderTarget.FillRectangle(
 		{
 			innerLeft, 4 + bombY,
-			innerLeft + innerWidth * (planting ? 1 - displayedBombTime / 3000.f : displayedBombTime / 40000.f),
+			innerLeft + innerWidth * (
+				planting ? 1 - std::min(3000, displayedBombTime) / 3000.f : displayedBombTime / 40000.f
+			),
 			bombInnerBottom + bombY
 		},
 		planting ? bombTransparentBrush.get() : bombOpaqueBrush.get()
@@ -157,13 +156,12 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 			{innerLeft, defuseInnerTop + defuseY, innerRight, defuseInnerBottom + defuseY},
 			gaugeInnerPlantedBrush.get()
 		);
+		if (bombState == BombData::State::DEFUSING) oldBombTime = bomb.bombTimeLeft;
 		if (bombState != BombData::State::DEFUSED) renderTarget.FillRectangle(
 			{
 				innerLeft + innerWidth * std::max(0, bomb.bombTimeLeft - bomb.defuseTimeLeft) / 40000,
 				defuseInnerTop + defuseY,
-				innerLeft + innerWidth * (
-					bombState == BombData::State::DEFUSING ? bomb.bombTimeLeft : oldBombTime
-				) / 40000.f,
+				innerLeft + innerWidth * oldBombTime / 40000.f,
 				defuseInnerBottom + defuseY
 			},
 			bomb.defuseTimeLeft > bomb.bombTimeLeft ? defuseRedBrush.get() : defuseBlueBrush.get()

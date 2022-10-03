@@ -13,7 +13,7 @@ namespace CsgoHud {
 struct StackComponentChild final {
 	public:
 		// If a mode value is zero, the corresponding value is in pixels; otherwise, the value is a ratio.
-		static const UINT32	MODE_PIXELS = 0, MODE_RATIO = 1;
+		static constexpr UINT32 MODE_PIXELS = 0, MODE_RATIO = 1;
 		
 		// The size of the child. The ratio is relative to the size of the stack component.
 		D2D1_SIZE_F size;

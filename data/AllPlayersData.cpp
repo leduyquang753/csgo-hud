@@ -86,6 +86,7 @@ void AllPlayersData::receivePlayersData(JSON::dom::object &json) {
 		playerPresent[slot] = true;
 		currentSteamIdMap->insert({steamId, slot});
 	}
+	firstPlayerIndex = -1;
 	for (int i = 0; i != 10; ++i) {
 		if (playerPresent[i]) {
 			if (firstPlayerIndex == -1) firstPlayerIndex = i;

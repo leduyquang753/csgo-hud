@@ -12,7 +12,7 @@ namespace CsgoHud {
 */
 class CubicBezier final {
 	private:
-		static const int SPLINE_TABLE_SIZE = 11;
+		static constexpr int SPLINE_TABLE_SIZE = 11;
 		static const float SAMPLE_STEP_SIZE;
 		
 		const float x1, y1, x2, y2;

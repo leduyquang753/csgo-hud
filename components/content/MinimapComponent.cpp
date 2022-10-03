@@ -30,7 +30,9 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	ctColor{0.35f, 0.72f, 0.96f, 1},
 	tColor{0.94f, 0.79f, 0.25f, 1},
 	bombRedFlashColor{1, 0.6f, 0.6f, 1},
-	bombWhiteFlashColor{1, 1, 1, 1}
+	bombWhiteFlashColor{1, 1, 1, 1},
+	explosionInnerAnimation{{{{0, 0}, {0, 0.25f}, {0.25f, 1}, {4000, 1}}}},
+	explosionOuterAnimation{{{{0, 0}, {0, 1}, {0.1f, 0.9f}, {4000, 1}}}}
 {
 	float currentFlashTime = 40000;
 	while (currentFlashTime > 1000) {
@@ -91,17 +93,21 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, nullptr, nullptr
 	);
 
+	const float
+		lowerLevelOffsetX = map.hasLowerLevel ? map.lowerLevelOffsetX * imageScale : 0,
+		lowerLevelOffsetY = map.hasLowerLevel ? map.lowerLevelOffsetY * imageScale : 0;
+
 	// Draw bombsite names.
-	auto drawBombsiteName = [this, &renderTarget, &map, imageScale, effectiveScale](
-		std::wstring_view name, const D2D1_VECTOR_3F &position
-	) {
+	auto drawBombsiteName = [
+		this, &renderTarget, &map, imageScale, effectiveScale, lowerLevelOffsetX, lowerLevelOffsetY
+	](std::wstring_view name, const D2D1_VECTOR_3F &position) {
 		float
 			x = (position.x - map.leftCoordinate) / effectiveScale,
 			y = (map.topCoordinate - position.y) / effectiveScale,
 			z = position.z;
 		if (map.hasLowerLevel && z < map.levelSeparationHeight) {
-			x += map.lowerLevelOffsetX * imageScale;
-			y += map.lowerLevelOffsetY * imageScale;
+			x += lowerLevelOffsetX;
+			y += lowerLevelOffsetY;
 		}
 		bombsiteNameRenderer->draw(name, {x - 10, y - 10, x + 10, y + 10}, bombsiteNameBrush);
 	};
@@ -203,9 +209,10 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		}
 		if (alpha != 1) renderTarget.PopLayer();
 	};
-	auto drawPlayerMarkerSet = [this, &map, &renderTarget, imageScale, effectiveScale, &drawPlayerMarker](
-		const int slot, const bool active
-	) {
+	auto drawPlayerMarkerSet = [
+		this, &map, &renderTarget, imageScale, effectiveScale, &drawPlayerMarker,
+		lowerLevelOffsetX, lowerLevelOffsetY
+	](const int slot, const bool active) {
 		const auto &player = *commonResources.players[slot];
 		const float
 			x = (player.position.x - map.leftCoordinate) / effectiveScale,
@@ -233,12 +240,12 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 				const float topAlpha = (z - map.levelSeparationBottom) / map.levelTransitionRange;
 				drawPlayerMarker(player, x, y, angle, active, topAlpha, slot, brush, deathAlpha, deathColor);
 				drawPlayerMarker(
-					player, x + map.lowerLevelOffsetX * imageScale, y + map.lowerLevelOffsetY * imageScale,
+					player, x + lowerLevelOffsetX, y + lowerLevelOffsetY,
 					angle, active, 1 - topAlpha, slot, brush, deathAlpha, deathColor
 				);
 			} else {
 				drawPlayerMarker(
-					player, x + map.lowerLevelOffsetX * imageScale, y + map.lowerLevelOffsetY * imageScale,
+					player, x + lowerLevelOffsetX, lowerLevelOffsetY,
 					angle, active, 1, slot, brush, deathAlpha, deathColor
 				);
 			}
@@ -304,13 +311,9 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			} else if (z > map.levelSeparationBottom) {
 				color.a = (z - map.levelSeparationBottom) / map.levelTransitionRange;
 				drawBomb(x, y, color);
-				drawBomb(
-					x + map.lowerLevelOffsetX * imageScale, y + map.lowerLevelOffsetY * imageScale, color
-				);
+				drawBomb(x + lowerLevelOffsetX, y + lowerLevelOffsetY, color);
 			} else {
-				drawBomb(
-					x + map.lowerLevelOffsetX * imageScale, y + map.lowerLevelOffsetY * imageScale, color
-				);
+				drawBomb(x + lowerLevelOffsetX, y + lowerLevelOffsetY, color);
 			}
 		} else {
 			drawBomb(x, y, color);
@@ -331,6 +334,30 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		drawPlayerMarkerSet(bombCarrierIndex, false);
 	if (activePlayerIndex != -1)
 		drawPlayerMarkerSet(activePlayerIndex, true);
+
+	// Draw the bomb explision.
+	if (bomb.bombState == BombData::State::EXPLODED && bomb.bombTimeLeft < 4000) {
+		float
+			x = (bomb.bombPosition.x - map.leftCoordinate) / effectiveScale,
+			y = (map.topCoordinate - bomb.bombPosition.y) / effectiveScale;
+		auto drawEllipse = [&renderTarget, &bomb](
+			const float x, const float y, const float maxRadius, const float animationValue
+		) {
+			winrt::com_ptr<ID2D1SolidColorBrush> brush;
+			renderTarget.CreateSolidColorBrush({1, 1, 1, 1 - animationValue}, brush.put());
+			const float radius = maxRadius * animationValue;
+			renderTarget.FillEllipse({{x, y}, radius, radius}, brush.get());
+		};
+		// Always draw the explosion on both levels as the bomb doesn't affect damage only on the level it is in.
+		drawEllipse(x, y, 60, explosionOuterAnimation.getValue(static_cast<float>(bomb.bombTimeLeft)));
+		drawEllipse(x, y, 50, explosionInnerAnimation.getValue(static_cast<float>(bomb.bombTimeLeft)));
+		if (map.hasLowerLevel) {
+			x += lowerLevelOffsetX;
+			y += lowerLevelOffsetY;
+			drawEllipse(x, y, 60, explosionOuterAnimation.getValue(static_cast<float>(bomb.bombTimeLeft)));
+			drawEllipse(x, y, 50, explosionInnerAnimation.getValue(static_cast<float>(bomb.bombTimeLeft)));
+		}
+	}
 
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
 }

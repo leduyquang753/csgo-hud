@@ -25,7 +25,7 @@ class IconStorage final {
 		winrt::com_ptr<ID2D1Bitmap> sprite;
 		std::array<Icon, 52> icons;
 	public:
-		static const int
+		static constexpr int
 			INDEX_ZEUS = 34,
 			INDEX_C4 = 41,
 			INDEX_DEFUSE_KIT = 42,

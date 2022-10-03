@@ -7,6 +7,7 @@
 #include "pch.h"
 
 #include "components/base/Component.h"
+#include "movement/CubicBezierMovementFunction.h"
 #include "text/NormalTextRenderer.h"
 
 namespace CsgoHud {
@@ -19,6 +20,7 @@ struct CommonResources;
 class MinimapComponent final: public Component {
 	private:
 		std::vector<int> flashTimes;
+		const CubicBezierMovementFunction explosionInnerAnimation, explosionOuterAnimation;
 		
 		D2D1_COLOR_F
 			droppedBombColor, plantedBombColor, defusedBombColor,
