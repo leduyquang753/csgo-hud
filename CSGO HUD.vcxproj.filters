@@ -178,6 +178,12 @@
     <ClCompile Include="data\BombData.cpp">
       <Filter>data</Filter>
     </ClCompile>
+    <ClCompile Include="events\KeyEventListener.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\KeyEventHook.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud\HudWindow.h">
@@ -321,6 +327,12 @@
     </ClInclude>
     <ClInclude Include="data\BombData.h">
       <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="events\KeyEventListener.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\KeyEventHook.h">
+      <Filter>events</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

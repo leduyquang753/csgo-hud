@@ -245,7 +245,7 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 				);
 			} else {
 				drawPlayerMarker(
-					player, x + lowerLevelOffsetX, lowerLevelOffsetY,
+					player, x + lowerLevelOffsetX, y + lowerLevelOffsetY,
 					angle, active, 1, slot, brush, deathAlpha, deathColor
 				);
 			}

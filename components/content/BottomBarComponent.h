@@ -21,7 +21,9 @@ class BottomBarComponent final: public Component {
 		std::unique_ptr<BagComponent> container;
 		TransitionedValue transition;
 		
-		bool activePlayerShown = false;
+		bool activePlayerShown = false, forceShowTeamBuy = false;
+
+		void onForceShowTeamBuyKeyEvent();
 	public:
 		BottomBarComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

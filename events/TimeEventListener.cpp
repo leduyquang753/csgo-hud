@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <functional>
 
 #include "pch.h"
 
@@ -21,7 +20,7 @@ TimeEventListener::TimeEventListener(TimeEventListener &&other):
 	eventBus(other.eventBus), index(other.index), slot(other.slot)
 {
 	*slot = this;
-	// Make sure something happens when the moved listener is used.
+	// Make sure something happens when the move listener is used.
 	other.eventBus = nullptr;
 }
 

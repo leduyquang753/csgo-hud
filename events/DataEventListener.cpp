@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <functional>
 #include <string>
 #include <utility>
 
@@ -21,7 +20,7 @@ DataEventListener::DataEventListener(DataEventListener &&other):
 	eventBus(other.eventBus), dataPath(std::move(other.dataPath)), index(other.index), slot(other.slot)
 {
 	*slot = this;
-	// Make sure something happens when the moved listener is used.
+	// Make sure something happens when the move listener is used.
 	other.eventBus = nullptr;
 }
 

@@ -191,6 +191,8 @@
     <ClCompile Include="data\WeaponTypes.cpp" />
     <ClCompile Include="events\DataEventListener.cpp" />
     <ClCompile Include="events\EventBus.cpp" />
+    <ClCompile Include="events\KeyEventHook.cpp" />
+    <ClCompile Include="events\KeyEventListener.cpp" />
     <ClCompile Include="events\TimeEventListener.cpp" />
     <ClCompile Include="hud\HudWindow.cpp" />
     <ClCompile Include="json\simdjson.cpp">
@@ -255,6 +257,8 @@
     <ClInclude Include="data\WeaponTypes.h" />
     <ClInclude Include="events\DataEventListener.h" />
     <ClInclude Include="events\EventBus.h" />
+    <ClInclude Include="events\KeyEventHook.h" />
+    <ClInclude Include="events\KeyEventListener.h" />
     <ClInclude Include="events\TimeEventListener.h" />
     <ClInclude Include="hud\HudWindow.h" />
     <ClInclude Include="json\simdjson.h" />

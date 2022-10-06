@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include "events/KeyEventHook.h"
 #include "resources/CommonResources.h"
 #include "utils/CommonConstants.h"
 
@@ -108,9 +109,13 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 	ShowWindow(windowHandle, SW_SHOW);
 
 	SetTimer(windowHandle, 1, 1, nullptr);
+
+	KeyEventHook::registerHook(commonResources.eventBus);
 }
 
 HudWindow::~HudWindow() {
+	KeyEventHook::unregisterHook();
+	
 	DeleteDC(renderSurface);
 	ReleaseDC(windowHandle, windowSurface);
 }

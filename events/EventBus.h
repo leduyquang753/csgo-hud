@@ -10,8 +10,9 @@
 
 #include "pch.h"
 
-#include "events/TimeEventListener.h"
 #include "events/DataEventListener.h"
+#include "events/KeyEventListener.h"
+#include "events/TimeEventListener.h"
 
 namespace CsgoHud {
 
@@ -21,16 +22,21 @@ class EventBus final {
 		std::unordered_map<std::string, std::vector<std::pair<
 			std::function<void(JSON::dom::object&)>, DataEventListener*
 		>>> dataEventListenerMap;
+		std::unordered_map<DWORD, std::vector<std::pair<std::function<void()>, KeyEventListener*>>>
+			keyEventListenerMap;
 
 	public:
 		TimeEventListener listenToTimeEvent(const std::function<void(int)> &callback);
 		DataEventListener listenToDataEvent(
 			const std::string &dataPath, const std::function<void(JSON::dom::object&)> &callback
 		);
+		KeyEventListener listenToKeyEvent(DWORD keyCode, const std::function<void()> &callback);
 		void unregisterTimeEventListener(TimeEventListener &listener);
 		void unregisterDataEventListener(DataEventListener &listener);
+		void unregisterKeyEventListener(KeyEventListener &listener);
 		void notifyTimeEvent(int timePassed) const;
 		void notifyDataEvent(const std::string &dataPath, JSON::dom::object &json) const;
+		void notifyKeyEvent(DWORD keyCode) const;
 };
 
 } // namespace CsgoHud

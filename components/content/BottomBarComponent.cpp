@@ -41,10 +41,16 @@ BottomBarComponent::BottomBarComponent(CommonResources &commonResources):
 		D2D1_POINT_2F{0.5f, 1}, D2D1_POINT_2U{SizedComponent::MODE_RATIO, SizedComponent::MODE_RATIO},
 		std::make_unique<ActivePlayerComponent>(commonResources, transition)
 	));
+
+	commonResources.eventBus.listenToKeyEvent('T', [this](){ onForceShowTeamBuyKeyEvent(); });
+}
+
+void BottomBarComponent::onForceShowTeamBuyKeyEvent() {
+	forceShowTeamBuy = !forceShowTeamBuy;
 }
 
 void BottomBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
-	const bool currentActivePlayerShown = !commonResources.rounds.isBeginningOfRound();
+	const bool currentActivePlayerShown = !commonResources.rounds.isBeginningOfRound() && !forceShowTeamBuy;
 	if (currentActivePlayerShown != activePlayerShown) {
 		activePlayerShown = currentActivePlayerShown;
 		transition.transition(activePlayerShown ? 1.f : 0.f);
