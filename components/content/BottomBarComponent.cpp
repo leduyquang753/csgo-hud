@@ -42,10 +42,10 @@ BottomBarComponent::BottomBarComponent(CommonResources &commonResources):
 		std::make_unique<ActivePlayerComponent>(commonResources, transition)
 	));
 
-	commonResources.eventBus.listenToKeyEvent('T', [this](){ onForceShowTeamBuyKeyEvent(); });
+	commonResources.eventBus.listenToKeyEvent('T', [this](){ onForceShowTeamBuyToggle(); });
 }
 
-void BottomBarComponent::onForceShowTeamBuyKeyEvent() {
+void BottomBarComponent::onForceShowTeamBuyToggle() {
 	forceShowTeamBuy = !forceShowTeamBuy;
 }
 

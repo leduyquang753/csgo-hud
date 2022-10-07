@@ -18,6 +18,9 @@ struct CommonResources;
 class HudComponent final: public Component {
 	private:
 		std::unique_ptr<BagComponent> bag;
+		bool shown = true;
+		
+		void onVisibilityToggle();
 	public:
 		HudComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

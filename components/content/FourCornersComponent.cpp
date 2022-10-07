@@ -11,9 +11,15 @@ namespace CsgoHud {
 
 FourCornersComponent::FourCornersComponent(CommonResources &commonResources): Component(commonResources) {
 	commonResources.renderTarget->CreateSolidColorBrush({0, 0, 0, 0.5}, brush.put());
+	commonResources.eventBus.listenToKeyEvent('C', [this](){ onVisibilityToggle(); });
+}
+
+void FourCornersComponent::onVisibilityToggle() {
+	shown = !shown;
 }
 
 void FourCornersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
+	if (!shown) return;
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 	renderTarget.FillRectangle({0, 0, 4, 16}, brush.get());

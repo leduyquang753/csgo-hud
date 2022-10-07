@@ -23,7 +23,7 @@ class BottomBarComponent final: public Component {
 		
 		bool activePlayerShown = false, forceShowTeamBuy = false;
 
-		void onForceShowTeamBuyKeyEvent();
+		void onForceShowTeamBuyToggle();
 	public:
 		BottomBarComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

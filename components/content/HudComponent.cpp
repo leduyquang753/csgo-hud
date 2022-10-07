@@ -44,9 +44,16 @@ HudComponent::HudComponent(CommonResources &commonResources):
 	bag->children.emplace_back(
 		std::make_unique<PaddedComponent>(commonResources, 8.f, std::move(innerBag))
 	);
+	
+	commonResources.eventBus.listenToKeyEvent('H', [this](){ onVisibilityToggle(); });
+}
+
+void HudComponent::onVisibilityToggle() {
+	shown = !shown;
 }
 
 void HudComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
+	if (!shown) return;
 	bag->paint(transform, parentSize);
 }
 

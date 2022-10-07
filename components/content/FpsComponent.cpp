@@ -28,6 +28,12 @@ FpsComponent::FpsComponent(CommonResources &commonResources): Component(commonRe
 		commonResources, textFormat,
 		CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
 	);
+	
+	commonResources.eventBus.listenToKeyEvent('F', [this](){ onVisibilityToggle(); });
+}
+
+void FpsComponent::onVisibilityToggle() {
+	shown = !shown;
 }
 
 void FpsComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
@@ -40,6 +46,7 @@ void FpsComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &p
 		++fps;
 	}
 
+	if (!shown) return;
 	commonResources.renderTarget->SetTransform(transform);
 	textRenderer->draw(std::to_wstring(lastFps) + L" FPS"s, {0, 0, parentSize.width, 16}, textBrush);
 	commonResources.renderTarget->SetTransform(D2D1::Matrix3x2F::Identity());

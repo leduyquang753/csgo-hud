@@ -22,6 +22,10 @@ class FpsComponent final: public Component {
 
 		int currentSecond = 0;
 		int lastFps = 0, fps = 0;
+
+		bool shown = false;
+
+		void onVisibilityToggle();
 	public:
 		FpsComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

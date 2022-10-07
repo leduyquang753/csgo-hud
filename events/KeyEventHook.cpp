@@ -9,10 +9,16 @@ namespace CsgoHud {
 namespace KeyEventHook {
 	static HHOOK hook;
 	static EventBus *eventBus;
+	static bool keysEnabled = true;
 
 	LRESULT CALLBACK handleKeyboardEvent(const int code, const WPARAM message, const LPARAM lParam) {
-		if (code == HC_ACTION && message == WM_KEYDOWN)
-			eventBus->notifyKeyEvent(reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam)->vkCode);
+		if (code == HC_ACTION && message == WM_KEYDOWN) {
+			const auto keyCode = reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam)->vkCode;
+			if (keyCode == VK_PAUSE)
+				keysEnabled = !keysEnabled;
+			else if (keysEnabled)
+				eventBus->notifyKeyEvent(keyCode);
+		}
 		return CallNextHookEx(nullptr, code, message, lParam);
 	}
 
