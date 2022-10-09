@@ -12,15 +12,14 @@ struct TimeEventListener final {
 		EventBus *eventBus;
 		// The index of the listener in the listener storage vector.
 		std::size_t index;
-		// The slot in the storage vector to replace when moved.
-		TimeEventListener **slot;
 
-		TimeEventListener(EventBus *eventBus, std::size_t index, TimeEventListener **slot);
+		TimeEventListener(EventBus *eventBus, std::size_t index);
 	public:
 		TimeEventListener(const TimeEventListener &other) = delete;
 		TimeEventListener(TimeEventListener &&other);
 		TimeEventListener& operator=(const TimeEventListener &other) = delete;
 		TimeEventListener& operator=(TimeEventListener &&other);
+		~TimeEventListener();
 		void unregister();
 };
 

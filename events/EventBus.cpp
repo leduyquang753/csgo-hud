@@ -17,10 +17,7 @@ namespace CsgoHud {
 TimeEventListener EventBus::listenToTimeEvent(const std::function<void(int)> &callback) {
 	const std::size_t index = timeEventListeners.size();
 	timeEventListeners.emplace_back(callback, nullptr);
-	auto &slot = timeEventListeners.back().second;
-	TimeEventListener listener(this, index, &slot);
-	slot = &listener;
-	return listener;
+	return {this, index};
 }
 
 DataEventListener EventBus::listenToDataEvent(
@@ -29,27 +26,37 @@ DataEventListener EventBus::listenToDataEvent(
 	auto &listenerList = dataEventListenerMap[dataPath];
 	const std::size_t index = listenerList.size();
 	listenerList.emplace_back(callback, nullptr);
-	auto &slot = listenerList.back().second;
-	DataEventListener listener(this, dataPath, index, &slot);
-	slot = &listener;
-	return listener;
+	return {this, dataPath, index};
 }
 
 KeyEventListener EventBus::listenToKeyEvent(const DWORD keyCode, const std::function<void()> &callback) {
 	auto &listenerList = keyEventListenerMap[keyCode];
 	const std::size_t index = listenerList.size();
 	listenerList.emplace_back(callback, nullptr);
-	auto &slot = listenerList.back().second;
-	KeyEventListener listener(this, keyCode, index, &slot);
-	slot = &listener;
-	return listener;
+	return {this, keyCode, index};
+}
+
+void EventBus::updateTimeEventListenerSlot(const std::size_t index, TimeEventListener *const listener) {
+	timeEventListeners[index].second = listener;
+}
+
+void EventBus::updateDataEventListenerSlot(
+	const std::string &dataPath, const std::size_t index, DataEventListener *const listener
+) {
+	dataEventListenerMap[dataPath][index].second = listener;
+}
+
+void EventBus::updateKeyEventListenerSlot(
+	const DWORD keyCode, const std::size_t index, KeyEventListener *const listener
+) {
+	keyEventListenerMap[keyCode][index].second = listener;
 }
 
 void EventBus::unregisterTimeEventListener(TimeEventListener &listener) {
 	if (listener.index == -1) return;
 	auto &listenerAtSlot = timeEventListeners[listener.index];
 	listenerAtSlot = std::move(timeEventListeners.back());
-	listenerAtSlot.second->index = listener.index;
+	if (listenerAtSlot.second != nullptr) listenerAtSlot.second->index = listener.index;
 	timeEventListeners.pop_back();
 	listener.index = -1;
 }
@@ -59,7 +66,7 @@ void EventBus::unregisterDataEventListener(DataEventListener &listener) {
 	auto &listenerList = dataEventListenerMap[listener.dataPath];
 	auto &listenerAtSlot = listenerList[listener.index];
 	listenerAtSlot = std::move(listenerList.back());
-	listenerAtSlot.second->index = listener.index;
+	if (listenerAtSlot.second != nullptr) listenerAtSlot.second->index = listener.index;
 	listenerList.pop_back();
 	listener.index = -1;
 }
@@ -69,7 +76,7 @@ void EventBus::unregisterKeyEventListener(KeyEventListener &listener) {
 	auto &listenerList = keyEventListenerMap[listener.keyCode];
 	auto &listenerAtSlot = listenerList[listener.index];
 	listenerAtSlot = std::move(listenerList.back());
-	listenerAtSlot.second->index = listener.index;
+	if (listenerAtSlot.second != nullptr) listenerAtSlot.second->index = listener.index;
 	listenerList.pop_back();
 	listener.index = -1;
 }

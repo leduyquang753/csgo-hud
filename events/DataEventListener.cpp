@@ -12,14 +12,16 @@ namespace CsgoHud {
 
 // == DataEventListener ==
 
-DataEventListener::DataEventListener(
-	EventBus *const eventBus, const std::string &dataPath, const std::size_t index, DataEventListener **const slot
-): eventBus(eventBus), dataPath(dataPath), index(index), slot(slot) {}
+DataEventListener::DataEventListener(EventBus *const eventBus, const std::string &dataPath, const std::size_t index):
+	eventBus(eventBus), dataPath(dataPath), index(index)
+{
+	eventBus->updateDataEventListenerSlot(dataPath, index, this);
+}
 
 DataEventListener::DataEventListener(DataEventListener &&other):
-	eventBus(other.eventBus), dataPath(std::move(other.dataPath)), index(other.index), slot(other.slot)
+	eventBus(other.eventBus), dataPath(std::move(other.dataPath)), index(other.index)
 {
-	*slot = this;
+	eventBus->updateDataEventListenerSlot(dataPath, index, this);
 	// Make sure something happens when the move listener is used.
 	other.eventBus = nullptr;
 }
@@ -28,10 +30,13 @@ DataEventListener& DataEventListener::operator=(DataEventListener &&other) {
 	eventBus = other.eventBus;
 	dataPath = std::move(other.dataPath);
 	index = other.index;
-	slot = other.slot;
-	*slot = this;
+	eventBus->updateDataEventListenerSlot(dataPath, index, this);
 	other.eventBus = nullptr;
 	return *this;
+}
+
+DataEventListener::~DataEventListener() {
+	if (index != -1) eventBus->updateDataEventListenerSlot(dataPath, index, nullptr);
 }
 
 void DataEventListener::unregister() {

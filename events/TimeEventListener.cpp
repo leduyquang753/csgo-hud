@@ -12,14 +12,14 @@ class EventBus;
 
 // == TimeEventListener ==
 
-TimeEventListener::TimeEventListener(
-	EventBus *const eventBus, const std::size_t index, TimeEventListener **const slot
-): eventBus(eventBus), index(index), slot(slot) {}
-
-TimeEventListener::TimeEventListener(TimeEventListener &&other):
-	eventBus(other.eventBus), index(other.index), slot(other.slot)
+TimeEventListener::TimeEventListener(EventBus *const eventBus, const std::size_t index):
+	eventBus(eventBus), index(index)
 {
-	*slot = this;
+	eventBus->updateTimeEventListenerSlot(index, this);
+}
+
+TimeEventListener::TimeEventListener(TimeEventListener &&other): eventBus(other.eventBus), index(other.index) {
+	eventBus->updateTimeEventListenerSlot(index, this);
 	// Make sure something happens when the move listener is used.
 	other.eventBus = nullptr;
 }
@@ -27,10 +27,13 @@ TimeEventListener::TimeEventListener(TimeEventListener &&other):
 TimeEventListener& TimeEventListener::operator=(TimeEventListener &&other) {
 	eventBus = other.eventBus;
 	index = other.index;
-	slot = other.slot;
-	*slot = this;
+	eventBus->updateTimeEventListenerSlot(index, this);
 	other.eventBus = nullptr;
 	return *this;
+}
+
+TimeEventListener::~TimeEventListener() {
+	if (index != -1) eventBus->updateTimeEventListenerSlot(index, nullptr);
 }
 
 void TimeEventListener::unregister() {

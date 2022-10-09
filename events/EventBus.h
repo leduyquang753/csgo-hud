@@ -31,6 +31,11 @@ class EventBus final {
 			const std::string &dataPath, const std::function<void(JSON::dom::object&)> &callback
 		);
 		KeyEventListener listenToKeyEvent(DWORD keyCode, const std::function<void()> &callback);
+		void updateTimeEventListenerSlot(std::size_t index, TimeEventListener *listener);
+		void updateDataEventListenerSlot(
+			const std::string &dataPath, std::size_t index, DataEventListener *listener
+		);
+		void updateKeyEventListenerSlot(DWORD keyCode, std::size_t index, KeyEventListener *listener);
 		void unregisterTimeEventListener(TimeEventListener &listener);
 		void unregisterDataEventListener(DataEventListener &listener);
 		void unregisterKeyEventListener(KeyEventListener &listener);

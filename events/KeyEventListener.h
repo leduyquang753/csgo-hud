@@ -12,18 +12,17 @@ struct KeyEventListener final {
 		friend class EventBus;
 		EventBus *eventBus;
 		// The key code the listener listens to.
-		WPARAM keyCode;
+		DWORD keyCode;
 		// The index of the listener in the containing listener storage vector.
 		std::size_t index;
-		// The slot in the storage vector to replace when moved.
-		KeyEventListener **slot;
 
-		KeyEventListener(EventBus *eventBus, WPARAM keyCode, std::size_t index, KeyEventListener **slot);
+		KeyEventListener(EventBus *eventBus, DWORD keyCode, std::size_t index);
 	public:
 		KeyEventListener(const KeyEventListener &other) = delete;
 		KeyEventListener(KeyEventListener &&other);
 		KeyEventListener& operator=(const KeyEventListener &other) = delete;
 		KeyEventListener& operator=(KeyEventListener &&other);
+		~KeyEventListener();
 		void unregister();
 };
 

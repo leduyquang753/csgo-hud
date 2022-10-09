@@ -17,17 +17,14 @@ struct DataEventListener final {
 		std::string dataPath;
 		// The index of the listener in the containing listener storage vector.
 		std::size_t index;
-		// The slot in the storage vector to replace when moved.
-		DataEventListener **slot;
 
-		DataEventListener(
-			EventBus *eventBus, const std::string &dataPath, std::size_t index, DataEventListener **slot
-		);
+		DataEventListener(EventBus *eventBus, const std::string &dataPath, std::size_t index);
 	public:
 		DataEventListener(const DataEventListener &other) = delete;
 		DataEventListener(DataEventListener &&other);
 		DataEventListener& operator=(const DataEventListener &other) = delete;
 		DataEventListener& operator=(DataEventListener &&other);
+		~DataEventListener();
 		void unregister();
 };
 
