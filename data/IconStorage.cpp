@@ -1,7 +1,7 @@
+#include "pch.h"
+
 #include <array>
 #include <string>
-
-#include "pch.h"
 
 #include "data/Icon.h"
 #include "resources/CommonResources.h"

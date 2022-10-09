@@ -3,8 +3,6 @@
 
 #include <array>
 
-#include "pch.h"
-
 #include "data/Icon.h"
 
 namespace CsgoHud {

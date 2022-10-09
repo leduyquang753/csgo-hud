@@ -1,9 +1,9 @@
+#include "pch.h"
+
 #include <cstdlib>
 #include <memory>
 #include <functional>
 #include <utility>
-
-#include "pch.h"
 
 #include "events/TimeEventListener.h"
 #include "events/DataEventListener.h"

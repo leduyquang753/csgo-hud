@@ -4,8 +4,6 @@
 #include <string>
 #include <string_view>
 
-#include "pch.h"
-
 namespace CsgoHud {
 
 namespace Utils {

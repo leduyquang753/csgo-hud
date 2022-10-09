@@ -5,8 +5,6 @@
 #include <cstdint>
 #include <unordered_map>
 
-#include "pch.h"
-
 #include "data/PlayerData.h"
 
 namespace CsgoHud {

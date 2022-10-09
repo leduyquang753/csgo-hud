@@ -1,7 +1,7 @@
+#include "pch.h"
+
 #include <string>
 #include <string_view>
-
-#include "pch.h"
 
 #include "resources/CommonResources.h"
 #include "utils/Utils.h"

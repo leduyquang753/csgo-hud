@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "pch.h"
-
 #include "components/base/Component.h"
 #include "components/base/MultipleChildrenComponent.h"
 

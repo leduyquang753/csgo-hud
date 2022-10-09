@@ -4,8 +4,6 @@
 #include <optional>
 #include <vector>
 
-#include "pch.h"
-
 #include "components/base/Component.h"
 #include "movement/CubicBezierMovementFunction.h"
 #include "text/NormalTextRenderer.h"

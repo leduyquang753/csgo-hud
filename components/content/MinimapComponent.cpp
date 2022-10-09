@@ -1,10 +1,10 @@
+#include "pch.h"
+
 #include <algorithm>
 #include <cmath>
 #include <functional>
 #include <string>
 #include <string_view>
-
-#include "pch.h"
 
 #include "components/base/Component.h"
 #include "data/BombData.h"

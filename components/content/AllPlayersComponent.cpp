@@ -1,8 +1,8 @@
+#include "pch.h"
+
 #include <memory>
 #include <string>
 #include <string_view>
-
-#include "pch.h"
 
 #include "components/base/BagComponent.h"
 #include "components/base/BlankComponent.h"

@@ -1,7 +1,7 @@
+#include "pch.h"
+
 #include <memory>
 #include <utility>
-
-#include "pch.h"
 
 #include "components/base/SingleChildComponent.h"
 #include "resources/CommonResources.h"

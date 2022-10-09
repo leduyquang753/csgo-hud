@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "pch.h"
-
 #include "movement/MovementFunction.h"
 
 namespace CsgoHud {

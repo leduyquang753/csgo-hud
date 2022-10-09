@@ -1,9 +1,9 @@
+#include "pch.h"
+
 #include <algorithm>
 #include <cstdlib>
 #include <stdexcept>
 #include <vector>
-
-#include "pch.h"
 
 #include "movement/MovementFunction.h"
 

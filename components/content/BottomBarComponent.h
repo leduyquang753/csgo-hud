@@ -3,8 +3,6 @@
 
 #include <memory>
 
-#include "pch.h"
-
 #include "components/base/BagComponent.h"
 #include "components/base/Component.h"
 #include "movement/TransitionedValue.h"

@@ -1,8 +1,6 @@
 #ifndef CSGO_HUD_DATA_ICON_H
 #define CSGO_HUD_DATA_ICON_H
 
-#include "pch.h"
-
 namespace CsgoHud {
 
 struct Icon final {

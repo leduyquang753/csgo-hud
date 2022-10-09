@@ -1,7 +1,7 @@
+#include "pch.h"
+
 #include <memory>
 #include <utility>
-
-#include "pch.h"
 
 #include "events/TimeEventListener.h"
 #include "movement/MovementFunction.h"

@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "pch.h"
-
 #include "movement/CubicBezier.h"
 #include "movement/MovementFunction.h"
 

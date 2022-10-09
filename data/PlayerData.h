@@ -6,8 +6,6 @@
 #include <optional>
 #include <string>
 
-#include "pch.h"
-
 #include "data/GunData.h"
 
 namespace CsgoHud {

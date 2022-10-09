@@ -5,8 +5,6 @@
 #include <memory>
 #include <optional>
 
-#include "pch.h"
-
 #include "components/base/BagComponent.h"
 #include "components/base/Component.h"
 #include "components/content/PlayerInfoComponent.h"

@@ -1,7 +1,7 @@
+#include "pch.h"
+
 #include <algorithm>
 #include <cmath>
-
-#include "pch.h"
 
 #include "movement/CubicBezier.h"
 

@@ -6,8 +6,6 @@
 #include <string>
 #include <string_view>
 
-#include "pch.h"
-
 #include "components/base/Component.h"
 #include "components/base/StackComponent.h"
 #include "text/FixedWidthDigitTextRenderer.h"

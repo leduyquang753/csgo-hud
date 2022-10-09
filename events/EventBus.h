@@ -8,8 +8,6 @@
 #include <utility>
 #include <vector>
 
-#include "pch.h"
-
 #include "events/DataEventListener.h"
 #include "events/KeyEventListener.h"
 #include "events/TimeEventListener.h"

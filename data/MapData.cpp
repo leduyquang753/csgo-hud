@@ -1,8 +1,9 @@
+#include "pch.h"
+
 #include <filesystem>
 #include <string>
 #include <string_view>
 
-#include "pch.h"
 #include <shlwapi.h>
 
 #include "resources/CommonResources.h"

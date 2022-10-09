@@ -3,8 +3,6 @@
 
 #include <string_view>
 
-#include "pch.h"
-
 #include "text/TextRenderer.h"
 
 namespace CsgoHud {

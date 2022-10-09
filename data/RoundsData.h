@@ -4,8 +4,6 @@
 #include <utility>
 #include <vector>
 
-#include "pch.h"
-
 namespace CsgoHud {
 
 class EventBus;

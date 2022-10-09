@@ -4,8 +4,6 @@
 #include <optional>
 #include <string>
 
-#include "pch.h"
-
 #include "components/base/Component.h"
 #include "data/PlayerData.h"
 #include "movement/TransitionedValue.h"

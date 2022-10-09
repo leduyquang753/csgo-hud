@@ -4,8 +4,6 @@
 #include <cstdint>
 #include <string>
 
-#include "pch.h"
-
 namespace CsgoHud {
 
 struct CommonResources;

@@ -1,9 +1,9 @@
+#include "pch.h"
+
 #include <algorithm>
 #include <cmath>
 #include <string>
 #include <string_view>
-
-#include "pch.h"
 
 #include "resources/CommonResources.h"
 #include "utils/CommonConstants.h"

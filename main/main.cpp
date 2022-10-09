@@ -1,9 +1,9 @@
+#include "pch.h"
+
 #include <memory>
 #include <thread>
 #include <utility>
 #include <vector>
-
-#include "pch.h"
 
 #include "components/content/HudComponent.h"
 #include "data/AllPlayersData.h"

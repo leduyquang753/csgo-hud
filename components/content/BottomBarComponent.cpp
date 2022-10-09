@@ -1,6 +1,6 @@
-#include <memory>
-
 #include "pch.h"
+
+#include <memory>
 
 #include "components/base/BagComponent.h"
 #include "components/base/Component.h"

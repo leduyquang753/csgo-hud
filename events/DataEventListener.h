@@ -5,8 +5,6 @@
 #include <functional>
 #include <string>
 
-#include "pch.h"
-
 namespace CsgoHud {
 
 struct DataEventListener final {

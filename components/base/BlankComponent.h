@@ -1,8 +1,6 @@
 #ifndef CSGO_HUD_COMPONENTS_BASE_BLANKCOMPONENT_H
 #define CSGO_HUD_COMPONENTS_BASE_BLANKCOMPONENT_H
 
-#include "pch.h"
-
 #include "components/base/Component.h"
 
 namespace CsgoHud {

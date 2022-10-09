@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "pch.h"
-
 #include "components/base/Component.h"
 #include "components/base/StackComponentChild.h"
 

@@ -3,8 +3,6 @@
 
 #include <memory>
 
-#include "pch.h"
-
 namespace CsgoHud {
 
 /*

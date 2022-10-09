@@ -3,8 +3,6 @@
 
 #include <cstdlib>
 
-#include "pch.h"
-
 namespace CsgoHud {
 
 struct KeyEventListener final {

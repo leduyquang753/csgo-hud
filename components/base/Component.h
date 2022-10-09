@@ -1,8 +1,6 @@
 #ifndef CSGO_HUD_COMPONENTS_BASE_COMPONENT_H
 #define CSGO_HUD_COMPONENTS_BASE_COMPONENT_H
 
-#include "pch.h"
-
 namespace CsgoHud {
 
 struct CommonResources;

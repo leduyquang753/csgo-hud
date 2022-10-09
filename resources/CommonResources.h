@@ -3,8 +3,6 @@
 
 #include <optional>
 
-#include "pch.h"
-
 #include "data/AllPlayersData.h"
 #include "data/IconStorage.h"
 #include "data/BombData.h"

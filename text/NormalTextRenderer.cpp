@@ -1,6 +1,6 @@
-#include <string_view>
-
 #include "pch.h"
+
+#include <string_view>
 
 #include "resources/CommonResources.h"
 #include "text/TextRenderer.h"

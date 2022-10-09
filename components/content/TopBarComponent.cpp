@@ -1,3 +1,5 @@
+#include "pch.h"
+
 #include <array>
 #include <cmath>
 #include <memory>
@@ -5,8 +7,6 @@
 #include <string_view>
 #include <utility>
 #include <vector>
-
-#include "pch.h"
 
 #include "components/base/BagComponent.h"
 #include "components/base/Component.h"

@@ -3,8 +3,6 @@
 
 #include <optional>
 
-#include "pch.h"
-
 #include "components/base/Component.h"
 #include "text/FixedWidthDigitTextRenderer.h"
 

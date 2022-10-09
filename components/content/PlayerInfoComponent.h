@@ -1,8 +1,6 @@
 #ifndef CSGO_HUD_COMPONENTS_CONTENT_PLAYERINFOCOMPONENT_H
 #define CSGO_HUD_COMPONENTS_CONTENT_PLAYERINFOCOMPONENT_H
 
-#include "pch.h"
-
 #include "components/base/Component.h"
 #include "movement/TransitionedValue.h"
 

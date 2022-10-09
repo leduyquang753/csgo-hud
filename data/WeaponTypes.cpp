@@ -1,8 +1,8 @@
+#include "pch.h"
+
 #include <array>
 #include <string>
 #include <unordered_map>
-
-#include "pch.h"
 
 #include "data/WeaponTypes.h"
 

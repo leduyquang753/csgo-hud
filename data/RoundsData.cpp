@@ -1,9 +1,9 @@
+#include "pch.h"
+
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
-
-#include "pch.h"
 
 #include "data/IconStorage.h"
 #include "events/EventBus.h"
