@@ -22,7 +22,7 @@ class MinimapComponent final: public Component {
 		
 		D2D1_COLOR_F
 			droppedBombColor, plantedBombColor, defusedBombColor,
-			ctColor, tColor, bombRedFlashColor, bombWhiteFlashColor;
+			ctColor, tColor, neutralColor, bombRedFlashColor, bombWhiteFlashColor;
 		winrt::com_ptr<ID2D1Layer> layer1, layer2;
 		winrt::com_ptr<ID2D1SolidColorBrush>
 			whiteBrush, ctBrush, tBrush, bombsiteNameBrush, bombBrush, flashBrush, smokeBrush, fireBrush;

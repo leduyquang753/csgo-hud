@@ -6,6 +6,7 @@
 #include "data/AllPlayersData.h"
 #include "data/IconStorage.h"
 #include "data/BombData.h"
+#include "data/GrenadesData.h"
 #include "data/MapData.h"
 #include "data/RoundsData.h"
 #include "data/WeaponTypes.h"
@@ -32,6 +33,7 @@ struct CommonResources final {
 	MapData map{*this};
 	BombData bomb{*this};
 	RoundsData rounds{eventBus};
+	GrenadesData grenades{*this};
 };
 
 } // namespace CsgoHud

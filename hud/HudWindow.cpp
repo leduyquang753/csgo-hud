@@ -188,6 +188,8 @@ void HudWindow::tick() {
 }
 
 void HudWindow::paint() {
+	commonResources.grenades.purgeExpiredEntities();
+	
 	RECT windowRect;
 	GetWindowRect(windowHandle, &windowRect);
 	const int

@@ -29,19 +29,18 @@ void MapData::receiveMapData(JSON::dom::object &json) {
 	std::string currentMapInternalName(json["name"sv].value().get_string().value());
 	if (currentMapInternalName != mapInternalName) {
 		mapInternalName = currentMapInternalName;
-		const std::wstring folderPath = L"Minimaps\\"s + Utils::widenString(currentMapInternalName);
-		std::wstring fullFolderPath(MAX_PATH, '\0');
-		fullFolderPath.resize(GetFullPathName(folderPath.c_str(), MAX_PATH, fullFolderPath.data(), nullptr));
-		if (PathFileExists(fullFolderPath.c_str())) {
-			const std::wstring imagePath = fullFolderPath + L"\\radar.png"s;
+		std::filesystem::path folderPath(L"Minimaps\\"s + Utils::widenString(currentMapInternalName));
+		if (std::filesystem::is_directory(folderPath)) {
+			const std::filesystem::path imagePath = folderPath / L"radar.png"s;
 			if (
-				PathFileExists(imagePath.c_str())
-				&& PathFileExists((fullFolderPath + L"\\Configuration.json"s).c_str())
+				std::filesystem::is_regular_file(imagePath)
+				&& std::filesystem::is_regular_file(folderPath / L"Configuration.json"s)
 			) {
 				// Load the minimap image.
 				winrt::com_ptr<IWICBitmapDecoder> decoder;
 				imagingFactory->CreateDecoderFromFilename(
-					imagePath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, decoder.put()
+					std::filesystem::absolute(imagePath).c_str(),
+					nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, decoder.put()
 				);
 				winrt::com_ptr<IWICBitmapFrameDecode> frameDecoder;
 				decoder->GetFrame(0, frameDecoder.put());

@@ -111,7 +111,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 		bombInnerBottom = gaugeHeight - 4;
 	// The reported bomb time from the game tends to exceed 40" when the bomb has just been planted.
 	const int displayedBombTime
-		= bombState == BombData::State::DETONATING ? 0 : std::min(40000, bomb.bombTimeLeft);
+		= bombState == BombData::State::DETONATING ? 0 : std::min(40000, bomb.oldBombTimeLeft);
 	renderTarget.FillRectangle({outerLeft, bombY, outerRight, gaugeHeight + bombY}, gaugeOuterBrush.get());
 	renderTarget.FillRectangle(
 		{innerLeft, 4 + bombY, innerRight, bombInnerBottom + bombY},
@@ -156,7 +156,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 			{innerLeft, defuseInnerTop + defuseY, innerRight, defuseInnerBottom + defuseY},
 			gaugeInnerPlantedBrush.get()
 		);
-		if (bombState == BombData::State::DEFUSING) oldBombTime = bomb.bombTimeLeft;
+		if (bombState == BombData::State::DEFUSING) oldBombTime = displayedBombTime;
 		if (bombState != BombData::State::DEFUSED) renderTarget.FillRectangle(
 			{
 				innerLeft + innerWidth * std::max(0, bomb.bombTimeLeft - bomb.defuseTimeLeft) / 40000,

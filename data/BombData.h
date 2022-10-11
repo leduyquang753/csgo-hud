@@ -23,7 +23,7 @@ class BombData final {
 		std::uint64_t planterSteamId, defuserSteamId;
 		bool planterFound = false, defuserFound = false;
 		std::wstring planterName, defuserName;
-		int bombTimeLeft, defuseTimeLeft;
+		int bombTimeLeft, defuseTimeLeft, oldBombTimeLeft;
 
 		BombData(CommonResources &commonResources);
 		void advanceTime(const int timePassed);

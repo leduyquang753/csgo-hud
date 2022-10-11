@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <numbers>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "components/base/Component.h"
 #include "data/BombData.h"
@@ -29,6 +31,7 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	defusedBombColor{0, 1, 0, 1},
 	ctColor{0.35f, 0.72f, 0.96f, 1},
 	tColor{0.94f, 0.79f, 0.25f, 1},
+	neutralColor{0.8f, 0.8f, 0.8f, 1},
 	bombRedFlashColor{1, 0.6f, 0.6f, 1},
 	bombWhiteFlashColor{1, 1, 1, 1},
 	explosionInnerAnimation{{{{0, 0}, {0, 0.25f}, {0.25f, 1}, {4000, 1}}}},
@@ -121,8 +124,9 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		const int index, const float x, const float y, const float halfSize, const D2D1_COLOR_F &color
 	) {
 		const auto &icon = commonResources.icons[index];
+		const float halfWidth = halfSize * icon.width / icon.height;
 		const D2D1_RECT_F destinationRect
-			= {x - halfSize, y - halfSize, x + halfSize, y + halfSize};
+			= {x - halfWidth, y - halfSize, x + halfWidth, y + halfSize};
 		spriteBatch->AddSprites(1, &destinationRect, &icon.bounds, &color, nullptr, 0, 0, 0, 0);
 	};
 	auto commitIconDraws = [this, &renderTarget, &spriteBatch] {
@@ -150,11 +154,11 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			return D2D1_POINT_2F{x + radius * std::cos(angle), y - radius * std::sin(angle)};
 		};
 		sink->BeginFigure(
-			computePoint(radius, angle + static_cast<float>(M_PI_4)), // Left.
+			computePoint(radius, angle + std::numbers::pi_v<float>/4), // Left.
 			D2D1_FIGURE_BEGIN_FILLED
 		);
-		sink->AddLine(computePoint(radius * static_cast<float>(M_SQRT2), angle)); // Center.
-		sink->AddLine(computePoint(radius, angle - static_cast<float>(M_PI_4))); // Right.
+		sink->AddLine(computePoint(radius * std::numbers::sqrt2_v<float>, angle)); // Center.
+		sink->AddLine(computePoint(radius, angle - std::numbers::pi_v<float>/4)); // Right.
 		sink->EndFigure(D2D1_FIGURE_END_CLOSED);
 		sink->Close();
 		renderTarget.FillGeometry(path.get(), brush.get());
@@ -210,8 +214,7 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		if (alpha != 1) renderTarget.PopLayer();
 	};
 	auto drawPlayerMarkerSet = [
-		this, &map, &renderTarget, imageScale, effectiveScale, &drawPlayerMarker,
-		lowerLevelOffsetX, lowerLevelOffsetY
+		this, &map, &renderTarget, effectiveScale, &drawPlayerMarker, lowerLevelOffsetX, lowerLevelOffsetY
 	](const int slot, const bool active) {
 		const auto &player = *commonResources.players[slot];
 		const float
@@ -219,7 +222,7 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			y = (map.topCoordinate - player.position.y) / effectiveScale,
 			z = player.position.z,
 			angle = player.forward.x == 0 && player.forward.y == 0
-				? static_cast<float>(-M_PI_4)
+				? static_cast<float>(-std::numbers::pi_v<float>)
 				: std::atan2(player.forward.y, player.forward.x);
 		const auto &brush = player.team
 			? ctBrush
@@ -264,6 +267,54 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	for (int i = 0; i != 10; ++i) {
 		const auto &player = players[i];
 		if (player && player->health == 0) drawPlayerMarkerSet(i, false);
+	}
+
+	// Draw underlaying grenade effects.
+	auto drawGrenadeEffect = [this, &renderTarget](
+		const float x, const float y, D2D1_COLOR_F color, const float alpha, const float radius
+	) {
+		color.a *= alpha;
+		winrt::com_ptr<ID2D1SolidColorBrush> brush;
+		renderTarget.CreateSolidColorBrush(color, brush.put());
+		renderTarget.FillEllipse({{x, y}, radius, radius}, brush.get());
+	};
+	auto drawGrenadeEffects = [&map, effectiveScale, lowerLevelOffsetX, lowerLevelOffsetY, &drawGrenadeEffect](
+		const D2D1_VECTOR_3F &position, const D2D1_COLOR_F &color, const float alpha, const float radius
+	) {
+		const float
+			x = (position.x - map.leftCoordinate) / effectiveScale,
+			y = (map.topCoordinate - position.y) / effectiveScale,
+			z = position.z;
+		if (map.hasLowerLevel) {
+			if (z >= map.levelSeparationTop) {
+				drawGrenadeEffect(x, y, color, alpha, radius);
+			} else if (z > map.levelSeparationBottom) {
+				const float alphaMultiplier = (z - map.levelSeparationBottom) / map.levelTransitionRange;
+				drawGrenadeEffect(x, y, color, alpha * alphaMultiplier, radius);
+				drawGrenadeEffect(
+					x + lowerLevelOffsetX, y + lowerLevelOffsetY, color, alpha * (1-alphaMultiplier), radius
+				);
+			} else {
+				drawGrenadeEffect(x + lowerLevelOffsetX, y + lowerLevelOffsetY, color, alpha, radius);
+			}
+		} else {
+			drawGrenadeEffect(x, y, color, alpha, radius);
+		}
+	};
+	const auto &grenades = commonResources.grenades;
+	for (const auto &entry : grenades.burningAreas) {
+		const auto &area = entry.second;
+		if (area.burningTime >= (area.extinguished ? 500 : 7000)) continue;
+		const float alpha = area.extinguished
+			? (500 - area.burningTime) / 500.f
+			: area.burningTime > 6000 ? (7000 - area.burningTime) / 1000.f : 1;
+		for (const auto &subentry : area.pieceMap) {
+			const auto &piece = subentry.second;
+			drawGrenadeEffects(
+				piece.position, {1, 0.6f, 0.35f, 0.3f},
+				(piece.burningTime < 500 ? piece.burningTime / 500.f : 1) * alpha, 80 / effectiveScale
+			);
+		}
 	}
 	
 	const auto &bomb = commonResources.bomb;
@@ -334,6 +385,88 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		drawPlayerMarkerSet(bombCarrierIndex, false);
 	if (activePlayerIndex != -1)
 		drawPlayerMarkerSet(activePlayerIndex, true);
+
+	// Draw thrown grenades.
+	auto drawThrownGrenade = [this, &map, effectiveScale, lowerLevelOffsetX, lowerLevelOffsetY, &drawIcon](
+		const GrenadesData::Grenade &grenade, const int iconIndex
+	) {
+		auto color = grenade.throwerFound
+			? grenade.throwerTeam ? ctColor : tColor
+			: neutralColor;
+		const float
+			x = (grenade.position.x - map.leftCoordinate) / effectiveScale,
+			y = (map.topCoordinate - grenade.position.y) / effectiveScale,
+			z = grenade.position.z;
+		if (map.hasLowerLevel) {
+			if (z >= map.levelSeparationTop) {
+				drawIcon(iconIndex, x, y, 8, color);
+			} else if (z > map.levelSeparationBottom) {
+				color.a = (z - map.levelSeparationBottom) / map.levelTransitionRange;
+				drawIcon(iconIndex, x, y, 8, color);
+				color.a = 1 - color.a;
+				drawIcon(iconIndex, x + lowerLevelOffsetX, y + lowerLevelOffsetY, 8, color);
+			} else {
+				drawIcon(iconIndex, x + lowerLevelOffsetX, y + lowerLevelOffsetY, 8, color);
+			}
+		} else {
+			drawIcon(iconIndex, x, y, 8, color);
+		}
+	};
+	spriteBatch->Clear();
+	for (const auto &[id, grenade] : grenades.fragGrenades)
+		if (grenade.explodingTime == -1) drawThrownGrenade(grenade, IconStorage::INDEX_FRAG_GRENADE);
+	for (const auto &[id, grenade] : grenades.stunGrenades)
+		drawThrownGrenade(grenade, IconStorage::INDEX_STUN_GRENADE);
+	for (const auto &[id, grenade] : grenades.smokeGrenades)
+		if (grenade.smokingTime == 0) drawThrownGrenade(grenade, IconStorage::INDEX_SMOKE_GRENADE);
+	for (const auto &[id, grenade] : grenades.incendiaryGrenades) {
+		drawThrownGrenade(
+			grenade,
+			!grenade.throwerFound || grenade.throwerTeam
+				? IconStorage::INDEX_INCENDIARY_GRENADE : IconStorage::INDEX_MOLOTOV_COCKTAIL
+		);
+	}
+	for (const auto &[id, grenade] : grenades.decoyGrenades)
+		drawThrownGrenade(grenade, IconStorage::INDEX_DECOY_GRENADE);
+	commitIconDraws();
+
+	// Draw overlaying grenade effects.
+	for (const auto &entry : grenades.fragGrenades) {
+		const auto &grenade = entry.second;
+		if (grenade.explodingTime != -1 && grenade.explodingTime < 4000) {
+			const float animationValue = grenade.explodingTime / 4000.f;
+			drawGrenadeEffects(
+				grenade.position, {0, 0, 0, 0.8f},
+				1 - animationValue, 384 / effectiveScale * (1 - std::pow(animationValue, 3.f))
+			);
+		}
+	}
+	auto drawExplodedGrenades = [&drawGrenadeEffects](
+		const std::vector<GrenadesData::ExplodedGrenade> &grenades, const D2D1_COLOR_F &color,
+		const float startingRadius, const int lifetime
+	) {
+		for (const auto &grenade : grenades) {
+			const float animationValue = static_cast<float>(grenade.animationTime) / lifetime;
+			drawGrenadeEffects(
+				grenade.position, color,
+				1 - animationValue, startingRadius * (1 - std::pow(animationValue, 3.f))
+			);
+		}
+	};
+	drawExplodedGrenades(grenades.explodedDecoyGrenades, {0, 0, 0, 0.4f}, 8, 4000);
+	drawExplodedGrenades(grenades.explodedStunGrenades, {1, 1, 1, 0.8f}, 20, 250);
+	for (const auto &entry : grenades.smokeGrenades) {
+		const auto &grenade = entry.second;
+		if (grenade.smokingTime < 18000) {
+			drawGrenadeEffects(
+				grenade.position, {0.8f, 0.8f, 0.8f, 0.7f},
+				grenade.smokingTime < 750 ? grenade.smokingTime / 750.f
+				: grenade.smokingTime > 16000 ? (18000 - grenade.smokingTime) / 2000.f
+				: 1,
+				144 / effectiveScale * (grenade.smokingTime < 300 ? grenade.smokingTime / 300.f : 1)
+			);
+		}
+	}
 
 	// Draw the bomb explision.
 	if (bomb.bombState == BombData::State::EXPLODED && bomb.bombTimeLeft < 4000) {

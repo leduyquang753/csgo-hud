@@ -184,6 +184,9 @@
     <ClCompile Include="events\KeyEventHook.cpp">
       <Filter>events</Filter>
     </ClCompile>
+    <ClCompile Include="data\GrenadesData.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud\HudWindow.h">
@@ -333,6 +336,9 @@
     </ClInclude>
     <ClInclude Include="events\KeyEventHook.h">
       <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="data\GrenadesData.h">
+      <Filter>data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
