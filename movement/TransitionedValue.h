@@ -17,7 +17,7 @@ struct CommonResources;
 */
 class TransitionedValue final {
 	private:
-		std::vector<std::unique_ptr<MovementFunction>> movementFunctions;
+		const std::vector<std::unique_ptr<MovementFunction>> movementFunctions;
 		const int transitionTime;
 		int passedTime;
 		int currentFunctionIndex;

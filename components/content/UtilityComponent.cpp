@@ -21,14 +21,18 @@ namespace CsgoHud {
 
 UtilityComponent::UtilityComponent(
 	CommonResources &commonResources, const bool rightSide, const TransitionedValue &transition
-): Component(commonResources), rightSide(rightSide), transition(transition) {
+):
+	Component(commonResources), rightSide(rightSide), transition(transition),
+	normalColor{1, 1, 1, 1}, grayedColor{1, 1, 1, 0.5f}
+{
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, ctBrush.put());
 	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 1}, tBrush.put());
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.5f}, headerShadeBrush.put());
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.3f}, backgroundBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 0.2f}, backgroundShadeBrush.put());
-	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, textBrush.put());
+	renderTarget.CreateSolidColorBrush(normalColor, normalTextBrush.put());
+	renderTarget.CreateSolidColorBrush(grayedColor, grayedTextBrush.put());
 	renderTarget.CreateLayer(layer.put());
 	
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
@@ -123,9 +127,9 @@ void UtilityComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	renderTarget.FillRectangle(
 		{parentSize.width * totalCount / 20, 0, parentSize.width, verticalMiddle}, headerShadeBrush.get()
 	);
-	titleTextRenderer->draw(L"UTILITY"sv, {8, 0, parentSize.width - 8, verticalMiddle}, textBrush);
+	titleTextRenderer->draw(L"UTILITY"sv, {8, 0, parentSize.width - 8, verticalMiddle}, normalTextBrush);
 	totalTextRenderer->draw(
-		std::to_wstring(totalCount) + L" / 20"s, {8, 0, parentSize.width - 8, verticalMiddle}, textBrush
+		std::to_wstring(totalCount) + L" / 20"s, {8, 0, parentSize.width - 8, verticalMiddle}, normalTextBrush
 	);
 	
 	winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
@@ -147,13 +151,14 @@ void UtilityComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			startX + entryPadding, contentMiddle - 8,
 			startX + entryPadding + iconWidth, contentMiddle + 8
 		};
-		static const D2D1_COLOR_F iconColor = {1, 1, 1, 1};
-		spriteBatch->AddSprites(1, &destinationRect, &icon.bounds, &iconColor, nullptr, 0, 0, 0, 0);
+		spriteBatch->AddSprites(
+			1, &destinationRect, &icon.bounds, count == 0 ? &grayedColor : &normalColor, nullptr, 0, 0, 0, 0
+		);
 
 		countTextRenderer->draw(
 			std::to_wstring(count),
 			{startX, verticalMiddle, startX + parentSize.width/5 - entryPadding, parentSize.height},
-			textBrush
+			count == 0 ? grayedTextBrush : normalTextBrush
 		);
 	};
 	drawCount(0, IconStorage::INDEX_FRAG_GRENADE, fragCount, 5);

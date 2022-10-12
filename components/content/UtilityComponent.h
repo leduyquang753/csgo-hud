@@ -16,8 +16,10 @@ struct CommonResources;
 */
 class UtilityComponent final: public Component {
 	private:
+		D2D1_COLOR_F normalColor, grayedColor;
 		winrt::com_ptr<ID2D1SolidColorBrush>
-			ctBrush, tBrush, headerShadeBrush, backgroundBrush, backgroundShadeBrush, textBrush;
+			ctBrush, tBrush, headerShadeBrush, backgroundBrush, backgroundShadeBrush,
+			normalTextBrush, grayedTextBrush;
 		std::optional<FixedWidthDigitTextRenderer> titleTextRenderer, totalTextRenderer, countTextRenderer;
 		winrt::com_ptr<ID2D1Layer> layer;
 		const TransitionedValue &transition;

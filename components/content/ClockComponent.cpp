@@ -105,7 +105,9 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 	const auto &map = commonResources.map;
 	const auto &bomb = commonResources.bomb;
 	const bool currentBombPlanted
-		= bomb.bombState == BombData::State::PLANTED || bomb.bombState == BombData::State::DEFUSING;
+		= bomb.bombState == BombData::State::PLANTED
+		|| bomb.bombState == BombData::State::DEFUSING
+		|| bomb.bombState == BombData::State::DETONATING;
 	if (currentBombPlanted != bombPlanted) {
 		bombPlanted = currentBombPlanted;
 		if (bombPlanted && map.mapAvailable) bombsiteA

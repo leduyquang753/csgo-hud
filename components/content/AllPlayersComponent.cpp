@@ -26,9 +26,24 @@ using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
+static std::vector<std::unique_ptr<MovementFunction>> getMovementFunctions() {
+	std::vector<std::unique_ptr<MovementFunction>> functions;
+	functions.emplace_back(std::make_unique<CubicBezierMovementFunction>(
+		std::vector<D2D1_POINT_2F>{{{0, 0}, {0, 0}, {0.58f, 1}, {300, 1}}}
+	));
+	functions.emplace_back(std::make_unique<CubicBezierMovementFunction>(
+		std::vector<D2D1_POINT_2F>{{{0, 0}, {0.42f, 0}, {1, 1}, {300, 1}}}
+	));
+	return functions;
+}
+
 // == AllPlayersComponent ==
 
-AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Component(commonResources) {
+AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
+	Component(commonResources),
+	statsTransition(commonResources, getMovementFunctions(), 300, 0),
+	utilityTransition(commonResources, getMovementFunctions(), 300, 0)
+{
 	auto &renderTarget = *commonResources.renderTarget;
 	
 	auto &writeFactory = *commonResources.writeFactory;
@@ -58,19 +73,6 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 		CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
 	);
 
-	auto getMovementFunctions = []() {
-		std::vector<std::unique_ptr<MovementFunction>> functions;
-		functions.emplace_back(std::make_unique<CubicBezierMovementFunction>(
-			std::vector<D2D1_POINT_2F>{{{0, 0}, {0, 0}, {0.58f, 1}, {300, 1}}}
-		));
-		functions.emplace_back(std::make_unique<CubicBezierMovementFunction>(
-			std::vector<D2D1_POINT_2F>{{{0, 0}, {0.42f, 0}, {1, 1}, {300, 1}}}
-		));
-		return functions;
-	};
-	statsTransition.emplace(commonResources, getMovementFunctions(), 300, 0.f);
-	utilityTransition.emplace(commonResources, getMovementFunctions(), 300, 0.f);
-
 	resources.emplace(PlayerInfoComponent::Resources{
 		.backgroundInactiveColor = {0, 0, 0, 0.3f},
 		.backgroundActiveColor = {0, 0, 0, 0.7f},
@@ -85,7 +87,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 		.boldTextFormat = boldTextFormat,
 		.normalTextRenderer = *normalTextRenderer,
 		.boldTextRenderer = *boldTextRenderer,
-		.statsTransition = *statsTransition
+		.statsTransition = statsTransition
 	});
 	
 	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, resources->teamCtBrush.put());
@@ -131,7 +133,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 			= std::make_unique<StatsHeaderComponent>(this->commonResources, rightSide, *resources);
 		header = headerPointer.get();
 		auto utilityPointer
-			= std::make_unique<UtilityComponent>(this->commonResources, rightSide, *utilityTransition);
+			= std::make_unique<UtilityComponent>(this->commonResources, rightSide, utilityTransition);
 		utility = utilityPointer.get();
 		topArea->children.emplace_back(std::make_unique<SizedComponent>(
 			this->commonResources,
@@ -165,7 +167,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Comp
 
 void AllPlayersComponent::onUtilityToggle() {
 	utilityOn = !utilityOn;
-	utilityTransition->transition(utilityOn ? 1.f : 0.f, utilityOn ? 0 : 1);
+	utilityTransition.transition(utilityOn ? 1.f : 0.f, utilityOn ? 0 : 1);
 }
 
 void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
@@ -176,7 +178,7 @@ void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	const bool currentStatsOn = commonResources.rounds.isBeginningOfRound();
 	if (statsOn != currentStatsOn) {
 		statsOn = currentStatsOn;
-		statsTransition->transition(statsOn ? 1.f : 0.f, statsOn ? 0 : 1);
+		statsTransition.transition(statsOn ? 1.f : 0.f, statsOn ? 0 : 1);
 	}
 	
 	const bool leftTeam = players[firstPlayerIndex]->team;

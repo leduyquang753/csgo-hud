@@ -11,20 +11,23 @@
 
 namespace CsgoHud {
 
+static std::vector<std::unique_ptr<MovementFunction>> buildSingleMovementFunctionVector(
+	std::unique_ptr<MovementFunction> &&movementFunction
+) {
+	std::vector<std::unique_ptr<MovementFunction>> movementFunctions;
+	movementFunctions.emplace_back(std::move(movementFunction));
+	return movementFunctions;
+}
+
 // == TransitionedValue ==
 
 TransitionedValue::TransitionedValue(
 	CommonResources &commonResources,
 	std::unique_ptr<MovementFunction> &&movementFunction,
 	const int transitionTime, const float initialValue
-):
-	transitionTime(transitionTime), passedTime(transitionTime), currentValue(initialValue),
-	timeEventListener(commonResources.eventBus.listenToTimeEvent([this](const int timePassed) {
-		advanceTime(timePassed);
-	}))
-{
-	movementFunctions.emplace_back(std::move(movementFunction));
-}
+): TransitionedValue(
+	commonResources, buildSingleMovementFunctionVector(std::move(movementFunction)), transitionTime, initialValue
+) {}
 
 TransitionedValue::TransitionedValue(
 	CommonResources &commonResources,

@@ -33,7 +33,7 @@ class AllPlayersComponent final: public Component {
 
 		std::string phase;
 		bool statsOn = false, utilityOn = false;
-		std::optional<TransitionedValue> statsTransition, utilityTransition;
+		TransitionedValue statsTransition, utilityTransition;
 
 		void onUtilityToggle();
 	public:
