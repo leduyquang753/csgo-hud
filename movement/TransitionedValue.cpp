@@ -18,7 +18,20 @@ TransitionedValue::TransitionedValue(
 	std::unique_ptr<MovementFunction> &&movementFunction,
 	const int transitionTime, const float initialValue
 ):
-	movementFunction(std::move(movementFunction)),
+	transitionTime(transitionTime), passedTime(transitionTime), currentValue(initialValue),
+	timeEventListener(commonResources.eventBus.listenToTimeEvent([this](const int timePassed) {
+		advanceTime(timePassed);
+	}))
+{
+	movementFunctions.emplace_back(std::move(movementFunction));
+}
+
+TransitionedValue::TransitionedValue(
+	CommonResources &commonResources,
+	std::vector<std::unique_ptr<MovementFunction>> &&movementFunctions,
+	const int transitionTime, const float initialValue
+):
+	movementFunctions(std::move(movementFunctions)),
 	transitionTime(transitionTime), passedTime(transitionTime), currentValue(initialValue),
 	timeEventListener(commonResources.eventBus.listenToTimeEvent([this](const int timePassed) {
 		advanceTime(timePassed);
@@ -41,8 +54,10 @@ bool TransitionedValue::transiting() const {
 float TransitionedValue::getValue() const {
 	return passedTime >= transitionTime
 		? currentValue
-		: previousValue
-			+ (currentValue - previousValue) * movementFunction->getValue(static_cast<float>(passedTime));
+		: previousValue + (
+			(currentValue - previousValue)
+			* movementFunctions[currentFunctionIndex]->getValue(static_cast<float>(passedTime))
+		);
 }
 
 void TransitionedValue::setValue(const float value) {
@@ -50,11 +65,12 @@ void TransitionedValue::setValue(const float value) {
 	passedTime = transitionTime;
 }
 
-void TransitionedValue::transition(const float newValue) {
+void TransitionedValue::transition(const float newValue, const int functionIndex) {
 	previousValue = getValue();
 	if (previousValue == newValue) {
 		passedTime = transitionTime;
 	} else {
+		currentFunctionIndex = functionIndex;
 		currentValue = newValue;
 		passedTime = 0;
 	}

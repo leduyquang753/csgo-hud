@@ -187,6 +187,9 @@
     <ClCompile Include="data\GrenadesData.cpp">
       <Filter>data</Filter>
     </ClCompile>
+    <ClCompile Include="components\content\UtilityComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud\HudWindow.h">
@@ -339,6 +342,9 @@
     </ClInclude>
     <ClInclude Include="data\GrenadesData.h">
       <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\UtilityComponent.h">
+      <Filter>components\content</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

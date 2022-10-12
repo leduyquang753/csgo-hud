@@ -12,8 +12,10 @@
 #include "components/base/StackComponentChild.h"
 #include "components/content/PlayerInfoComponent.h"
 #include "components/content/StatsHeaderComponent.h"
+#include "components/content/UtilityComponent.h"
 #include "data/RoundsData.h"
 #include "movement/CubicBezierMovementFunction.h"
+#include "movement/MovementFunction.h"
 #include "resources/CommonResources.h"
 #include "utils/CommonConstants.h"
 
@@ -26,16 +28,7 @@ namespace CsgoHud {
 
 // == AllPlayersComponent ==
 
-AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
-	Component(commonResources),
-	statsTransition(
-		commonResources,
-		std::make_unique<CubicBezierMovementFunction>(
-			std::vector<D2D1_POINT_2F>{{{0, 0}, {0, 0}, {0.58f, 1}, {300, 1}}}
-		),
-		300, 0
-	)
-{
+AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources): Component(commonResources) {
 	auto &renderTarget = *commonResources.renderTarget;
 	
 	auto &writeFactory = *commonResources.writeFactory;
@@ -65,6 +58,19 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 		CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
 	);
 
+	auto getMovementFunctions = []() {
+		std::vector<std::unique_ptr<MovementFunction>> functions;
+		functions.emplace_back(std::make_unique<CubicBezierMovementFunction>(
+			std::vector<D2D1_POINT_2F>{{{0, 0}, {0, 0}, {0.58f, 1}, {300, 1}}}
+		));
+		functions.emplace_back(std::make_unique<CubicBezierMovementFunction>(
+			std::vector<D2D1_POINT_2F>{{{0, 0}, {0.42f, 0}, {1, 1}, {300, 1}}}
+		));
+		return functions;
+	};
+	statsTransition.emplace(commonResources, getMovementFunctions(), 300, 0.f);
+	utilityTransition.emplace(commonResources, getMovementFunctions(), 300, 0.f);
+
 	resources.emplace(PlayerInfoComponent::Resources{
 		.backgroundInactiveColor = {0, 0, 0, 0.3f},
 		.backgroundActiveColor = {0, 0, 0, 0.7f},
@@ -79,7 +85,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 		.boldTextFormat = boldTextFormat,
 		.normalTextRenderer = *normalTextRenderer,
 		.boldTextRenderer = *boldTextRenderer,
-		.statsTransition = statsTransition
+		.statsTransition = *statsTransition
 	});
 	
 	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, resources->teamCtBrush.put());
@@ -90,7 +96,9 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 
 	container = std::make_unique<BagComponent>(commonResources);
 
-	auto makeSide = [this](const int startIndex, const float anchor, StatsHeaderComponent *&header) {
+	auto makeSide = [this](
+		const int startIndex, const float anchor, StatsHeaderComponent *&header, UtilityComponent *&utility
+	) {
 		const bool rightSide = startIndex > 4;
 		std::unique_ptr<StackComponent> currentStack;
 		currentStack = std::make_unique<StackComponent>(
@@ -111,13 +119,35 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 				nullptr
 			});
 		}
-		header = static_cast<StatsHeaderComponent*>(
+		
+		auto topArea = static_cast<BagComponent*>(	
 			currentStack->children.emplace_back(StackComponentChild{
 				{1, 40}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_PIXELS},
 				0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
-				std::make_unique<StatsHeaderComponent>(this->commonResources, rightSide, *resources)
+				std::make_unique<BagComponent>(this->commonResources)
 			}).component.get()
 		);
+		auto headerPointer
+			= std::make_unique<StatsHeaderComponent>(this->commonResources, rightSide, *resources);
+		header = headerPointer.get();
+		auto utilityPointer
+			= std::make_unique<UtilityComponent>(this->commonResources, rightSide, *utilityTransition);
+		utility = utilityPointer.get();
+		topArea->children.emplace_back(std::make_unique<SizedComponent>(
+			this->commonResources,
+			D2D1_SIZE_F{1, 1}, D2D1_POINT_2U{SizedComponent::MODE_RATIO, SizedComponent::MODE_RATIO},
+			D2D1_POINT_2F{0, 0}, D2D1_POINT_2U{SizedComponent::MODE_PIXELS, SizedComponent::MODE_PIXELS},
+			D2D1_POINT_2F{0, 0}, D2D1_POINT_2U{SizedComponent::MODE_PIXELS, SizedComponent::MODE_PIXELS},
+			std::move(utilityPointer)
+		));
+		topArea->children.emplace_back(std::make_unique<SizedComponent>(
+			this->commonResources,
+			D2D1_SIZE_F{1, 1}, D2D1_POINT_2U{SizedComponent::MODE_RATIO, SizedComponent::MODE_RATIO},
+			D2D1_POINT_2F{0, 0}, D2D1_POINT_2U{SizedComponent::MODE_PIXELS, SizedComponent::MODE_PIXELS},
+			D2D1_POINT_2F{0, 0}, D2D1_POINT_2U{SizedComponent::MODE_RATIO, SizedComponent::MODE_PIXELS},
+			std::move(headerPointer)
+		));
+		
 		container->children.emplace_back(std::make_unique<SizedComponent>(
 			this->commonResources,
 			D2D1_SIZE_F{0.2f, 1.f}, D2D1_POINT_2U{SizedComponent::MODE_RATIO, SizedComponent::MODE_RATIO},
@@ -127,8 +157,15 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 		));
 	};
 	
-	makeSide(0, 0, leftStatsHeader);
-	makeSide(5, 1, rightStatsHeader);
+	makeSide(0, 0, leftStatsHeader, leftUtility);
+	makeSide(5, 1, rightStatsHeader, rightUtility);
+	
+	commonResources.eventBus.listenToKeyEvent('U', [this](){ onUtilityToggle(); });
+}
+
+void AllPlayersComponent::onUtilityToggle() {
+	utilityOn = !utilityOn;
+	utilityTransition->transition(utilityOn ? 1.f : 0.f, utilityOn ? 0 : 1);
 }
 
 void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
@@ -139,7 +176,7 @@ void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	const bool currentStatsOn = commonResources.rounds.isBeginningOfRound();
 	if (statsOn != currentStatsOn) {
 		statsOn = currentStatsOn;
-		statsTransition.transition(statsOn ? 1.f : 0.f);
+		statsTransition->transition(statsOn ? 1.f : 0.f, statsOn ? 0 : 1);
 	}
 	
 	const bool leftTeam = players[firstPlayerIndex]->team;
@@ -164,6 +201,8 @@ void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	for (int i = rightSideSlot; i != 10; ++i) children[i]->index = -1;
 	leftStatsHeader->ct = leftTeam;
 	rightStatsHeader->ct = !leftTeam;
+	leftUtility->ct = leftTeam;
+	rightUtility->ct = !leftTeam;
 	
 	container->paint(transform, parentSize);
 }

@@ -8,6 +8,7 @@
 #include "components/base/BagComponent.h"
 #include "components/base/Component.h"
 #include "components/content/PlayerInfoComponent.h"
+#include "components/content/UtilityComponent.h"
 #include "movement/TransitionedValue.h"
 #include "text/FixedWidthDigitTextRenderer.h"
 
@@ -28,10 +29,13 @@ class AllPlayersComponent final: public Component {
 		std::unique_ptr<BagComponent> container;
 		std::array<PlayerInfoComponent*, 10> children;
 		StatsHeaderComponent *leftStatsHeader, *rightStatsHeader;
+		UtilityComponent *leftUtility, *rightUtility;
 
 		std::string phase;
-		bool statsOn = false;
-		TransitionedValue statsTransition;
+		bool statsOn = false, utilityOn = false;
+		std::optional<TransitionedValue> statsTransition, utilityTransition;
+
+		void onUtilityToggle();
 	public:
 		AllPlayersComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

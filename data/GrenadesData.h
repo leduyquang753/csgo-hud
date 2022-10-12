@@ -12,6 +12,9 @@ namespace CsgoHud {
 
 struct CommonResources;
 
+/*
+	Keeps track of grenades thrown out by players.
+*/
 class GrenadesData final {
 	public:
 		struct Grenade {
