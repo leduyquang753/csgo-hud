@@ -25,13 +25,16 @@ class ActivePlayerComponent final: public Component {
 		winrt::com_ptr<IDWriteTextFormat> bigNumberTextFormat;
 		std::optional<NormalTextRenderer> nameTextRenderer, statsTextRenderer, weaponTextRenderer;
 		std::optional<FixedWidthDigitTextRenderer> bigNumberRenderer, smallNumberRenderer;
-		const TransitionedValue &masterTransition;
+		const TransitionedValue &fadingTransition, &slidingTransition;
 		TransitionedValue selfTransition;
 
 		PlayerData player;
 		bool shown = false;
 	public:
-		ActivePlayerComponent(CommonResources &commonResources, const TransitionedValue &masterTransition);
+		ActivePlayerComponent(
+			CommonResources &commonResources,
+			const TransitionedValue &fadingTransition, const TransitionedValue &slidingTransition
+		);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;
 };
 

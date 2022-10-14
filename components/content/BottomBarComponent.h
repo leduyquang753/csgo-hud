@@ -17,11 +17,12 @@ struct CommonResources;
 class BottomBarComponent final: public Component {
 	private:
 		std::unique_ptr<BagComponent> container;
-		TransitionedValue transition;
+		TransitionedValue fadingTransition, slidingTransition1, slidingTransition2;
 		
-		bool activePlayerShown = false, forceShowTeamBuy = false;
+		bool activePlayerShown = false, forceShowTeamBuy = false, showRoundHistory = false;
 
 		void onForceShowTeamBuyToggle();
+		void onShowRoundHistoryToggle();
 	public:
 		BottomBarComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

@@ -190,6 +190,9 @@
     <ClCompile Include="components\content\UtilityComponent.cpp">
       <Filter>components\content</Filter>
     </ClCompile>
+    <ClCompile Include="components\content\RoundHistoryComponent.cpp">
+      <Filter>components\content</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud\HudWindow.h">
@@ -344,6 +347,9 @@
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="components\content\UtilityComponent.h">
+      <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="components\content\RoundHistoryComponent.h">
       <Filter>components\content</Filter>
     </ClInclude>
   </ItemGroup>

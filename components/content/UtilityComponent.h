@@ -10,6 +10,7 @@
 namespace CsgoHud {
 
 struct CommonResources;
+class TransitionedValue;
 
 /*
 	A component that displays each team's total number of grenades overall as well as of each type.

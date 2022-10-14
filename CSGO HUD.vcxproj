@@ -178,6 +178,7 @@
     <ClCompile Include="components\content\MinimapComponent.cpp" />
     <ClCompile Include="components\content\PlayerInfoComponent.cpp" />
     <ClCompile Include="components\content\RoundComponent.cpp" />
+    <ClCompile Include="components\content\RoundHistoryComponent.cpp" />
     <ClCompile Include="components\content\StatsHeaderComponent.cpp" />
     <ClCompile Include="components\content\TeamBuyComponent.cpp" />
     <ClCompile Include="components\content\TopBarComponent.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="components\content\MinimapComponent.h" />
     <ClInclude Include="components\content\PlayerInfoComponent.h" />
     <ClInclude Include="components\content\RoundComponent.h" />
+    <ClInclude Include="components\content\RoundHistoryComponent.h" />
     <ClInclude Include="components\content\StatsHeaderComponent.h" />
     <ClInclude Include="components\content\TeamBuyComponent.h" />
     <ClInclude Include="components\content\TopBarComponent.h" />

@@ -20,8 +20,11 @@ namespace CsgoHud {
 
 // == TeamBuyComponent ==
 
-TeamBuyComponent::TeamBuyComponent(CommonResources &commonResources, const TransitionedValue &masterTransition):
-	Component(commonResources), masterTransition(masterTransition)
+TeamBuyComponent::TeamBuyComponent(
+	CommonResources &commonResources,
+	const TransitionedValue &fadingTransition, const TransitionedValue &slidingTransition
+):
+	Component(commonResources), fadingTransition(fadingTransition), slidingTransition(slidingTransition)
 {
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.5f}, backgroundBrush.put());
@@ -56,9 +59,12 @@ TeamBuyComponent::TeamBuyComponent(CommonResources &commonResources, const Trans
 }
 
 void TeamBuyComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
-	const float transitionValue = 1 - masterTransition.getValue();
-	if (transitionValue == 0) return;
-	const bool transiting = masterTransition.transiting();
+	const float transitionValue = 1 - fadingTransition.getValue();
+	const float slidingTransitionValue = slidingTransition.getValue();
+	if (transitionValue == 0 || slidingTransitionValue == 1) return;
+	const bool
+		alphaTransiting = fadingTransition.transiting(),
+		slideTransiting = slidingTransition.transiting();
 
 	const auto &players = commonResources.players;
 	const int firstPlayerIndex = players.getFirstPlayerIndex();
@@ -68,7 +74,7 @@ void TeamBuyComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 
-	if (transiting) renderTarget.PushLayer(
+	if (alphaTransiting || slideTransiting) renderTarget.PushLayer(
 		{
 			{0, 0, parentSize.width, parentSize.height},
 			nullptr, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE, D2D1::Matrix3x2F::Identity(),
@@ -76,6 +82,9 @@ void TeamBuyComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			D2D1_LAYER_OPTIONS_NONE
 		},
 		layer.get()
+	);
+	if (slideTransiting) renderTarget.SetTransform(
+		D2D1::Matrix3x2F::Translation(0, parentSize.height * slidingTransitionValue) * transform
 	);
 
 	const float
@@ -155,7 +164,7 @@ void TeamBuyComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		textBrush
 	);
 
-	if (transiting) renderTarget.PopLayer();
+	if (alphaTransiting || slideTransiting) renderTarget.PopLayer();
 
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
 }

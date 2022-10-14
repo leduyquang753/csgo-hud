@@ -102,7 +102,7 @@ void BombData::receiveBombData(JSON::dom::object &json) {
 	} else if (bombState != State::DETONATING || currentState != State::PLANTED || timeLeft > 0) {
 		bombState = currentState;
 		if (currentState == State::PLANTING || currentState == State::PLANTED) {
-			if (currentState == State::PLANTING || (!planterFound && currentState == State::PLANTED)) {
+			if (currentState == State::PLANTING) {
 				planterSteamId = json["player"sv].value().get_uint64();
 				const auto &planter = commonResources.players(planterSteamId);
 				planterFound = planter.has_value();

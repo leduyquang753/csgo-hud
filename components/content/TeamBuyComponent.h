@@ -22,9 +22,12 @@ class TeamBuyComponent final: public Component {
 		winrt::com_ptr<IDWriteTextFormat> amountTextFormat;
 		std::optional<NormalTextRenderer> titleTextRenderer;
 		std::optional<FixedWidthDigitTextRenderer> amountTextRenderer;
-		const TransitionedValue &masterTransition;
+		const TransitionedValue &fadingTransition, &slidingTransition;
 	public:
-		TeamBuyComponent(CommonResources &commonResources, const TransitionedValue &masterTransition);
+		TeamBuyComponent(
+			CommonResources &commonResources,
+			const TransitionedValue &fadingTransition, const TransitionedValue &slidingTransition
+		);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;
 };
 

@@ -457,15 +457,13 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	drawExplodedGrenades(grenades.explodedStunGrenades, {1, 1, 1, 0.8f}, 20, 250);
 	for (const auto &entry : grenades.smokeGrenades) {
 		const auto &grenade = entry.second;
-		if (grenade.smokingTime < 18000) {
-			drawGrenadeEffects(
-				grenade.position, {0.8f, 0.8f, 0.8f, 0.7f},
-				grenade.smokingTime < 750 ? grenade.smokingTime / 750.f
-				: grenade.smokingTime > 16000 ? (18000 - grenade.smokingTime) / 2000.f
-				: 1,
-				144 / effectiveScale * (grenade.smokingTime < 300 ? grenade.smokingTime / 300.f : 1)
-			);
-		}
+		if (grenade.smokingTime < 18000) drawGrenadeEffects(
+			grenade.position, {0.8f, 0.8f, 0.8f, 0.7f},
+			grenade.smokingTime < 750 ? grenade.smokingTime / 750.f
+			: grenade.smokingTime > 16000 ? (18000 - grenade.smokingTime) / 2000.f
+			: 1,
+			144 / effectiveScale * (grenade.smokingTime < 300 ? grenade.smokingTime / 300.f : 1)
+		);
 	}
 
 	// Draw the bomb explision.

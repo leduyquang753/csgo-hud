@@ -23,9 +23,10 @@ namespace CsgoHud {
 // == ActivePlayerComponent ==
 
 ActivePlayerComponent::ActivePlayerComponent(
-	CommonResources &commonResources, const TransitionedValue &masterTransition
+	CommonResources &commonResources,
+	const TransitionedValue &fadingTransition, const TransitionedValue &slidingTransition
 ):
-	Component(commonResources), masterTransition(masterTransition),
+	Component(commonResources), fadingTransition(fadingTransition), slidingTransition(slidingTransition),
 	selfTransition(
 		commonResources,
 		std::make_unique<CubicBezierMovementFunction>(
@@ -113,7 +114,7 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		AMMO_SEPARATION = 42,
 		SPACING = 8;
 	
-	const float alpha = masterTransition.getValue() * selfTransition.getValue();
+	const float alpha = fadingTransition.getValue() * selfTransition.getValue();
 	const int activeSlot = commonResources.players.getActivePlayerIndex();
 	if (activeSlot == -1) {
 		if (shown) {
@@ -136,13 +137,16 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 			}
 		}
 	}
-	if (alpha == 0) return;
-	const bool transiting = alpha != 1;
+	const float slidingTransitionValue = slidingTransition.getValue();
+	if (alpha == 0 || slidingTransitionValue == 1) return;
+	const bool
+		alphaTransiting = alpha != 1,
+		slideTransiting = slidingTransition.transiting();
 	
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 	
-	if (transiting) renderTarget.PushLayer(
+	if (alphaTransiting || slideTransiting) renderTarget.PushLayer(
 		{
 			{0, 0, parentSize.width, parentSize.height},
 			nullptr, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE, D2D1::Matrix3x2F::Identity(),
@@ -150,6 +154,9 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 			D2D1_LAYER_OPTIONS_NONE
 		},
 		layer.get()
+	);
+	if (slideTransiting) renderTarget.SetTransform(
+		D2D1::Matrix3x2F::Translation(0, parentSize.height * slidingTransitionValue) * transform
 	);
 
 	const float
@@ -303,7 +310,7 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		}
 	}
 
-	if (transiting) renderTarget.PopLayer();
+	if (alphaTransiting || slideTransiting) renderTarget.PopLayer();
 
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
 }
