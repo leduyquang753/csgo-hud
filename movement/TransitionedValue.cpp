@@ -71,6 +71,7 @@ void TransitionedValue::setValue(const float value) {
 void TransitionedValue::transition(const float newValue, const int functionIndex) {
 	previousValue = getValue();
 	if (previousValue == newValue) {
+		currentValue = previousValue;
 		passedTime = transitionTime;
 	} else {
 		currentFunctionIndex = functionIndex;
