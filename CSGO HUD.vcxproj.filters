@@ -193,6 +193,9 @@
     <ClCompile Include="components\content\RoundHistoryComponent.cpp">
       <Filter>components\content</Filter>
     </ClCompile>
+    <ClCompile Include="data\ConfigurationData.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hud\HudWindow.h">
@@ -351,6 +354,9 @@
     </ClInclude>
     <ClInclude Include="components\content\RoundHistoryComponent.h">
       <Filter>components\content</Filter>
+    </ClInclude>
+    <ClInclude Include="data\ConfigurationData.h">
+      <Filter>data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

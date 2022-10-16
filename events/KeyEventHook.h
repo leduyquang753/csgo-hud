@@ -6,7 +6,7 @@ namespace CsgoHud {
 class EventBus;
 
 namespace KeyEventHook {
-	void registerHook(EventBus &eventBusIn);
+	void registerHook(EventBus &eventBusIn, DWORD toggleKey);
 	void unregisterHook();
 }
 

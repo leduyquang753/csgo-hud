@@ -1,9 +1,14 @@
 #include "pch.h"
 
+#include <string_view>
+
 #include "components/base/Component.h"
 #include "resources/CommonResources.h"
+#include "utils/Utils.h"
 
 #include "components/content/FourCornersComponent.h"
+
+using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
@@ -11,7 +16,12 @@ namespace CsgoHud {
 
 FourCornersComponent::FourCornersComponent(CommonResources &commonResources): Component(commonResources) {
 	commonResources.renderTarget->CreateSolidColorBrush({0, 0, 0, 0.5}, brush.put());
-	commonResources.eventBus.listenToKeyEvent('C', [this](){ onVisibilityToggle(); });
+	commonResources.eventBus.listenToKeyEvent(
+		Utils::parseKeyCode(
+			commonResources.configuration.keybindings["toggleCorners"sv].value().get_string().value()
+		),
+		[this](){ onVisibilityToggle(); }
+	);
 }
 
 void FourCornersComponent::onVisibilityToggle() {

@@ -1,10 +1,15 @@
 #include "pch.h"
 
+#include <string_view>
+
 #include "events/KeyEventHook.h"
 #include "resources/CommonResources.h"
 #include "utils/CommonConstants.h"
+#include "utils/Utils.h"
 
 #include "hud/HudWindow.h"
+
+using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
@@ -40,19 +45,20 @@ void HudWindow::preInitialize(const HINSTANCE appInstance) {
 HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResources):
 	commonResources(commonResources)
 {
-	static const int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
+	const auto &configuration = commonResources.configuration;
 	windowHandle = CreateWindowEx(
 		WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		L"HudWindow",
 		L"CSGO HUD",
 		WS_POPUP,
-		0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
+		0, 0, configuration.windowWidth, configuration.windowHeight,
 		nullptr, nullptr, appInstance, this
 	);
 	SetWindowPos(
 		windowHandle,
 		HWND_TOPMOST,
-		(GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2, (GetSystemMetrics(SM_CYSCREEN) - WINDOW_HEIGHT) / 2,
+		(GetSystemMetrics(SM_CXSCREEN) - configuration.windowWidth) / 2,
+		(GetSystemMetrics(SM_CYSCREEN) - configuration.windowHeight) / 2 + 11,
 		0, 0,
 		SWP_NOSIZE
 	);
@@ -110,7 +116,12 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 
 	SetTimer(windowHandle, 1, 1, nullptr);
 
-	KeyEventHook::registerHook(commonResources.eventBus);
+	KeyEventHook::registerHook(
+		commonResources.eventBus,
+		Utils::parseKeyCode(
+			commonResources.configuration.keybindings["toggleKeybindings"sv].value().get_string().value()
+		)
+	);
 }
 
 HudWindow::~HudWindow() {
@@ -166,11 +177,10 @@ void HudWindow::tick() {
 				eventBus.notifyTimeEvent(time - lastTickTime);
 				lastTickTime = time;
 				
-				JSON::dom::element jsonDocument
-					= jsonParser.parse(
-						jsons.c_str() + currentStartLength->first,
-						currentStartLength->second, currentStartLength->second + JSON::SIMDJSON_PADDING
-					);
+				JSON::dom::element jsonDocument = jsonParser.parse(
+					jsons.c_str() + currentStartLength->first,
+					currentStartLength->second, currentStartLength->second + JSON::SIMDJSON_PADDING
+				);
 				JSON::dom::object json = jsonDocument.get_object();
 				eventBus.notifyDataEvent("", json);
 				for (auto field : json) {
@@ -200,9 +210,10 @@ void HudWindow::paint() {
 	renderTarget.BeginDraw();
 	renderTarget.Clear({0, 0, 0, 0});
 
-	if (mainComponent) mainComponent->paint(	
-		D2D1::Matrix3x2F::Identity(),
-		{static_cast<float>(windowWidth), static_cast<float>(windowHeight)}
+	const auto &configuration = commonResources.configuration;
+	if (mainComponent) mainComponent->paint(
+		D2D1::Matrix3x2F::Scale({configuration.hudScaling, configuration.hudScaling}, {0, 0}),
+		{configuration.hudWidth, configuration.hudHeight}
 	);
 
 	renderTarget.EndDraw();

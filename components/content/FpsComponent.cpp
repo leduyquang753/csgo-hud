@@ -1,15 +1,18 @@
 #include "pch.h"
 
 #include <string>
+#include <string_view>
 
 #include "components/base/Component.h"
 #include "resources/CommonResources.h"
 #include "text/FixedWidthDigitTextRenderer.h"
 #include "utils/CommonConstants.h"
+#include "utils/Utils.h"
 
 #include "components/content/FpsComponent.h"
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
@@ -20,7 +23,7 @@ FpsComponent::FpsComponent(CommonResources &commonResources): Component(commonRe
 	
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	commonResources.writeFactory->CreateTextFormat(
-		L"Stratum2", nullptr,
+		commonResources.configuration.fontFamily.c_str(), nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", textFormat.put()
 	);
@@ -29,7 +32,10 @@ FpsComponent::FpsComponent(CommonResources &commonResources): Component(commonRe
 		CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
 	);
 	
-	commonResources.eventBus.listenToKeyEvent('F', [this](){ onVisibilityToggle(); });
+	commonResources.eventBus.listenToKeyEvent(
+		Utils::parseKeyCode(commonResources.configuration.keybindings["toggleFps"sv].value().get_string().value()),
+		[this](){ onVisibilityToggle(); }
+	);
 }
 
 void FpsComponent::onVisibilityToggle() {

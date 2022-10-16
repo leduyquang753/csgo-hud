@@ -18,6 +18,7 @@
 #include "movement/MovementFunction.h"
 #include "resources/CommonResources.h"
 #include "utils/CommonConstants.h"
+#include "utils/Utils.h"
 
 #include "components/content/AllPlayersComponent.h"
 
@@ -49,8 +50,9 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> normalTextFormat, boldTextFormat;
 	winrt::com_ptr<IDWriteInlineObject> trimmingSign;
+	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
 	writeFactory.CreateTextFormat(
-		L"Stratum2", nullptr,
+		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", normalTextFormat.put()
 	);
@@ -59,7 +61,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 	normalTextFormat->SetTrimming(&TRIMMING_OPTIONS, trimmingSign.get());
 	normalTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
 	writeFactory.CreateTextFormat(
-		L"Stratum2", nullptr,
+		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", boldTextFormat.put()
 	);
@@ -162,7 +164,12 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 	makeSide(0, 0, leftStatsHeader, leftUtility);
 	makeSide(5, 1, rightStatsHeader, rightUtility);
 	
-	commonResources.eventBus.listenToKeyEvent('U', [this](){ onUtilityToggle(); });
+	commonResources.eventBus.listenToKeyEvent(
+		Utils::parseKeyCode(
+			commonResources.configuration.keybindings["toggleUtility"sv].value().get_string().value()
+		),
+		[this](){ onUtilityToggle(); }
+	);
 }
 
 void AllPlayersComponent::onUtilityToggle() {

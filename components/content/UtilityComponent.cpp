@@ -36,8 +36,9 @@ UtilityComponent::UtilityComponent(
 	renderTarget.CreateLayer(layer.put());
 	
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
+	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
 	commonResources.writeFactory->CreateTextFormat(
-		L"Stratum2", nullptr,
+		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", textFormat.put()
 	);
@@ -47,7 +48,7 @@ UtilityComponent::UtilityComponent(
 	
 	textFormat = nullptr;
 	commonResources.writeFactory->CreateTextFormat(
-		L"Stratum2", nullptr,
+		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", textFormat.put()
 	);
@@ -58,7 +59,7 @@ UtilityComponent::UtilityComponent(
 	
 	textFormat = nullptr;
 	commonResources.writeFactory->CreateTextFormat(
-		L"Stratum2", nullptr,
+		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", textFormat.put()
 	);

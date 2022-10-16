@@ -52,7 +52,7 @@ BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
 	renderTarget.CreateLayer(defuseLayer.put());
 	
 	commonResources.writeFactory->CreateTextFormat(
-		L"Stratum2", nullptr,
+		commonResources.configuration.fontFamily.c_str(), nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		12, L"", textFormat.put()
 	);

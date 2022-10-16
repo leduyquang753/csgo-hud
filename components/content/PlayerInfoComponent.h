@@ -1,6 +1,8 @@
 #ifndef CSGO_HUD_COMPONENTS_CONTENT_PLAYERINFOCOMPONENT_H
 #define CSGO_HUD_COMPONENTS_CONTENT_PLAYERINFOCOMPONENT_H
 
+#include <cstdint>
+
 #include "components/base/Component.h"
 #include "movement/TransitionedValue.h"
 
@@ -35,6 +37,7 @@ class PlayerInfoComponent final: public Component {
 		int currentHealth, oldHealth = 0;
 		int healthDecayTime = 0;
 		int lastIndex = -1;
+		std::uint64_t lastPlayerId;
 		bool wasActive = false;
 
 		void advanceTime(int timePassed);

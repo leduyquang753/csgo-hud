@@ -70,14 +70,6 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		STAT_CELL_SPACING = 4,
 		STATS_LENGTH = KD_CELL_LENGTH + MONEY_CELL_LENGTH + STAT_CELL_SPACING;
 
-	if (index != lastIndex) {
-		lastIndex = index;
-		oldHealth = 0;
-		healthDecayTime = 0;
-		healthTransition.setValue(0);
-		wasActive = false;
-		activeTransition.setValue(0);
-	}
 	if (active != wasActive) {
 		wasActive = active;
 		activeTransition.transition(active ? 1.f : 0.f);
@@ -87,6 +79,16 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	const auto &optionalPlayer = commonResources.players[index];
 	if (!optionalPlayer) return;
 	const auto &player = *optionalPlayer;
+
+	if (lastIndex == -1 || player.steamId != lastPlayerId) {
+		lastPlayerId = player.steamId;
+		oldHealth = 0;
+		healthDecayTime = 0;
+		healthTransition.setValue(0);
+		wasActive = false;
+		activeTransition.setValue(0);
+	}
+	lastIndex = index;
 		
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);

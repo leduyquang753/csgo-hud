@@ -50,4 +50,8 @@ D2D_VECTOR_3F Utils::parseVector(std::string_view string) {
 	};
 }
 
+DWORD Utils::parseKeyCode(std::string_view string) {
+	return std::stol(std::string(string), nullptr, 16);
+}
+
 } // namespace CsgoHud

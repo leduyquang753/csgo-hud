@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <memory>
+#include <string_view>
 #include <utility>
 
 #include "components/base/Component.h"
@@ -15,8 +16,11 @@
 #include "components/content/RoundComponent.h"
 #include "components/content/TopBarComponent.h"
 #include "resources/CommonResources.h"
+#include "utils/Utils.h"
 
 #include "components/content/HudComponent.h"
+
+using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
@@ -45,7 +49,10 @@ HudComponent::HudComponent(CommonResources &commonResources):
 		std::make_unique<PaddedComponent>(commonResources, 8.f, std::move(innerBag))
 	);
 	
-	commonResources.eventBus.listenToKeyEvent('H', [this](){ onVisibilityToggle(); });
+	commonResources.eventBus.listenToKeyEvent(
+		Utils::parseKeyCode(commonResources.configuration.keybindings["toggleHud"sv].value().get_string().value()),
+		[this](){ onVisibilityToggle(); }
+	);
 }
 
 void HudComponent::onVisibilityToggle() {

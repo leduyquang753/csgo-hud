@@ -34,8 +34,9 @@ TeamBuyComponent::TeamBuyComponent(
 	
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
+	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
 	writeFactory.CreateTextFormat(
-		L"Stratum2", nullptr,
+		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		12, L"", textFormat.put()
 	);
@@ -46,7 +47,7 @@ TeamBuyComponent::TeamBuyComponent(
 	
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
-		L"Stratum2", nullptr,
+		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		20, L"", textFormat.put()
 	);

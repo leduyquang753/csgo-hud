@@ -10,6 +10,7 @@ namespace Utils {
 	std::wstring widenString(std::string_view string);
 	std::wstring formatTimeAmount(int millis);
 	D2D_VECTOR_3F parseVector(std::string_view string);
+	DWORD parseKeyCode(std::string_view string);
 }
 
 } // namespace CsgoHud

@@ -186,6 +186,7 @@
     <ClCompile Include="components\content\UtilityComponent.cpp" />
     <ClCompile Include="data\AllPlayersData.cpp" />
     <ClCompile Include="data\BombData.cpp" />
+    <ClCompile Include="data\ConfigurationData.cpp" />
     <ClCompile Include="data\GrenadesData.cpp" />
     <ClCompile Include="data\IconStorage.cpp" />
     <ClCompile Include="data\MapData.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="components\content\UtilityComponent.h" />
     <ClInclude Include="data\AllPlayersData.h" />
     <ClInclude Include="data\BombData.h" />
+    <ClInclude Include="data\ConfigurationData.h" />
     <ClInclude Include="data\GrenadesData.h" />
     <ClInclude Include="data\GunData.h" />
     <ClInclude Include="data\IconStorage.h" />

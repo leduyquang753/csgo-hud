@@ -35,8 +35,9 @@ RoundHistoryComponent::RoundHistoryComponent(CommonResources &commonResources, c
 	renderTarget.CreateLayer(layer.put());
 	
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
+	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
 	commonResources.writeFactory->CreateTextFormat(
-		L"Stratum2", nullptr,
+		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", textFormat.put()
 	);
@@ -47,7 +48,7 @@ RoundHistoryComponent::RoundHistoryComponent(CommonResources &commonResources, c
 
 	textFormat = nullptr;
 	commonResources.writeFactory->CreateTextFormat(
-		L"Stratum2", nullptr,
+		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		20, L"", textFormat.put()
 	);
@@ -143,7 +144,7 @@ void RoundHistoryComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		startingRound
 			= currentRound < 16 ? 0
 			: currentRound < 31 ? 15
-			: currentRound - (currentRound - 30) % 6,
+			: currentRound - (currentRound - 30) % 6 - 1,
 		roundCount = currentRound < 31 ? 15 : 6;
 	winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
 	renderTarget.CreateSpriteBatch(spriteBatch.put());
@@ -163,7 +164,9 @@ void RoundHistoryComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		const auto roundBrush = roundIndex + 1 == currentRound ? activeRoundBrush.get() : inactiveRoundBrush.get();
 		if (roundIndex < rounds.size()) {
 			const auto &round = rounds[roundIndex];
-			const bool leftTeamWon = (round.first == leftTeam) != (roundIndex > 29 && (roundIndex-30)%6 < 3);
+			const bool leftTeamWon
+				= (round.first == leftTeam)
+				!= (roundIndex > 29 && (currentRound-31)%6 > 2 && (roundIndex-30)%6 < 3);
 			++(leftTeamWon ? leftScore : rightScore);
 			const auto &icon = commonResources.icons[RoundsData::iconMap[static_cast<int>(round.second)]];
 			const float

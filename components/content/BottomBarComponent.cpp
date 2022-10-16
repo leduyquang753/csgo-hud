@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <memory>
+#include <string_view>
 
 #include "components/base/BagComponent.h"
 #include "components/base/Component.h"
@@ -11,8 +12,11 @@
 #include "movement/CubicBezierMovementFunction.h"
 #include "movement/MovementFunction.h"
 #include "resources/CommonResources.h"
+#include "utils/Utils.h"
 
 #include "components/content/BottomBarComponent.h"
+
+using namespace std::string_view_literals;
 
 namespace CsgoHud {
 
@@ -60,8 +64,18 @@ BottomBarComponent::BottomBarComponent(CommonResources &commonResources):
 		commonResources, slidingTransition2
 	));
 
-	commonResources.eventBus.listenToKeyEvent('T', [this](){ onForceShowTeamBuyToggle(); });
-	commonResources.eventBus.listenToKeyEvent('R', [this](){ onShowRoundHistoryToggle(); });
+	commonResources.eventBus.listenToKeyEvent(
+		Utils::parseKeyCode(
+			commonResources.configuration.keybindings["toggleForceShowTeamBuy"sv].value().get_string().value()
+		),
+		[this](){ onForceShowTeamBuyToggle(); }
+	);
+	commonResources.eventBus.listenToKeyEvent(
+		Utils::parseKeyCode(
+			commonResources.configuration.keybindings["toggleRoundHistory"sv].value().get_string().value()
+		),
+		[this](){ onShowRoundHistoryToggle(); }
+	);
 }
 
 void BottomBarComponent::onForceShowTeamBuyToggle() {

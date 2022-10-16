@@ -18,7 +18,7 @@ namespace CsgoHud {
 RoundComponent::RoundComponent(CommonResources &commonResources): Component(commonResources) {
 	commonResources.renderTarget->CreateSolidColorBrush({1, 1, 1, 1}, textBrush.put());
 	commonResources.writeFactory->CreateTextFormat(
-		L"Stratum2", nullptr,
+		commonResources.configuration.fontFamily.c_str(), nullptr,
 		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", textFormat.put()
 	);
