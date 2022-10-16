@@ -359,4 +359,7 @@
       <Filter>data</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources.rc" />
+  </ItemGroup>
 </Project>

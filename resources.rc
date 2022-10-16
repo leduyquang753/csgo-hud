@@ -1,0 +1,33 @@
+#include <Windows.h>
+
+1001 ICON "CSGO HUD.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 0,0,1,1
+PRODUCTVERSION 0,0,1,0
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEFLAGS 0
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_APP
+FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904E4"
+		BEGIN
+			VALUE "CompanyName", "Lê Duy Quang\0"
+			VALUE "FileDescription", "A custom HUD for spectating Counter-strike: Global offensive competitive matches using C++ and Direct2D.\0"
+			VALUE "FileVersion", "0.0.1.1\0"
+			VALUE "InternalName", "CSGOHUD\0"
+			VALUE "LegalCopyright", "© 2022 Lê Duy Quang. Licensed under MIT."
+			VALUE "OriginalFilename", "CSGO HUD.exe\0"
+			VALUE "ProductName", "CSGO HUD\0"
+			VALUE "ProductVersion", "0.0.1\0"
+		END
+	END
+
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x409, 1252
+	END
+END

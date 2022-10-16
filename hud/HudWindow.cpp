@@ -62,6 +62,9 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 		0, 0,
 		SWP_NOSIZE
 	);
+	SetClassLongPtr(
+		windowHandle, GCLP_HICON, reinterpret_cast<LONG_PTR>(LoadIcon(appInstance, MAKEINTRESOURCE(1001)))
+	);
 	
 	D2D1CreateFactory(
 		D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory7),
