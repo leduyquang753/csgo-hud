@@ -6,9 +6,12 @@
 
 namespace CsgoHud {
 
+class ConfigurationData;
+
 namespace Utils {
 	std::wstring widenString(std::string_view string);
-	std::wstring formatTimeAmount(int millis);
+	std::wstring formatTimeAmount(int millis, const ConfigurationData &configuration);
+	std::wstring formatMoneyAmount(int money, const ConfigurationData &configuration);
 	D2D_VECTOR_3F parseVector(std::string_view string);
 	DWORD parseKeyCode(std::string_view string);
 }

@@ -140,7 +140,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		
 		auto child = std::make_unique<ChildComponent>(
 			commonResources, backgroundBrush, textBrush, *nameTextRenderer,
-			side ? L"Terrorists"sv : L"Counter-terrorists"sv
+			side ? commonResources.configuration.defaultTName : commonResources.configuration.defaultCtName
 		);
 		(side ? rightNameDisplay : leftNameDisplay) = child.get();
 		innerStack->children.emplace_back(StackComponentChild{
@@ -255,12 +255,16 @@ void TopBarComponent::receiveMapData(JSON::dom::object &json) {
 		t = json["team_t"sv].value().get_object();
 	JSON::simdjson_result<JSON::dom::element> value;
 	value = ct["name"sv];
-	ctNameDisplay->text = value.error() ? L"Counter-terrorists"s : Utils::widenString(value.value().get_string());
+	ctNameDisplay->text = value.error()
+		? commonResources.configuration.defaultCtName
+		: Utils::widenString(value.value().get_string());
 	ctScore = static_cast<int>(ct["score"sv].value().get_int64());
 	ctTimeouts = static_cast<int>(ct["timeouts_remaining"sv].value().get_int64());
 	ctScoreDisplay->text = std::to_wstring(ctScore);
 	value = t["name"sv];
-	tNameDisplay->text = value.error() ? L"Terrorists"s : Utils::widenString(value.value().get_string());
+	tNameDisplay->text = value.error()
+		? commonResources.configuration.defaultTName
+		: Utils::widenString(value.value().get_string());
 	tScore = static_cast<int>(t["score"sv].value().get_int64());
 	tTimeouts = static_cast<int>(t["timeouts_remaining"sv].value().get_int64());
 	tScoreDisplay->text = std::to_wstring(tScore);
@@ -341,14 +345,16 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 			int streak = computeStreak(ctToTheLeft, rounds);
 			leftWinLoseDisplay->winIconIndex = win ? RoundsData::iconMap[winningCondition] : -1;
 			leftWinLoseDisplay->lossBonusLevel = gain.first;
-			leftWinLoseDisplay->moneyGain = L"+"s + std::to_wstring(gain.second) + L" $"s;
+			leftWinLoseDisplay->moneyGain
+				= L"+"s + Utils::formatMoneyAmount(gain.second, commonResources.configuration);
 			if (win) leftWinLoseDisplay->streak = streak > 1 ? std::to_wstring(streak) : L""s;
 			win = !win;
 			gain = computeGain(!ctToTheLeft, win, winningCondition, rounds);
 			streak = computeStreak(!ctToTheLeft, rounds);
 			rightWinLoseDisplay->winIconIndex = win ? RoundsData::iconMap[winningCondition] : -1;
 			rightWinLoseDisplay->lossBonusLevel = gain.first;
-			rightWinLoseDisplay->moneyGain = L"+" + std::to_wstring(gain.second) + L" $"s;
+			rightWinLoseDisplay->moneyGain
+				= L"+"s + Utils::formatMoneyAmount(gain.second, commonResources.configuration);
 			if (win) rightWinLoseDisplay->streak = streak > 1 ? std::to_wstring(streak) : L""s;
 			winLoseTransition.transition(1);
 		} else {

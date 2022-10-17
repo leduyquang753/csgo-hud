@@ -3,6 +3,8 @@
 #include <string>
 #include <string_view>
 
+#include "data/ConfigurationData.h"
+
 #include "utils/Utils.h"
 
 namespace CsgoHud {
@@ -18,7 +20,7 @@ std::wstring Utils::widenString(std::string_view string) {
 	return wideString;
 }
 
-std::wstring Utils::formatTimeAmount(int millis) {
+std::wstring Utils::formatTimeAmount(int millis, const ConfigurationData &configuration) {
 	// Prevent a brief flash of the whole time amount when starting the timer.
 	if (millis > 0) --millis;
 	const int
@@ -33,10 +35,24 @@ std::wstring Utils::formatTimeAmount(int millis) {
 	res += std::to_wstring(seconds);
 	if (tenths < 60 * 10) {
 		if (tenths < 10 * 10) {
-			res += L',';
+			res += configuration.formatting.decimalSeparatorComma ? L',' : L'.';
 			res += std::to_wstring(tenths % 10);
 		}
-		res += L'"';
+		if (configuration.formatting.showSecondsSign) res += L'"';
+	}
+	return res;
+}
+
+std::wstring Utils::formatMoneyAmount(const int money, const ConfigurationData &configuration) {
+	std::wstring res;
+	if (!configuration.formatting.dollarSignAfter) {
+		res += L'$';
+		if (configuration.formatting.dollarSignWithSpace) res += L' ';
+	}
+	res += std::to_wstring(money);
+	if (configuration.formatting.dollarSignAfter) {
+		if (configuration.formatting.dollarSignWithSpace) res += L' ';
+		res += L'$';
 	}
 	return res;
 }

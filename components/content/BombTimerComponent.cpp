@@ -110,8 +110,10 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 		bombY = gaugeHeight * (bombTransitionValue - 1),
 		bombInnerBottom = gaugeHeight - 4;
 	// The reported bomb time from the game tends to exceed 40" when the bomb has just been planted.
-	const int displayedBombTime
-		= bombState == BombData::State::DETONATING ? 0 : std::min(40000, bomb.oldBombTimeLeft);
+	const int
+		totalBombTime = commonResources.configuration.timings.bombTime,
+		displayedBombTime
+			= bombState == BombData::State::DETONATING ? 0 : std::min(totalBombTime, bomb.oldBombTimeLeft);
 	renderTarget.FillRectangle({outerLeft, bombY, outerRight, gaugeHeight + bombY}, gaugeOuterBrush.get());
 	renderTarget.FillRectangle(
 		{innerLeft, 4 + bombY, innerRight, bombInnerBottom + bombY},
@@ -121,14 +123,16 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 		{
 			innerLeft, 4 + bombY,
 			innerLeft + innerWidth * (
-				planting ? 1 - std::min(3000, displayedBombTime) / 3000.f : displayedBombTime / 40000.f
+				planting
+				? 1 - std::min(3000, displayedBombTime) / 3000.f
+				: static_cast<float>(displayedBombTime) / totalBombTime
 			),
 			bombInnerBottom + bombY
 		},
 		planting ? bombTransparentBrush.get() : bombOpaqueBrush.get()
 	);
 	textRenderer->draw(
-		Utils::formatTimeAmount(displayedBombTime) + L" | "s + bomb.planterName,
+		Utils::formatTimeAmount(displayedBombTime, commonResources.configuration) + L" | "s + bomb.planterName,
 		{outerRight+4, bombY, parentSize.width, bombY + gaugeHeight},
 		textBrush
 	);
@@ -159,15 +163,15 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 		if (bombState == BombData::State::DEFUSING) oldBombTime = displayedBombTime;
 		if (bombState != BombData::State::DEFUSED) renderTarget.FillRectangle(
 			{
-				innerLeft + innerWidth * std::max(0, bomb.bombTimeLeft - bomb.defuseTimeLeft) / 40000,
+				innerLeft + innerWidth * std::max(0, bomb.bombTimeLeft - bomb.defuseTimeLeft) / totalBombTime,
 				defuseInnerTop + defuseY,
-				innerLeft + innerWidth * oldBombTime / 40000.f,
+				innerLeft + innerWidth * oldBombTime / totalBombTime,
 				defuseInnerBottom + defuseY
 			},
 			bomb.defuseTimeLeft > bomb.bombTimeLeft ? defuseRedBrush.get() : defuseBlueBrush.get()
 		);
 		textRenderer->draw(
-			Utils::formatTimeAmount(bomb.defuseTimeLeft) + L" | "s + bomb.defuserName,
+			Utils::formatTimeAmount(bomb.defuseTimeLeft, commonResources.configuration) + L" | "s + bomb.defuserName,
 			{outerRight+4, gaugeHeight + defuseY, parentSize.width, gaugeHeight*2 + defuseY},
 			textBrush
 		);

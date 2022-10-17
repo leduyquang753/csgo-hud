@@ -10,6 +10,7 @@
 #include "text/NormalTextRenderer.h"
 #include "text/FixedWidthDigitTextRenderer.h"
 #include "utils/CommonConstants.h"
+#include "utils/Utils.h"
 
 #include "components/content/TeamBuyComponent.h"
 
@@ -144,23 +145,23 @@ void TeamBuyComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	);
 	amountTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 	amountTextRenderer->draw(
-		std::to_wstring(leftBuyAmount) + L" $"s,
+		Utils::formatMoneyAmount(leftBuyAmount, commonResources.configuration),
 		{amountLeft, buyAmountTop, amountRight, buyAmountBottom},
 		textBrush
 	);
 	amountTextRenderer->draw(
-		std::to_wstring(leftEquipmentValue) + L" $"s,
+		Utils::formatMoneyAmount(leftEquipmentValue, commonResources.configuration),
 		{amountLeft, equipmentValueTop, amountRight, equipmentValueBottom},
 		textBrush
 	);
 	amountTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 	amountTextRenderer->draw(
-		std::to_wstring(rightBuyAmount) + L" $"s,
+		Utils::formatMoneyAmount(rightBuyAmount, commonResources.configuration),
 		{amountLeft, buyAmountTop, amountRight, buyAmountBottom},
 		textBrush
 	);
 	amountTextRenderer->draw(
-		std::to_wstring(rightEquipmentValue) + L" $"s,
+		Utils::formatMoneyAmount(rightEquipmentValue, commonResources.configuration),
 		{amountLeft, equipmentValueTop, amountRight, equipmentValueBottom},
 		textBrush
 	);

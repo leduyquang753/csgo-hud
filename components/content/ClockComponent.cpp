@@ -94,11 +94,12 @@ void ClockComponent::receiveMapData(JSON::dom::object &json) {
 }
 
 int ClockComponent::getPhaseTime() {
+	const auto &timings = commonResources.configuration.timings;
 	return
-		mapPhase == "intermission"s ? 15000
-		: phase == "live"s ? 115000
-		: phase == "freezetime"s ? 15000
-		: phase == "over"s ? 7000
+		mapPhase == "intermission"s ? timings.halfTime
+		: phase == "live"s ? timings.mainTime
+		: phase == "freezetime"s ? timings.freezeTime
+		: phase == "over"s ? timings.roundEnd
 		: 0;
 }
 
@@ -161,7 +162,7 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 			);
 		}
 		timeTextRenderer->draw(
-			Utils::formatTimeAmount(phaseTimeLeft),
+			Utils::formatTimeAmount(phaseTimeLeft, commonResources.configuration),
 			{0, 0, parentSize.width, parentSize.height},
 			red ? textRedBrush : textWhiteBrush
 		);

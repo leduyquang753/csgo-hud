@@ -57,8 +57,12 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 	SetWindowPos(
 		windowHandle,
 		HWND_TOPMOST,
-		(GetSystemMetrics(SM_CXSCREEN) - configuration.windowWidth) / 2,
-		(GetSystemMetrics(SM_CYSCREEN) - configuration.windowHeight) / 2 + 11,
+		configuration.startingPositionCenter
+			? (GetSystemMetrics(SM_CXSCREEN) - configuration.windowWidth) / 2 + configuration.windowOffsetX
+			: configuration.windowOffsetX,
+		configuration.startingPositionCenter
+			? (GetSystemMetrics(SM_CYSCREEN) - configuration.windowHeight) / 2 + configuration.windowOffsetY
+			: configuration.windowOffsetY,
 		0, 0,
 		SWP_NOSIZE
 	);

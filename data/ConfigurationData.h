@@ -15,7 +15,25 @@ class ConfigurationData final {
 		int windowWidth, windowHeight;
 		float hudWidth, hudHeight;
 		float hudScaling;
+		bool startingPositionCenter;
+		int windowOffsetX, windowOffsetY;
 		std::wstring fontFamily;
+		std::wstring defaultCtName, defaultTName;
+		struct {
+			int freezeTime;
+			int mainTime;
+			int bombTime;
+			int roundEnd;
+			int halfTime;
+		} timings;
+		struct {
+			bool addCurrentClipToTotalAmmo;
+			bool decimalSeparatorComma;
+			bool showSecondsSign;
+			bool dollarSignAfter;
+			bool dollarSignWithSpace;
+			bool showTenthPlayerAsZero;
+		} formatting;
 		JSON::dom::object keybindings;
 
 		ConfigurationData();

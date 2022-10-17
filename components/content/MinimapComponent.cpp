@@ -205,7 +205,12 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			drawPlayerEffect(x, y, angle, player.flashAmount, 0.6f, bounds, flashBrush);
 			drawPlayerEffect(x, y, angle, player.smokeAmount, 1, bounds, smokeBrush);
 			drawPlayerEffect(x, y, angle, player.fireAmount, 0.6f, bounds, fireBrush);
-			numberRenderer->draw(std::to_wstring(slot+1), bounds, whiteBrush);
+			numberRenderer->draw(
+				std::to_wstring(
+					commonResources.configuration.formatting.showTenthPlayerAsZero && slot == 9 ? 0 : slot + 1
+				),
+				bounds, whiteBrush
+			);
 		} else {
 			D2D1_COLOR_F color = {
 				deathColor.r, deathColor.g, deathColor.b, deathColor.a * deathAlpha

@@ -304,7 +304,11 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 				whiteBrush
 			);
 			if (gun.spareRounds != 0) smallNumberRenderer->draw(
-				std::to_wstring(gun.roundsInClip + gun.spareRounds),
+				std::to_wstring(
+					commonResources.configuration.formatting.addCurrentClipToTotalAmmo
+					? gun.roundsInClip + gun.spareRounds
+					: gun.spareRounds
+				),
 				{ammoMiddle + BAR_RESERVED_WIDTH, sideInnerBottom - 15, ammoRight, sideInnerBottom},
 				whiteBrush
 			);

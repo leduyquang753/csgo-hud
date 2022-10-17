@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <algorithm>
 #include <string>
 
 #include "components/base/Component.h"
@@ -9,6 +10,7 @@
 #include "resources/CommonResources.h"
 #include "text/FixedWidthDigitTextRenderer.h"
 #include "utils/CommonConstants.h"
+#include "utils/Utils.h"
 
 #include "components/content/PlayerInfoComponent.h"
 
@@ -257,8 +259,11 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	resources.normalTextFormat->SetTextAlignment(
 		rightSide ? DWRITE_TEXT_ALIGNMENT_LEADING : DWRITE_TEXT_ALIGNMENT_TRAILING
 	);
+	const std::wstring playerNumber = std::to_wstring(
+		commonResources.configuration.formatting.showTenthPlayerAsZero && index == 9 ? 0 : index + 1
+	);
 	resources.normalTextRenderer.draw(
-		rightSide ? L"| "s + std::to_wstring(index+1) : std::to_wstring(index+1) + L" |"s,
+		rightSide ? L"| "s + playerNumber : playerNumber + L" |"s,
 		rightSide
 			? D2D1_RECT_F{
 				parentSize.width - PADDING - HEALTH_LENGTH - SLOT_RENDER_LENGTH, 0, parentSize.width, verticalMiddle
@@ -294,7 +299,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	);
 		
 	resources.normalTextRenderer.draw(
-		std::to_wstring(player.money) + L" $",
+		Utils::formatMoneyAmount(player.money, commonResources.configuration),
 		rightSide
 			? D2D1_RECT_F{PADDING, verticalMiddle, parentSize.width - PADDING - 40, parentSize.height}
 			: D2D1_RECT_F{PADDING + 40, verticalMiddle, parentSize.width - PADDING, parentSize.height},
@@ -382,14 +387,14 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 				resources.textWhiteBrush
 			);
 			resources.normalTextRenderer.draw(
-				player.money == player.startingMoney
-					? L"-0 $"s
-					: std::to_wstring(player.money - player.startingMoney) + L" $"s,
+				L"-"s + Utils::formatMoneyAmount(
+					std::min(0, player.startingMoney - player.money), commonResources.configuration
+				),
 				{moneyStart, 0, moneyEnd, verticalMiddle},
 				resources.textWhiteBrush
 			);
 			resources.normalTextRenderer.draw(
-				std::to_wstring(player.equipmentValue) + L" $"s,
+				Utils::formatMoneyAmount(player.equipmentValue, commonResources.configuration),
 				{moneyStart, verticalMiddle, moneyEnd, parentSize.height},
 				resources.textWhiteBrush
 			);
