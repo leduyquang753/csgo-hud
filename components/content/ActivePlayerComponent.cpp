@@ -36,11 +36,12 @@ ActivePlayerComponent::ActivePlayerComponent(
 	)
 {
 	auto &renderTarget = *commonResources.renderTarget;
+	const auto &colors = commonResources.configuration.colors;
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.5f}, backgroundBlackBrush.put());
-	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 0.5f}, backgroundCtBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 0.5f}, backgroundTBrush.put());
-	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, ctBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 1}, tBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.ctSecondary, backgroundCtBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.tSecondary, backgroundTBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.ctPrimary, ctBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.tPrimary, tBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, whiteBrush.put());
 	
 	auto &writeFactory = *commonResources.writeFactory;

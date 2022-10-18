@@ -22,7 +22,8 @@ namespace CsgoHud {
 RoundHistoryComponent::RoundHistoryComponent(CommonResources &commonResources, const TransitionedValue &transition):
 	Component(commonResources),
 	transition(transition),
-	ctColor{0.35f, 0.72f, 0.96f, 1}, tColor{0.94f, 0.79f, 0.25f, 1}
+	ctColor{commonResources.configuration.colors.ctPrimary},
+	tColor{commonResources.configuration.colors.tPrimary}
 {
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.7f}, backgroundBrush.put());

@@ -57,6 +57,21 @@ ConfigurationData::ConfigurationData() {
 	formatting.dollarSignAfter = formattingData["dollarSignAfter"sv].value().get_bool().value();
 	formatting.dollarSignWithSpace = formattingData["dollarSignWithSpace"sv].value().get_bool().value();
 	formatting.showTenthPlayerAsZero = formattingData["showTenthPlayerAsZero"sv].value().get_bool().value();
+
+	auto colorsData = json["colors"sv].value().get_object().value();
+	auto parseColor = [&colorsData](std::string_view key, D2D1_COLOR_F &color) {
+		auto colorData = colorsData[key].value().get_array().value();
+		color.r = static_cast<float>(colorData.at(0).value().get_double().value());
+		color.g = static_cast<float>(colorData.at(1).value().get_double().value());
+		color.b = static_cast<float>(colorData.at(2).value().get_double().value());
+		color.a = static_cast<float>(colorData.at(3).value().get_double().value());
+	};
+	parseColor("ctPrimary"sv, colors.ctPrimary);
+	parseColor("ctSecondary"sv, colors.ctSecondary);
+	parseColor("tPrimary"sv, colors.tPrimary);
+	parseColor("tSecondary"sv, colors.tSecondary);
+	parseColor("damage"sv, colors.damage);
+	parseColor("notEnoughTimeToDefuse"sv, colors.notEnoughTimeToDefuse);
 	
 	keybindings = json["keybindings"sv].value().get_object().value();
 }

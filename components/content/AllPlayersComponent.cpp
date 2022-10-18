@@ -92,9 +92,10 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 		.statsTransition = statsTransition
 	});
 	
-	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, resources->teamCtBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 1}, resources->teamTBrush.put());
-	renderTarget.CreateSolidColorBrush({1, 0, 0, 1}, resources->healthBrush.put());
+	const auto &colors = commonResources.configuration.colors;
+	renderTarget.CreateSolidColorBrush(colors.ctPrimary, resources->teamCtBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.tPrimary, resources->teamTBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.damage, resources->healthBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, resources->textWhiteBrush.put());
 	renderTarget.CreateSolidColorBrush({0.5f, 1, 0.5f, 1}, resources->textGreenBrush.put());
 

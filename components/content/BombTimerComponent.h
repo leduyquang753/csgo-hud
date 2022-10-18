@@ -22,8 +22,8 @@ class BombTimerComponent final: public Component {
 		winrt::com_ptr<ID2D1SolidColorBrush>
 			textBrush,
 			gaugeOuterBrush, gaugeInnerPlantingBrush, gaugeInnerPlantedBrush,
-			bombOpaqueBrush, bombTransparentBrush,
-			defuseBlueBrush, defuseRedBrush;
+			bombPlantedBrush, bombPlantingBrush,
+			defuseNormalBrush, defuseNotEnoughTimeBrush;
 		winrt::com_ptr<IDWriteTextFormat> textFormat;
 		std::optional<FixedWidthDigitTextRenderer> textRenderer;
 		winrt::com_ptr<ID2D1Layer> bombLayer, defuseLayer;

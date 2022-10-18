@@ -58,11 +58,12 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 	)
 {
 	auto &renderTarget = *commonResources.renderTarget;
+	const auto &colors = commonResources.configuration.colors;
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.5f}, backgroundBlackBrush.put());
-	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 0.5f}, ctNameBackgroundBrush.put());
-	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, ctScoreBackgroundBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 0.5f}, tNameBackgroundBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 1}, tScoreBackgroundBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.ctSecondary, ctNameBackgroundBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.ctPrimary, ctScoreBackgroundBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.tSecondary, tNameBackgroundBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.tPrimary, tScoreBackgroundBrush.put());
 	renderTarget.CreateSolidColorBrush({0.5f, 1, 0.5f, 1}, moneyGainBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, textBrush.put());
 	

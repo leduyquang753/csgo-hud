@@ -28,9 +28,10 @@ TeamBuyComponent::TeamBuyComponent(
 	Component(commonResources), fadingTransition(fadingTransition), slidingTransition(slidingTransition)
 {
 	auto &renderTarget = *commonResources.renderTarget;
+	const auto &colors = commonResources.configuration.colors;
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.5f}, backgroundBrush.put());
-	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 0.5f}, ctBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 0.5f}, tBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.ctSecondary, ctBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.tSecondary, tBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, textBrush.put());
 	
 	auto &writeFactory = *commonResources.writeFactory;

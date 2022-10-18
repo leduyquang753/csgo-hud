@@ -40,14 +40,17 @@ BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
 	)
 {
 	auto &renderTarget = *commonResources.renderTarget;
+	const auto &colors = commonResources.configuration.colors;
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, textBrush.put());
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.5f}, gaugeOuterBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 0.1f}, gaugeInnerPlantingBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 0.3f}, gaugeInnerPlantedBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 1}, bombOpaqueBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 0.5f}, bombTransparentBrush.put());
-	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, defuseBlueBrush.put());
-	renderTarget.CreateSolidColorBrush({1, 0.53f, 0.53f, 1}, defuseRedBrush.put());
+	auto bombColor = colors.tPrimary;
+	renderTarget.CreateSolidColorBrush(bombColor, bombPlantedBrush.put());
+	bombColor.a /= 2;
+	renderTarget.CreateSolidColorBrush(bombColor, bombPlantingBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.ctPrimary, defuseNormalBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.notEnoughTimeToDefuse, defuseNotEnoughTimeBrush.put());
 	renderTarget.CreateLayer(bombLayer.put());
 	renderTarget.CreateLayer(defuseLayer.put());
 	
@@ -129,7 +132,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 			),
 			bombInnerBottom + bombY
 		},
-		planting ? bombTransparentBrush.get() : bombOpaqueBrush.get()
+		planting ? bombPlantingBrush.get() : bombPlantedBrush.get()
 	);
 	textRenderer->draw(
 		Utils::formatTimeAmount(displayedBombTime, commonResources.configuration) + L" | "s + bomb.planterName,
@@ -168,7 +171,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 				innerLeft + innerWidth * oldBombTime / totalBombTime,
 				defuseInnerBottom + defuseY
 			},
-			bomb.defuseTimeLeft > bomb.bombTimeLeft ? defuseRedBrush.get() : defuseBlueBrush.get()
+			bomb.defuseTimeLeft > bomb.bombTimeLeft ? defuseNotEnoughTimeBrush.get() : defuseNormalBrush.get()
 		);
 		textRenderer->draw(
 			Utils::formatTimeAmount(bomb.defuseTimeLeft, commonResources.configuration) + L" | "s + bomb.defuserName,

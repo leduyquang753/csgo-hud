@@ -26,8 +26,9 @@ UtilityComponent::UtilityComponent(
 	normalColor{1, 1, 1, 1}, grayedColor{1, 1, 1, 0.5f}
 {
 	auto &renderTarget = *commonResources.renderTarget;
-	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, ctBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 1}, tBrush.put());
+	const auto &colors = commonResources.configuration.colors;
+	renderTarget.CreateSolidColorBrush(colors.ctPrimary, ctBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.tPrimary, tBrush.put());
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.5f}, headerShadeBrush.put());
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.3f}, backgroundBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 0.2f}, backgroundShadeBrush.put());

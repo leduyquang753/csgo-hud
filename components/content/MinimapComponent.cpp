@@ -29,8 +29,8 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	droppedBombColor{0.94f, 0.79f, 0.25f, 1},
 	plantedBombColor{1, 0, 0, 1},
 	defusedBombColor{0, 1, 0, 1},
-	ctColor{0.35f, 0.72f, 0.96f, 1},
-	tColor{0.94f, 0.79f, 0.25f, 1},
+	ctColor{commonResources.configuration.colors.ctPrimary},
+	tColor{commonResources.configuration.colors.tPrimary},
 	neutralColor{0.8f, 0.8f, 0.8f, 1},
 	bombRedFlashColor{1, 0.6f, 0.6f, 1},
 	bombWhiteFlashColor{1, 1, 1, 1},
@@ -44,9 +44,10 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	}
 	
 	auto &renderTarget = *commonResources.renderTarget;
+	const auto &colors = commonResources.configuration.colors;
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, whiteBrush.put());
-	renderTarget.CreateSolidColorBrush({0.35f, 0.72f, 0.96f, 1}, ctBrush.put());
-	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 1}, tBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.ctPrimary, ctBrush.put());
+	renderTarget.CreateSolidColorBrush(colors.tPrimary, tBrush.put());
 	renderTarget.CreateSolidColorBrush({0.94f, 0.79f, 0.25f, 0.7f}, bombsiteNameBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 0, 0, 1}, bombBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, flashBrush.put());

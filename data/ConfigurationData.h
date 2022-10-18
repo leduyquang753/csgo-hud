@@ -34,6 +34,14 @@ class ConfigurationData final {
 			bool dollarSignWithSpace;
 			bool showTenthPlayerAsZero;
 		} formatting;
+		struct {
+			D2D1_COLOR_F ctPrimary;
+			D2D1_COLOR_F ctSecondary;
+			D2D1_COLOR_F tPrimary;
+			D2D1_COLOR_F tSecondary;
+			D2D1_COLOR_F damage;
+			D2D1_COLOR_F notEnoughTimeToDefuse;
+		} colors;
 		JSON::dom::object keybindings;
 
 		ConfigurationData();
