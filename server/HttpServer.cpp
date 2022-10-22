@@ -19,18 +19,21 @@
 
 #include "server/HttpServer.h"
 
+using namespace std::string_literals;
 namespace JSON = simdjson;
 
 namespace CsgoHud {
 
 // == HttpServer ==
 
-static const wchar_t *url = L"http://127.0.0.1:31982/";
+static std::wstring url;
 
-void HttpServer::run(const HWND windowHandle) {
+void HttpServer::run(const HWND windowHandle, const int port) {
+	url = L"http://127.0.0.1:"s + std::to_wstring(port) + L'/';
+	
 	HttpInitialize(HTTPAPI_VERSION_1, HTTP_INITIALIZE_SERVER, nullptr);
 	HttpCreateHttpHandle(&queue, 0);
-	HttpAddUrl(queue, url, nullptr);
+	HttpAddUrl(queue, url.c_str(), nullptr);
 
 	std::size_t bufferSize = 1 << 20;
 	HTTP_REQUEST *request = static_cast<HTTP_REQUEST*>(
@@ -120,7 +123,7 @@ void HttpServer::run(const HWND windowHandle) {
 
 void HttpServer::stop() {
 	finished = true;
-	HttpRemoveUrl(queue, url);
+	HttpRemoveUrl(queue, url.c_str());
 	HttpCloseRequestQueue(queue);
 	HttpTerminate(HTTP_INITIALIZE_SERVER, nullptr);
 }

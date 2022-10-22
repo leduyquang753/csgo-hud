@@ -33,7 +33,7 @@ class HttpServer final {
 	public:
 		std::mutex mutex;
 		
-		void run(HWND windowHandle);
+		void run(HWND windowHandle, int port);
 		void stop();
 		const std::string& getCurrentJsons();
 		const std::vector<std::chrono::time_point<std::chrono::steady_clock>>& getCurrentTimestamps();

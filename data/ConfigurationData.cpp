@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <string_view>
@@ -24,6 +25,9 @@ ConfigurationData::ConfigurationData() {
 	JSON::dom::element jsonDocument = jsonParser.parse(jsonString.data(), previousSize);
 	JSON::dom::object json = jsonDocument.get_object();
 
+	httpServerPort = std::clamp(
+		static_cast<int>(json["httpServerPort"sv].value().get_uint64().value()), 0, 65535
+	);
 	auto resolutionData = json["resolution"sv].value().get_array().value();
 	windowWidth = static_cast<int>(resolutionData.at(0).value().get_uint64().value());
 	windowHeight = static_cast<int>(resolutionData.at(1).value().get_uint64().value());
@@ -38,6 +42,8 @@ ConfigurationData::ConfigurationData() {
 	windowOffsetX = static_cast<int>(offsetData.at(0).value().get_int64().value());
 	windowOffsetY = static_cast<int>(offsetData.at(1).value().get_int64().value());
 	fontFamily = Utils::widenString(json["fontFamily"sv].value().get_string().value());
+	fontOffsetRatio = static_cast<float>(json["fontOffsetRatio"sv].value().get_double().value());
+	fontLineHeightRatio = static_cast<float>(json["fontLineHeightRatio"sv].value().get_double().value());
 
 	auto teamNamesData = json["defaultTeamNames"sv].value().get_object().value();
 	defaultCtName = Utils::widenString(teamNamesData["counterTerrorists"sv].value().get_string().value());

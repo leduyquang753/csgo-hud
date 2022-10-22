@@ -11,7 +11,6 @@
 #include "resources/CommonResources.h"
 #include "text/NormalTextRenderer.h"
 #include "text/FixedWidthDigitTextRenderer.h"
-#include "utils/CommonConstants.h"
 
 #include "components/content/ActivePlayerComponent.h"
 
@@ -47,6 +46,9 @@ ActivePlayerComponent::ActivePlayerComponent(
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
+	const float
+		fontOffsetRatio = commonResources.configuration.fontOffsetRatio,
+		fontLineHeightRatio = commonResources.configuration.fontLineHeightRatio;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
@@ -56,9 +58,7 @@ ActivePlayerComponent::ActivePlayerComponent(
 	static const DWRITE_TRIMMING TRIMMING_OPTIONS = {DWRITE_TRIMMING_GRANULARITY_CHARACTER, 0, 0};
 	textFormat->SetTrimming(&TRIMMING_OPTIONS, trimmingSign.get());
 	textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
-	nameTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	nameTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
@@ -67,9 +67,7 @@ ActivePlayerComponent::ActivePlayerComponent(
 		12, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	statsTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	statsTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
@@ -77,9 +75,7 @@ ActivePlayerComponent::ActivePlayerComponent(
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		12, L"", textFormat.put()
 	);
-	weaponTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	weaponTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
@@ -87,9 +83,7 @@ ActivePlayerComponent::ActivePlayerComponent(
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		20, L"", textFormat.put()
 	);
-	bigNumberRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	bigNumberRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	bigNumberTextFormat = textFormat;
 
 	textFormat = nullptr;
@@ -98,9 +92,7 @@ ActivePlayerComponent::ActivePlayerComponent(
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		12, L"", textFormat.put()
 	);
-	smallNumberRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	smallNumberRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 
 	renderTarget.CreateLayer(layer.put());
 }

@@ -10,7 +10,6 @@
 #include "movement/CubicBezierMovementFunction.h"
 #include "movement/TransitionedValue.h"
 #include "resources/CommonResources.h"
-#include "utils/CommonConstants.h"
 #include "utils/Utils.h"
 
 #include "components/content/BombTimerComponent.h"
@@ -65,7 +64,8 @@ BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
 	textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
 	
 	textRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
+		commonResources, textFormat,
+		commonResources.configuration.fontOffsetRatio, commonResources.configuration.fontLineHeightRatio
 	);
 }
 

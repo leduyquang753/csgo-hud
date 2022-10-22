@@ -12,12 +12,15 @@ class ConfigurationData final {
 	private:
 		JSON::dom::parser jsonParser;
 	public:
+		int httpServerPort;
 		int windowWidth, windowHeight;
 		float hudWidth, hudHeight;
 		float hudScaling;
 		bool startingPositionCenter;
 		int windowOffsetX, windowOffsetY;
 		std::wstring fontFamily;
+		float fontOffsetRatio;
+		float fontLineHeightRatio;
 		std::wstring defaultCtName, defaultTName;
 		struct {
 			int freezeTime;

@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <algorithm>
 #include <string>
 #include <string_view>
 
@@ -9,7 +10,6 @@
 #include "resources/CommonResources.h"
 #include "text/NormalTextRenderer.h"
 #include "text/FixedWidthDigitTextRenderer.h"
-#include "utils/CommonConstants.h"
 #include "utils/Utils.h"
 
 #include "components/content/TeamBuyComponent.h"
@@ -37,15 +37,16 @@ TeamBuyComponent::TeamBuyComponent(
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
+	const float
+		fontOffsetRatio = commonResources.configuration.fontOffsetRatio,
+		fontLineHeightRatio = commonResources.configuration.fontLineHeightRatio;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		12, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	titleTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	titleTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
@@ -53,9 +54,7 @@ TeamBuyComponent::TeamBuyComponent(
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		20, L"", textFormat.put()
 	);
-	amountTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	amountTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	amountTextFormat = textFormat;
 
 	renderTarget.CreateLayer(layer.put());
@@ -107,7 +106,7 @@ void TeamBuyComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		int amount = 0;
 		for (int i = 0; i != 10; ++i) {
 			const auto &player = players[i];
-			if (player && player->team == team) amount += player->startingMoney - player->money;
+			if (player && player->team == team) amount += std::max(0, player->startingMoney - player->money);
 		}
 		return amount;
 	};

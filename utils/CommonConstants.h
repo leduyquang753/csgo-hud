@@ -15,12 +15,6 @@ namespace CommonConstants {
 
 	// The height of every icon.
 	const float ICON_HEIGHT = 128;
-
-	// The vertical font offset ratio.
-	const float FONT_OFFSET_RATIO = -0.3f;
-
-	// The font line height ratio.
-	const float FONT_LINE_HEIGHT_RATIO = 0.75f;
 }
 
 } // namespace CsgoHud

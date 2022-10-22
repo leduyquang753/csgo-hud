@@ -33,24 +33,23 @@ ClockComponent::ClockComponent(CommonResources &commonResources): Component(comm
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
+	const float
+		fontOffsetRatio = commonResources.configuration.fontOffsetRatio,
+		fontLineHeightRatio = commonResources.configuration.fontLineHeightRatio;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		24, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	timeTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	timeTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		24, L"", textFormat.put()
 	);
-	bombsiteNameRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	bombsiteNameRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 
 	auto &eventBus = commonResources.eventBus;
 	eventBus.listenToTimeEvent([this](const int timePassed) { advanceTime(timePassed); });

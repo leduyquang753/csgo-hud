@@ -26,7 +26,7 @@ int WINAPI wWinMain(
 	CsgoHud::HudWindow hudWindow(instance, commonResources);
 
 	std::thread httpThread([&commonResources, &hudWindow]() {
-		commonResources.httpServer.run(hudWindow.getWindowHandle());
+		commonResources.httpServer.run(hudWindow.getWindowHandle(), commonResources.configuration.httpServerPort);
 	});
 
 	hudWindow.mainComponent = std::make_unique<CsgoHud::HudComponent>(commonResources);

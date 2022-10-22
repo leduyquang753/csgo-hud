@@ -8,7 +8,6 @@
 #include "data/RoundsData.h"
 #include "movement/TransitionedValue.h"
 #include "resources/CommonResources.h"
-#include "utils/CommonConstants.h"
 
 #include "components/content/RoundHistoryComponent.h"
 
@@ -37,15 +36,16 @@ RoundHistoryComponent::RoundHistoryComponent(CommonResources &commonResources, c
 	
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
+	const float
+		fontOffsetRatio = commonResources.configuration.fontOffsetRatio,
+		fontLineHeightRatio = commonResources.configuration.fontLineHeightRatio;
 	commonResources.writeFactory->CreateTextFormat(
 		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	titleTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	titleTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 
 	textFormat = nullptr;
 	commonResources.writeFactory->CreateTextFormat(
@@ -54,9 +54,7 @@ RoundHistoryComponent::RoundHistoryComponent(CommonResources &commonResources, c
 		20, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	numberTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	numberTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 }
 
 void RoundHistoryComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {

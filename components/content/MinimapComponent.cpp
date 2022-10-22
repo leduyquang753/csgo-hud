@@ -14,7 +14,6 @@
 #include "data/PlayerData.h"
 #include "resources/CommonResources.h"
 #include "text/NormalTextRenderer.h"
-#include "utils/CommonConstants.h"
 
 #include "components/content/MinimapComponent.h"
 
@@ -57,15 +56,16 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
+	const float
+		fontOffsetRatio = commonResources.configuration.fontOffsetRatio,
+		fontLineHeightRatio = commonResources.configuration.fontLineHeightRatio;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		12, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	numberRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	numberRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
@@ -73,9 +73,7 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 		16, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	bombsiteNameRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	bombsiteNameRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 
 	renderTarget.CreateLayer(layer1.put());
 	renderTarget.CreateLayer(layer2.put());	
@@ -486,14 +484,17 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			const float radius = maxRadius * animationValue;
 			renderTarget.FillEllipse({{x, y}, radius, radius}, brush.get());
 		};
-		// Always draw the explosion on both levels as the bomb doesn't affect damage only on the level it is in.
-		drawEllipse(x, y, 60, explosionOuterAnimation.getValue(static_cast<float>(bomb.bombTimeLeft)));
-		drawEllipse(x, y, 50, explosionInnerAnimation.getValue(static_cast<float>(bomb.bombTimeLeft)));
+		// Always draw the explosion on both levels as the bomb doesn't deal damage only on the level it is in.
+		const float
+			outerAnimationValue = explosionOuterAnimation.getValue(static_cast<float>(bomb.bombTimeLeft)),
+			innerAnimationValue = explosionInnerAnimation.getValue(static_cast<float>(bomb.bombTimeLeft));
+		drawEllipse(x, y, 60, outerAnimationValue);
+		drawEllipse(x, y, 50, innerAnimationValue);
 		if (map.hasLowerLevel) {
 			x += lowerLevelOffsetX;
 			y += lowerLevelOffsetY;
-			drawEllipse(x, y, 60, explosionOuterAnimation.getValue(static_cast<float>(bomb.bombTimeLeft)));
-			drawEllipse(x, y, 50, explosionInnerAnimation.getValue(static_cast<float>(bomb.bombTimeLeft)));
+			drawEllipse(x, y, 60, outerAnimationValue);
+			drawEllipse(x, y, 50, innerAnimationValue);
 		}
 	}
 

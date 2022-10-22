@@ -21,7 +21,6 @@
 #include "resources/CommonResources.h"
 #include "text/FixedWidthDigitTextRenderer.h"
 #include "text/NormalTextRenderer.h"
-#include "utils/CommonConstants.h"
 #include "utils/Utils.h"
 
 #include "components/content/TopBarComponent.h"
@@ -70,6 +69,9 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
+	const float
+		fontOffsetRatio = commonResources.configuration.fontOffsetRatio,
+		fontLineHeightRatio = commonResources.configuration.fontLineHeightRatio;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
@@ -80,9 +82,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 	textFormat->SetTrimming(&TRIMMING_OPTIONS, trimmingSign.get());
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
-	nameTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	nameTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
@@ -91,9 +91,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		24, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	scoreTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	scoreTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
@@ -101,9 +99,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		24, L"", textFormat.put()
 	);
-	winLoseTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	winLoseTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
@@ -111,9 +107,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		18, L"", textFormat.put()
 	);
-	streakTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	streakTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
@@ -122,9 +116,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		18, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
-	moneyGainTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	moneyGainTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 
 	auto stack = std::make_unique<StackComponent>(
 		commonResources,

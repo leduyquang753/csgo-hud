@@ -5,7 +5,6 @@
 #include "components/base/Component.h"
 #include "resources/CommonResources.h"
 #include "text/FixedWidthDigitTextRenderer.h"
-#include "utils/CommonConstants.h"
 
 #include "components/content/RoundComponent.h"
 
@@ -24,7 +23,8 @@ RoundComponent::RoundComponent(CommonResources &commonResources): Component(comm
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 	textRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
+		commonResources, textFormat,
+		commonResources.configuration.fontOffsetRatio, commonResources.configuration.fontLineHeightRatio
 	);
 }
 

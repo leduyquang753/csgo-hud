@@ -17,7 +17,6 @@
 #include "movement/CubicBezierMovementFunction.h"
 #include "movement/MovementFunction.h"
 #include "resources/CommonResources.h"
-#include "utils/CommonConstants.h"
 #include "utils/Utils.h"
 
 #include "components/content/AllPlayersComponent.h"
@@ -51,6 +50,9 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 	winrt::com_ptr<IDWriteTextFormat> normalTextFormat, boldTextFormat;
 	winrt::com_ptr<IDWriteInlineObject> trimmingSign;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
+	const float
+		fontOffsetRatio = commonResources.configuration.fontOffsetRatio,
+		fontLineHeightRatio = commonResources.configuration.fontLineHeightRatio;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
@@ -66,14 +68,8 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 		14, L"", boldTextFormat.put()
 	);
 	
-	normalTextRenderer.emplace(
-		commonResources, normalTextFormat,
-		CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
-	boldTextRenderer.emplace(
-		commonResources, boldTextFormat,
-		CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	normalTextRenderer.emplace(commonResources, normalTextFormat, fontOffsetRatio, fontLineHeightRatio);
+	boldTextRenderer.emplace(commonResources, boldTextFormat, fontOffsetRatio, fontLineHeightRatio);
 
 	resources.emplace(PlayerInfoComponent::Resources{
 		.backgroundInactiveColor = {0, 0, 0, 0.3f},

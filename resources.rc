@@ -16,7 +16,7 @@ BEGIN
 		BLOCK "040904E4"
 		BEGIN
 			VALUE "CompanyName", "Lê Duy Quang\0"
-			VALUE "FileDescription", "A custom HUD for spectating Counter-strike: Global offensive competitive matches using C++ and Direct2D.\0"
+			VALUE "FileDescription", "CSGO HUD\0"
 			VALUE "FileVersion", "0.0.1.1\0"
 			VALUE "InternalName", "CSGOHUD\0"
 			VALUE "LegalCopyright", "© 2022 Lê Duy Quang. Licensed under MIT."

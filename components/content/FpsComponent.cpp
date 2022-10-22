@@ -6,7 +6,6 @@
 #include "components/base/Component.h"
 #include "resources/CommonResources.h"
 #include "text/FixedWidthDigitTextRenderer.h"
-#include "utils/CommonConstants.h"
 #include "utils/Utils.h"
 
 #include "components/content/FpsComponent.h"
@@ -29,7 +28,7 @@ FpsComponent::FpsComponent(CommonResources &commonResources): Component(commonRe
 	);
 	textRenderer.emplace(
 		commonResources, textFormat,
-		CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
+		commonResources.configuration.fontOffsetRatio, commonResources.configuration.fontLineHeightRatio
 	);
 	
 	commonResources.eventBus.listenToKeyEvent(

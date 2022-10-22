@@ -8,7 +8,6 @@
 #include "data/WeaponTypes.h"
 #include "movement/TransitionedValue.h"
 #include "resources/CommonResources.h"
-#include "utils/CommonConstants.h"
 
 #include "components/content/UtilityComponent.h"
 
@@ -38,14 +37,15 @@ UtilityComponent::UtilityComponent(
 	
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
+	const float
+		fontOffsetRatio = commonResources.configuration.fontOffsetRatio,
+		fontLineHeightRatio = commonResources.configuration.fontLineHeightRatio;
 	commonResources.writeFactory->CreateTextFormat(
 		fontFamily, nullptr,
 		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", textFormat.put()
 	);
-	titleTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	titleTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	
 	textFormat = nullptr;
 	commonResources.writeFactory->CreateTextFormat(
@@ -54,9 +54,7 @@ UtilityComponent::UtilityComponent(
 		14, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
-	totalTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	totalTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 	
 	textFormat = nullptr;
 	commonResources.writeFactory->CreateTextFormat(
@@ -65,9 +63,7 @@ UtilityComponent::UtilityComponent(
 		14, L"", textFormat.put()
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
-	countTextRenderer.emplace(
-		commonResources, textFormat, CommonConstants::FONT_OFFSET_RATIO, CommonConstants::FONT_LINE_HEIGHT_RATIO
-	);
+	countTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 }
 
 void UtilityComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {

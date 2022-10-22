@@ -388,7 +388,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			);
 			resources.normalTextRenderer.draw(
 				L"-"s + Utils::formatMoneyAmount(
-					std::min(0, player.startingMoney - player.money), commonResources.configuration
+					std::max(0, player.startingMoney - player.money), commonResources.configuration
 				),
 				{moneyStart, 0, moneyEnd, verticalMiddle},
 				resources.textWhiteBrush
