@@ -120,7 +120,7 @@ class TopBarComponent final: public Component {
 
 		int ctScore = 0, tScore = 0, ctTimeouts = 0, tTimeouts = 0;
 		
-		bool ctToTheLeft = true;
+		bool ctToTheLeft = true, justSwappedSides = false;
 
 		void receiveMapData(JSON::dom::object &json);
 		void updateCtSide(bool toTheLeft);

@@ -84,7 +84,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 
 	if (lastIndex == -1 || player.steamId != lastPlayerId) {
 		lastPlayerId = player.steamId;
-		oldHealth = 0;
+		currentHealth = oldHealth = 0;
 		healthDecayTime = 0;
 		healthTransition.setValue(0);
 		wasActive = false;

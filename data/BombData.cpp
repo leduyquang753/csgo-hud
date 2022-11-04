@@ -91,7 +91,7 @@ void BombData::receiveBombData(JSON::dom::object &json) {
 		: static_cast<int>(std::stod(std::string(json["countdown"sv].value().get_string().value())) * 1000);
 	if (currentState == bombState) {
 		if (timeLeft != -1) {
-			if (currentState == State::PLANTING) {
+			if (currentState == State::PLANTING || currentState == State::PLANTED) {
 				if (std::abs(timeLeft - bombTimeLeft) > CommonConstants::DESYNC_THRESHOLD)
 					bombTimeLeft = timeLeft;
 			} else if (currentState == State::DEFUSING) {

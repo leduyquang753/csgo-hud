@@ -277,6 +277,7 @@ void TopBarComponent::updateCtSide(const bool toTheLeft) {
 	std::swap(leftTimeoutDisplay->backgroundBrush, rightTimeoutDisplay->backgroundBrush);
 	std::swap(ctNameDisplay, tNameDisplay);
 	std::swap(ctScoreDisplay, tScoreDisplay);
+	justSwappedSides = true;
 }
 
 void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
@@ -291,7 +292,13 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 		int oldLevel = 1, level = 1;
 		const auto &rounds = roundsData.getRounds();
 		const int currentRound = roundsData.getCurrentRound();
-		for (int round = currentRound > 15 ? 15 : 0; round != currentRound; ++round) {
+		for (
+			int round
+				= currentRound < 16 ? 0
+				: currentRound < 31 ? 15
+				: currentRound - (currentRound - 31) % 3 - 31;
+			round != currentRound; ++round
+		) {
 			oldLevel = level;
 			if (rounds[round].first == team) {
 				if (level != 0) --level;
@@ -303,13 +310,16 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 		return {
 			oldLevel,
 			win
-				? WIN_MONEY_MAP[winningCondition] + (winningCondition == 2 ? 300 : 0)
+				? WIN_MONEY_MAP[winningCondition]
+					+ (!team && winningCondition == 0 && roundsData.bombIsPlanted() ? 300 : 0)
 				: 1400 + 500*oldLevel + (winningCondition == 3 ? 800 : 0)
 		};
 	};
 	auto computeStreak = [](const bool team, const RoundsData &roundsData) {
 		const auto &rounds = roundsData.getRounds();
 		const int currentRound = roundsData.getCurrentRound();
+		// When in overtime the main rounds data get erased to no way to figure out the streak anymore.
+		if (currentRound > 30) return 1;
 		bool currentTeam = currentRound > 15 ? !team : team;
 		const int firstCap = currentRound > 15 ? 15 : currentRound;
 		int streak = 0;
@@ -325,9 +335,10 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 	};
 
 	const auto &rounds = commonResources.rounds;
+	const int currentRound = rounds.getCurrentRound();
 	const bool currentWinLoseShown
 		= rounds.getCurrentPhase() == RoundsData::Phase::OVER
-		&& rounds.getCurrentRound() == rounds.getRounds().size();
+		&& (currentRound > 30 ? currentRound - 30 : currentRound) == rounds.getRounds().size();
 	if (currentWinLoseShown != winLoseShown) {
 		winLoseShown = currentWinLoseShown;
 		if (winLoseShown) {
@@ -376,7 +387,7 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 		}
 	}
 	const bool currentMatchPointShown = rounds.isBeginningOfRound() && !timeoutShown;
-	if (currentMatchPointShown != matchPointShown) {
+	if (currentMatchPointShown != matchPointShown || (matchPointShown && justSwappedSides)) {
 		matchPointShown = currentMatchPointShown;
 		if (matchPointShown) {
 			const int
@@ -398,6 +409,8 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 		}
 	}
 	*paddingHeight = winLoseTransition.getValue() * 28;
+
+	justSwappedSides = false;
 	
 	container->paint(transform, parentSize);
 }

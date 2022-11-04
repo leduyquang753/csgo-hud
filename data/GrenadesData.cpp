@@ -74,7 +74,7 @@ GrenadesData::GrenadesData(CommonResources &commonResources): commonResources(co
 
 void GrenadesData::advanceTime(const int timePassed) {
 	const auto currentPhase = commonResources.rounds.getCurrentPhase();
-	if (currentPhase != previousPhase && currentPhase == RoundsData::Phase::WARMUP) {
+	if (currentPhase != previousPhase && currentPhase == RoundsData::Phase::FREEZETIME) {
 		// Seems like a new round, clear everything.
 		fragGrenades.clear();
 		stunGrenades.clear();

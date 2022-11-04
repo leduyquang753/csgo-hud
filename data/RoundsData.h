@@ -19,6 +19,7 @@ class RoundsData final {
 		int currentRound = 0;
 		Phase currentPhase = Phase::WARMUP;
 		bool beginningOfRound = false;
+		bool bombPlanted = false;
 		std::vector<std::pair<bool, WinningCondition>> history;
 
 		void receivePhaseData(JSON::dom::object &json);
@@ -31,6 +32,7 @@ class RoundsData final {
 		int getCurrentRound() const;
 		Phase getCurrentPhase() const;
 		bool isBeginningOfRound() const;
+		bool bombIsPlanted() const;
 };
 
 } // namespace CsgoHud

@@ -28,6 +28,7 @@ class ConfigurationData final {
 			int bombTime;
 			int roundEnd;
 			int halfTime;
+			int timeout;
 		} timings;
 		struct {
 			bool addCurrentClipToTotalAmmo;

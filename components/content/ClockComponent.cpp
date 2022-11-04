@@ -99,6 +99,7 @@ int ClockComponent::getPhaseTime() {
 		: phase == "live"s ? timings.mainTime
 		: phase == "freezetime"s ? timings.freezeTime
 		: phase == "over"s ? timings.roundEnd
+		: phase[0] == 't'/*imeout*/ ? timings.timeout
 		: 0;
 }
 
@@ -120,6 +121,10 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 	renderTarget.SetTransform(transform);
 	
 	renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, backgroundBrush.get());
+	if (phase == "warmup"s) {
+		renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
+		return;
+	}
 	if (phase == "paused"s) {
 		const float
 			center = parentSize.width / 2,

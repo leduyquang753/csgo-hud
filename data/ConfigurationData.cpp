@@ -55,6 +55,7 @@ ConfigurationData::ConfigurationData() {
 	timings.bombTime = static_cast<int>(timingData["bombTime"sv].value().get_int64().value());
 	timings.roundEnd = static_cast<int>(timingData["roundEnd"sv].value().get_int64().value());
 	timings.halfTime = static_cast<int>(timingData["halfTime"sv].value().get_int64().value());
+	timings.timeout = static_cast<int>(timingData["timeout"sv].value().get_int64().value());
 
 	auto formattingData = json["formatting"sv].value().get_object().value();
 	formatting.addCurrentClipToTotalAmmo = formattingData["addCurrentClipToTotalAmmo"sv].value().get_bool().value();

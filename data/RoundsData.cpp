@@ -32,22 +32,27 @@ void RoundsData::receivePhaseData(JSON::dom::object &json) {
 		case 'w':
 			currentPhase = Phase::WARMUP;
 			beginningOfRound = false;
+			bombPlanted = false;
 			break;
 		case 'f':
 			currentPhase = Phase::FREEZETIME;
 			beginningOfRound = true;
+			bombPlanted = false;
 			break;
 		case 'l':
 			currentPhase = Phase::LIVE;
 			beginningOfRound = false;
+			bombPlanted = false;
 			break;
 		case 'b':
 			currentPhase = Phase::BOMB;
 			beginningOfRound = false;
+			bombPlanted = true;
 			break;
 		case 'd':
 			currentPhase = Phase::DEFUSE;
 			beginningOfRound = false;
+			bombPlanted = true;
 			break;
 		case 'p':
 			currentPhase = Phase::PAUSED;
@@ -55,6 +60,7 @@ void RoundsData::receivePhaseData(JSON::dom::object &json) {
 		case 't'/*imeout_*/:
 			currentPhase = phaseString[8] == 'c'/*t*/ ? Phase::TIMEOUT_CT : Phase::TIMEOUT_T;
 			beginningOfRound = true;
+			bombPlanted = false;
 			break;
 		default:
 			currentPhase = Phase::OVER;
@@ -104,6 +110,10 @@ RoundsData::Phase RoundsData::getCurrentPhase() const {
 
 bool RoundsData::isBeginningOfRound() const {
 	return beginningOfRound;
+}
+
+bool RoundsData::bombIsPlanted() const {
+	return bombPlanted;
 }
 
 } // namespace CsgoHud
