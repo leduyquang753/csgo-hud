@@ -192,8 +192,10 @@ void GrenadesData::receiveGrenadesData(JSON::dom::object &json) {
 		}
 		if (grenadeToResolve != nullptr) {
 			grenadeToResolve->position = Utils::parseVector(data["position"sv].value().get_string().value());
-			if (grenadeToResolve->throwerId == 0)
-				grenadeToResolve->throwerId = data["owner"sv].value().get_uint64().value();
+			if (grenadeToResolve->throwerId == 0) {
+				grenadeToResolve->throwerId
+					= std::stoull(std::string(data["owner"sv].value().get_string().value()));
+			}
 			if (!grenadeToResolve->throwerFound) {
 				const auto &thrower = commonResources.players(grenadeToResolve->throwerId);
 				if (thrower) {

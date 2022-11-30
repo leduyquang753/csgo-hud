@@ -103,7 +103,7 @@ void BombData::receiveBombData(JSON::dom::object &json) {
 		bombState = currentState;
 		if (currentState == State::PLANTING || currentState == State::PLANTED) {
 			if (currentState == State::PLANTING) {
-				planterSteamId = json["player"sv].value().get_uint64();
+				planterSteamId = std::stoull(std::string(json["player"sv].value().get_string().value()));
 				const auto &planter = commonResources.players(planterSteamId);
 				planterFound = planter.has_value();
 				planterName = planterFound ? planter->name : L"?"s;
@@ -111,7 +111,7 @@ void BombData::receiveBombData(JSON::dom::object &json) {
 			bombTimeLeft = timeLeft;
 		} else if (currentState == State::DEFUSING) {
 			defuseTimeLeft = timeLeft;
-			defuserSteamId = json["player"sv].value().get_uint64();
+			defuserSteamId = std::stoull(std::string(json["player"sv].value().get_string().value()));
 			const auto &defuser = commonResources.players(defuserSteamId);
 			defuserFound = defuser.has_value();
 			defuserName = defuserFound ? defuser->name : L"?"s;
