@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <algorithm>
+#include <array>
 #include <string>
 
 #include "components/base/Component.h"
@@ -139,7 +140,26 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	);
 	renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, backgroundBrush.get());
 
-	if (player.health != 0) {
+	if (player.health == 0) {
+		// Draw a fading gradient upon death.
+		const int timePassed = commonResources.time - player.lastDeathTime;
+		if (timePassed >= 0 && timePassed < 2000) {
+			D2D1_COLOR_F startColor = commonResources.configuration.colors.damage;
+			startColor.a = 1 - timePassed / 2000.f;
+			const std::array<D2D1_GRADIENT_STOP, 2> gradientStops = {{
+				{.position = rightSide ? 1.f : 0.f, .color = startColor},
+				{.position = rightSide ? 0.f : 1.f, .color = {0, 0, 0, 0}}
+			}};
+			winrt::com_ptr<ID2D1GradientStopCollection> gradientStopCollection;
+			renderTarget.CreateGradientStopCollection(gradientStops.data(), 2, gradientStopCollection.put());
+			winrt::com_ptr<ID2D1LinearGradientBrush> deathBrush;
+			renderTarget.CreateLinearGradientBrush(
+				{.startPoint = {0, 0}, .endPoint = {parentSize.width, 0}},
+				gradientStopCollection.get(), deathBrush.put()
+			);
+			renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, deathBrush.get());
+		}
+	} else {
 		auto drawEffect = [this, &renderTarget, &parentSize](const D2D1_COLOR_F &color, const int amount) {
 			if (amount == 0) return;
 			winrt::com_ptr<ID2D1SolidColorBrush> effectBrush;

@@ -25,7 +25,7 @@ namespace CsgoHud {
 
 MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	Component(commonResources),
-	droppedBombColor{0.94f, 0.79f, 0.25f, 1},
+	droppedBombColor{commonResources.configuration.colors.tPrimary},
 	plantedBombColor{1, 0, 0, 1},
 	defusedBombColor{0, 1, 0, 1},
 	ctColor{commonResources.configuration.colors.ctPrimary},
