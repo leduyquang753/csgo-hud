@@ -142,7 +142,7 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 
 	const float defuseTransitionValue = defuseTransition.getValue();
 	if (defuseTransitionValue != 0) {
-		const bool shouldApplyDefuseLayer = bombTransiting || defuseTransition.transiting();
+		const bool shouldApplyDefuseLayer = defuseTransition.transiting();
 		if (shouldApplyDefuseLayer) renderTarget.PushLayer(
 			{
 				{0, bombTransiting ? bombY : gaugeHeight, parentSize.width, parentSize.height},

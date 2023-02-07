@@ -4,6 +4,7 @@
 #include <cmath>
 #include <functional>
 #include <numbers>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -140,31 +141,34 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		renderTarget.SetAntialiasMode(oldMode);
 	};
 	auto drawPlayerMarkerComponent = [this, &renderTarget](
-		const float x, const float y, const float angle, const bool big,
+		const float x, const float y, const std::optional<float> angleIn, const bool big,
 		const winrt::com_ptr<ID2D1SolidColorBrush> &brush
 	) {
 		const float radius = big ? 10.f : 8.f;
 		renderTarget.FillEllipse({x, y, radius, radius}, brush.get());
-		winrt::com_ptr<ID2D1PathGeometry> path;
-		commonResources.d2dFactory->CreatePathGeometry(path.put());
-		winrt::com_ptr<ID2D1GeometrySink> sink;
-		path->Open(sink.put());
-		auto computePoint = [x, y](const float radius, const float angle) {
-			// Gotta flip the Y offset as the screen XY is different from the game XY.
-			return D2D1_POINT_2F{x + radius * std::cos(angle), y - radius * std::sin(angle)};
-		};
-		sink->BeginFigure(
-			computePoint(radius, angle + std::numbers::pi_v<float>/4), // Left.
-			D2D1_FIGURE_BEGIN_FILLED
-		);
-		sink->AddLine(computePoint(radius * std::numbers::sqrt2_v<float>, angle)); // Center.
-		sink->AddLine(computePoint(radius, angle - std::numbers::pi_v<float>/4)); // Right.
-		sink->EndFigure(D2D1_FIGURE_END_CLOSED);
-		sink->Close();
-		renderTarget.FillGeometry(path.get(), brush.get());
+		if (angleIn) {
+			const float angle = *angleIn;
+			winrt::com_ptr<ID2D1PathGeometry> path;
+			commonResources.d2dFactory->CreatePathGeometry(path.put());
+			winrt::com_ptr<ID2D1GeometrySink> sink;
+			path->Open(sink.put());
+			auto computePoint = [x, y](const float radius, const float angle) {
+				// Gotta flip the Y offset as the screen XY is different from the game XY.
+				return D2D1_POINT_2F{x + radius * std::cos(angle), y - radius * std::sin(angle)};
+			};
+			sink->BeginFigure(
+				computePoint(radius, angle + std::numbers::pi_v<float>/4), // Left.
+				D2D1_FIGURE_BEGIN_FILLED
+			);
+			sink->AddLine(computePoint(radius * std::numbers::sqrt2_v<float>, angle)); // Center.
+			sink->AddLine(computePoint(radius, angle - std::numbers::pi_v<float>/4)); // Right.
+			sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+			sink->Close();
+			renderTarget.FillGeometry(path.get(), brush.get());
+		}
 	};
 	auto drawPlayerEffect = [this, &renderTarget, &drawPlayerMarkerComponent](
-		const float x, const float y, const float angle, const int amount, const float multiplier,
+		const float x, const float y, const std::optional<float> angle, const int amount, const float multiplier,
 		const D2D1_RECT_F &bounds, const winrt::com_ptr<ID2D1SolidColorBrush> &brush
 	) {
 		if (amount == 0) return;
@@ -184,7 +188,8 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		this, &transform, &renderTarget, &drawIcon, &drawPlayerMarkerComponent, &drawPlayerEffect
 	](
 		const PlayerData &player,
-		const float x, const float y, const float angle, const bool active, const float alpha, const int slot,
+		const float x, const float y, const std::optional<float> angle,
+		const bool active, const float alpha, const int slot,
 		const winrt::com_ptr<ID2D1SolidColorBrush> &brush, const float deathAlpha, const D2D1_COLOR_F &deathColor
 	) {
 		static const float LAYER_RANGE = 32;
@@ -225,10 +230,10 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		const float
 			x = (player.position.x - map.leftCoordinate) / effectiveScale,
 			y = (map.topCoordinate - player.position.y) / effectiveScale,
-			z = player.position.z,
-			angle = player.forward.x == 0 && player.forward.y == 0
-				? static_cast<float>(-std::numbers::pi_v<float>)
-				: std::atan2(player.forward.y, player.forward.x);
+			z = player.position.z;
+		const std::optional<float> angle = player.forward.x == 0 && player.forward.y == 0
+				? std::nullopt
+				: std::optional<float>(std::atan2(player.forward.y, player.forward.x));
 		const auto &brush = player.team
 			? ctBrush
 			: player.hasC4OrDefuseKit ? bombBrush : tBrush;
