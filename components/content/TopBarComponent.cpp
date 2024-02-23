@@ -294,9 +294,9 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 		const int currentRound = roundsData.getCurrentRound();
 		for (
 			int round
-				= currentRound < 16 ? 0
-				: currentRound < 31 ? 15
-				: currentRound - (currentRound - 31) % 3 - 31;
+				= currentRound < 13 ? 0
+				: currentRound < 25 ? 12
+				: currentRound - (currentRound - 25) % 3 - 25;
 			round != currentRound; ++round
 		) {
 			oldLevel = level;
@@ -319,15 +319,15 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 		const auto &rounds = roundsData.getRounds();
 		const int currentRound = roundsData.getCurrentRound();
 		// When in overtime the main rounds data get erased to no way to figure out the streak anymore.
-		if (currentRound > 30) return 1;
-		bool currentTeam = currentRound > 15 ? !team : team;
-		const int firstCap = currentRound > 15 ? 15 : currentRound;
+		if (currentRound > 24) return 1;
+		bool currentTeam = currentRound > 12 ? !team : team;
+		const int firstCap = currentRound > 12 ? 12 : currentRound;
 		int streak = 0;
 		for (int round = 0; round != firstCap; ++round) {
 			if (rounds[round].first == currentTeam) ++streak;
 			else streak = 0;
 		}
-		if (currentRound > 15) for (int round = 15; round != currentRound; ++round) {
+		if (currentRound > 12) for (int round = 12; round != currentRound; ++round) {
 			if (rounds[round].first == team) ++streak;
 			else streak = 0;
 		}
@@ -338,7 +338,7 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 	const int currentRound = rounds.getCurrentRound();
 	const bool currentWinLoseShown
 		= rounds.getCurrentPhase() == RoundsData::Phase::OVER
-		&& (currentRound > 30 ? currentRound - 30 : currentRound) == rounds.getRounds().size();
+		&& (currentRound > 24 ? currentRound - 24 : currentRound) == rounds.getRounds().size();
 	if (currentWinLoseShown != winLoseShown) {
 		winLoseShown = currentWinLoseShown;
 		if (winLoseShown) {
@@ -392,7 +392,7 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 		if (matchPointShown) {
 			const int
 				round = rounds.getCurrentRound(),
-				threshold = round > 30 ? 15 + (round - 25) / 6 * 3 : 15,
+				threshold = round > 24 ? 12 + (round - 19) / 6 * 3 : 12,
 				difference = std::abs(ctScore - tScore);
 			if (ctScore == threshold || tScore == threshold) {
 				if (ctToTheLeft == (ctScore == threshold)) {

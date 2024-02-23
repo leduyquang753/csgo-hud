@@ -32,10 +32,11 @@ class AllPlayersComponent final: public Component {
 		UtilityComponent *leftUtility, *rightUtility;
 
 		std::string phase;
-		bool statsOn = false, utilityOn = false;
+		bool statsOn = false, utilityOn = false, forceShowTeamBuy = false;
 		TransitionedValue statsTransition, utilityTransition;
 
 		void onUtilityToggle();
+		void onForceShowTeamBuyToggle();
 	public:
 		AllPlayersComponent(CommonResources &commonResources);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;

@@ -56,7 +56,6 @@ void PlayerInfoComponent::advanceTime(const int timePassed) {
 
 void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
 	static const float
-		MAX_PRIMARY_GUN_LENGTH = 440,
 		MAX_SECONDARY_GUN_LENGTH = 280,
 		HEALTH_LENGTH = 27,
 		SLOT_LENGTH = 30,
@@ -100,7 +99,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	const float
 		verticalMiddle = parentSize.height / 2,
 		scale = verticalMiddle / CommonConstants::ICON_HEIGHT,
-		scaledMaxPrimaryGunLength = MAX_PRIMARY_GUN_LENGTH * scale;
+		scaledPrimaryGunLength = player.primaryGun ? commonResources.icons[player.primaryGun->type].width * scale : 0;
 	std::wstring textToRender;
 
 	winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
@@ -309,12 +308,12 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 				}
 			: rightSide
 				? D2D1_RECT_F{
-					PADDING + scaledMaxPrimaryGunLength, 0,
+					PADDING + scaledPrimaryGunLength, 0,
 					parentSize.width - PADDING - HEALTH_LENGTH - SLOT_LENGTH, verticalMiddle
 				}
 				: D2D1_RECT_F{
 					PADDING + HEALTH_LENGTH + SLOT_LENGTH, 0,
-					parentSize.width - PADDING - scaledMaxPrimaryGunLength, verticalMiddle
+					parentSize.width - PADDING - scaledPrimaryGunLength, verticalMiddle
 				},
 		resources.textWhiteBrush
 	);

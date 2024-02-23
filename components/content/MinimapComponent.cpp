@@ -320,8 +320,10 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			: area.burningTime > 6000 ? (7000 - area.burningTime) / 1000.f : 1;
 		for (const auto &subentry : area.pieceMap) {
 			const auto &piece = subentry.second;
+			const auto position = piece.position;
 			drawGrenadeEffects(
-				piece.position, {1, 0.6f, 0.35f, 0.3f},
+				// CS2 bug, all coordinates are being multiplied by 2 for some reason.
+				{position.x / 2, position.y / 2, position.z / 2}, {1, 0.6f, 0.35f, 0.3f},
 				(piece.burningTime < 500 ? piece.burningTime / 500.f : 1) * alpha, 80 / effectiveScale
 			);
 		}

@@ -94,13 +94,13 @@ void RoundHistoryComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 	const auto &rounds = commonResources.rounds.getRounds();
 	const int currentRound = commonResources.rounds.getCurrentRound();
 
-	if (currentRound > 15 && currentRound < 31) {
+	if (currentRound > 12 && currentRound < 25) {
 		int leftScore = 0, rightScore = 0;
-		for (int round = 0; round != 15; ++round)
+		for (int round = 0; round != 12; ++round)
 			++(rounds[round].first == leftTeam ? rightScore : leftScore);
 
 		const float
-			left = (parentSize.width - (SLOT_WIDTH*15 + COUNT_WIDTH*2 + SPACING)) / 2,
+			left = (parentSize.width - (SLOT_WIDTH*12 + COUNT_WIDTH*2 + SPACING)) / 2,
 			right = left + COUNT_WIDTH;
 		renderTarget.FillRectangle({left, top, right, parentSize.height}, backgroundBrush.get());
 		titleTextRenderer->draw(
@@ -123,28 +123,28 @@ void RoundHistoryComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 
 	const float
 		left
-			= currentRound < 16 ? (parentSize.width - (SLOT_WIDTH*15 + COUNT_WIDTH)) / 2
-			: currentRound < 31 ? (
-				(parentSize.width - (SLOT_WIDTH*15 + COUNT_WIDTH*2 + SPACING)) / 2 + COUNT_WIDTH + SPACING
+			= currentRound < 13 ? (parentSize.width - (SLOT_WIDTH*12 + COUNT_WIDTH)) / 2
+			: currentRound < 25 ? (
+				(parentSize.width - (SLOT_WIDTH*12 + COUNT_WIDTH*2 + SPACING)) / 2 + COUNT_WIDTH + SPACING
 			)
 			: (parentSize.width - (SLOT_WIDTH*6 + COUNT_WIDTH)) / 2,
-		right = left + SLOT_WIDTH * (currentRound < 31 ? 15 : 6) + COUNT_WIDTH,
+		right = left + SLOT_WIDTH * (currentRound < 25 ? 12 : 6) + COUNT_WIDTH,
 		slotsStart = left + COUNT_WIDTH;
 	renderTarget.FillRectangle({left, top, right, parentSize.height}, backgroundBrush.get());
 	titleTextRenderer->draw(
-		currentRound < 16 ? L"ROUND HISTORY – FIRST HALF"sv
-		: currentRound < 31 ? L"ROUND HISTORY – SECOND HALF"sv
-		: L"OVERTIME #"s + std::to_wstring((currentRound - 25) / 6),
+		currentRound < 13 ? L"ROUND HISTORY – FIRST HALF"sv
+		: currentRound < 25 ? L"ROUND HISTORY – SECOND HALF"sv
+		: L"OVERTIME #"s + std::to_wstring((currentRound - 19) / 6),
 		{left, parentSize.height - TITLE_HEIGHT, right, parentSize.height},
 		textBrush
 	);
 	int leftScore = 0, rightScore = 0;
 	const int
 		startingRound
-			= currentRound < 16 ? 0
-			: currentRound < 31 ? 15
-			: currentRound - (currentRound - 31) % 6 - 1,
-		roundCount = currentRound < 31 ? 15 : 6;
+			= currentRound < 13 ? 0
+			: currentRound < 25 ? 12
+			: currentRound - (currentRound - 25) % 6 - 1,
+		roundCount = currentRound < 25 ? 12 : 6;
 	winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
 	renderTarget.CreateSpriteBatch(spriteBatch.put());
 	for (int i = 0, roundIndex = startingRound; i != roundCount; ++i, ++roundIndex) {
@@ -161,12 +161,12 @@ void RoundHistoryComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 			std::to_wstring(roundIndex + 1), {slotLeft, top, slotRight, top + TITLE_HEIGHT}, textBrush
 		);
 		const auto roundBrush = roundIndex + 1 == currentRound ? activeRoundBrush.get() : inactiveRoundBrush.get();
-		const int internalRoundIndex = roundIndex < 30 ? roundIndex : roundIndex - 30;
+		const int internalRoundIndex = roundIndex < 24 ? roundIndex : roundIndex - 24;
 		if (internalRoundIndex < rounds.size()) {
 			const auto &round = rounds[internalRoundIndex];
 			const bool leftTeamWon
 				= (round.first == leftTeam)
-				!= (roundIndex > 29 && (currentRound-31)%6 > 2 && (roundIndex-30)%6 < 3);
+				!= (roundIndex > 23 && (currentRound-25)%6 > 2 && (roundIndex-24)%6 < 3);
 			++(leftTeamWon ? leftScore : rightScore);
 			const auto &icon = commonResources.icons[RoundsData::iconMap[static_cast<int>(round.second)]];
 			const float

@@ -35,13 +35,13 @@ void RoundComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 	} else {
 		int currentRound = commonResources.rounds.getCurrentRound();
 		int overtime = 0;
-		if (currentRound > 30) {
-			overtime = (currentRound - 25) / 6;
-			currentRound -= 24 + overtime * 6;
+		if (currentRound > 24) {
+			overtime = (currentRound - 19) / 6;
+			currentRound -= 18 + overtime * 6;
 		}
 		if (overtime == 0) {
 			textRenderer->draw(
-				L"Round "s + std::to_wstring(currentRound) + L" / 30"s, {0, 0, parentSize.width, 14}, textBrush
+				L"Round "s + std::to_wstring(currentRound) + L" / 24"s, {0, 0, parentSize.width, 14}, textBrush
 			);
 		} else {
 			textRenderer->draw(L"Overtime #"s + std::to_wstring(overtime), {0, 0, parentSize.width, 14}, textBrush);

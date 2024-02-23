@@ -1,10 +1,10 @@
+#include "pch.h"
+
 #include <array>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
-
-#include "pch.h"
 
 #include "events/EventBus.h"
 #include "resources/CommonResources.h"
@@ -33,10 +33,6 @@ AllPlayersData::AllPlayersData(CommonResources &commonResources): commonResource
 void AllPlayersData::receivePlayerData(JSON::dom::object &json) {
 	auto slotData = json["observer_slot"sv];
 	activePlayerIndex = slotData.error() ? -1 : static_cast<int>(slotData.value().get_int64().value());
-	if (activePlayerIndex != -1) {
-		if (activePlayerIndex == 0) activePlayerIndex = 9;
-		else --activePlayerIndex;
-	}
 }
 
 void AllPlayersData::receivePlayersData(JSON::dom::object &json) {
@@ -44,13 +40,11 @@ void AllPlayersData::receivePlayersData(JSON::dom::object &json) {
 	std::swap(currentSteamIdMap, previousSteamIdMap);
 	currentSteamIdMap->clear();
 	std::array<bool, 10> playerPresent = {};
-	for (auto entry : json) {
+	for (const auto &entry : json) {
 		auto playerData = entry.value.get_object().value();
 		auto slotData = playerData["observer_slot"sv];
 		if (slotData.error()) continue;
 		int slot = static_cast<int>(slotData.value().get_uint64());
-		if (slot == 0) slot = 10;
-		--slot;
 		const std::uint64_t steamId = std::stoull(std::string(entry.key));
 		auto &player = (*currentPlayers)[slot];
 		if (!player) player.emplace();
@@ -59,10 +53,17 @@ void AllPlayersData::receivePlayersData(JSON::dom::object &json) {
 		// Inherit previously computed properties of the player, if present, or place new initial values.
 		auto &oldPlayer = (*previousPlayers)[slot];
 		if (oldPlayer && steamId == oldPlayer->steamId) {
-			if (player->health == 0 && oldPlayer->health != 0)
-				player->lastDeathTime = commonResources.time;
-			else
+			if (player->health == 0) {
+				if (oldPlayer->health == 0) {
+					player->lastDeathTime = oldPlayer->lastDeathTime;
+					// The game moves the player to other locations after death, so ignore that.
+					player->position = oldPlayer->position;
+				} else {
+					player->lastDeathTime = commonResources.time;
+				}
+			} else {
 				player->lastDeathTime = oldPlayer->lastDeathTime;
+			}
 			player->startingMoney = oldPlayer->startingMoney;
 		} else {
 			const auto entry = previousSteamIdMap->find(steamId);
@@ -72,10 +73,17 @@ void AllPlayersData::receivePlayersData(JSON::dom::object &json) {
 			} else {
 				const auto &oldPlayer = (*previousPlayers)[entry->second];
 				if (oldPlayer) {
-					if (player->health == 0 && oldPlayer->health != 0)
-						player->lastDeathTime = commonResources.time;
-					else
+					if (player->health == 0) {
+						if (oldPlayer->health == 0) {
+							player->lastDeathTime = oldPlayer->lastDeathTime;
+							// The game moves the player to other locations after death, so ignore that.
+							player->position = oldPlayer->position;
+						} else {
+							player->lastDeathTime = commonResources.time;
+						}
+					} else {
 						player->lastDeathTime = oldPlayer->lastDeathTime;
+					}
 					player->startingMoney = oldPlayer->startingMoney;
 				} else {
 					player->lastDeathTime = -10000;

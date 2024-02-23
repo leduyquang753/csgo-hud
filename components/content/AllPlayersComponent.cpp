@@ -167,6 +167,12 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 		),
 		[this](){ onUtilityToggle(); }
 	);
+	commonResources.eventBus.listenToKeyEvent(
+		Utils::parseKeyCode(
+			commonResources.configuration.keybindings["toggleForceShowTeamBuy"sv].value().get_string().value()
+		),
+		[this](){ onForceShowTeamBuyToggle(); }
+	);
 }
 
 void AllPlayersComponent::onUtilityToggle() {
@@ -174,12 +180,16 @@ void AllPlayersComponent::onUtilityToggle() {
 	utilityTransition.transition(utilityOn ? 1.f : 0.f, utilityOn ? 0 : 1);
 }
 
+void AllPlayersComponent::onForceShowTeamBuyToggle() {
+	forceShowTeamBuy = !forceShowTeamBuy;
+}
+
 void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
 	const auto &players = commonResources.players;
 	int firstPlayerIndex = players.getFirstPlayerIndex();
 	if (firstPlayerIndex == -1) return;
 
-	const bool currentStatsOn = commonResources.rounds.isBeginningOfRound();
+	const bool currentStatsOn = commonResources.rounds.isBeginningOfRound() || forceShowTeamBuy;
 	if (statsOn != currentStatsOn) {
 		statsOn = currentStatsOn;
 		statsTransition.transition(statsOn ? 1.f : 0.f, statsOn ? 0 : 1);
