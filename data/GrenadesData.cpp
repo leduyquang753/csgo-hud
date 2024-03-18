@@ -59,7 +59,7 @@ static void purgeExplodedGrenades(std::vector<GrenadesData::ExplodedGrenade> &gr
 	grenades.resize(end - grenades.begin());
 }
 
-int parseTime(const std::string_view string) {
+static int parseTime(const std::string_view string) {
 	return static_cast<int>(std::stod(std::string(string)) * 1000);
 }
 
@@ -118,7 +118,7 @@ void GrenadesData::receiveGrenadesData(JSON::dom::object &json) {
 	unsetStillAlive(decoyGrenades);
 	unsetStillAlive(burningAreas);
 
-	for (auto entry : json) {
+	for (const auto &entry : json) {
 		const unsigned long id = std::stoul(std::string(entry.key));
 		auto data = entry.value.get_object().value();
 		Grenade *grenadeToResolve = nullptr;
@@ -134,10 +134,20 @@ void GrenadesData::receiveGrenadesData(JSON::dom::object &json) {
 						break;
 					case 'r'/*ag*/: {
 						auto &grenade = getGrenade(fragGrenades, id);
-						if (grenade.explodingTime == -1) {
-							const auto velocity
-								= Utils::parseVector(data["velocity"sv].value().get_string().value());
-							if (velocity.x == 0 && velocity.y == 0 && velocity.z == 0) grenade.explodingTime = 0;
+						if (grenade.explodingTime == -1 && grenade.stillAlive) {
+							const auto newPosition
+								= Utils::parseVector(data["position"sv].value().get_string().value());
+							if (
+								(
+									newPosition.x == 0.f && newPosition.y == 0.f && newPosition.z == 0.f
+								) || (
+									// Backup as the game sometimes doesn't properly set the velocity to zero.
+									// This makes the detonation 1 frame late.
+									newPosition.x == grenade.position.x
+									&& newPosition.y == grenade.position.y
+									&& newPosition.z == grenade.position.z
+								)
+							) grenade.explodingTime = 0;
 						}
 						grenadeToResolve = &grenade;
 						break;
@@ -167,7 +177,7 @@ void GrenadesData::receiveGrenadesData(JSON::dom::object &json) {
 				)) area.burningTime = burningTime;
 				auto &pieces = area.pieceMap;
 				for (auto &entry : pieces) entry.second.stillAlive = false;
-				for (auto entry : data["flames"sv].value().get_object().value()) {
+				for (const auto &entry : data["flames"sv].value().get_object().value()) {
 					const std::string subId(entry.key);
 					const auto subIterator = pieces.find(subId);
 					if (subIterator == pieces.end()) {
@@ -217,25 +227,18 @@ void GrenadesData::receiveGrenadesData(JSON::dom::object &json) {
 	});
 	{
 		// Mark disappeared burning areas as extinguished for when a smoke grenade gets in their place.
-		auto iterator = burningAreas.begin();
 		const auto end = burningAreas.end();
-		while (iterator != end) {
+		for (auto iterator = burningAreas.begin(); iterator != end; ++iterator) {
 			auto &area = iterator->second;
-			if (area.stillAlive || area.extinguished) {
-				++iterator;
-			} else if (area.burningTime < 7000) {
-				area.burningTime = (std::max(6000, area.burningTime) - 6000) / 2;
-				area.extinguished = true;
-				++iterator;
-			} else {
-				iterator = burningAreas.erase(iterator);
-			}
+			if (area.stillAlive || area.extinguished) continue;
+			area.burningTime = 500 - std::min(500, area.burningTime);
+			area.extinguished = true;
 		}
 	}
 }
 
 void GrenadesData::purgeExpiredEntities() {
-	purgeExplodedGrenades(explodedStunGrenades, 250);
+	purgeExplodedGrenades(explodedStunGrenades, 2000);
 	purgeExplodedGrenades(explodedDecoyGrenades, 4000);
 }
 

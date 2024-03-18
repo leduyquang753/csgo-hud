@@ -54,20 +54,20 @@ void PlayerData::receiveData(CommonResources &commonResources, JSON::dom::object
 	for (int i = 0; i != 4; ++i) grenades[i].reset();
 	int nextGrenade = 0;
 
-	activeSlot = SLOT_NONE;
+	int newActiveSlot = SLOT_NONE;
 	const auto &weaponTypes = commonResources.weaponTypes;
 	const auto &nameMap = weaponTypes.nameMap;
-	for (auto entry : json["weapons"sv].get_object().value()) {
+	for (const auto &entry : json["weapons"sv].get_object().value()) {
 		auto weapon = entry.value.get_object().value();
 		const bool active = weapon["state"sv].value().get_string().value()[0] == 'a'/*ctive*/;
 		auto typeData = weapon["type"sv];
 		if (!typeData.error() && typeData.value().get_string() == "Knife"sv) {
-			if (active) activeSlot = SLOT_KNIFE;
+			if (active) newActiveSlot = SLOT_KNIFE;
 		} else {
 			const std::string name(weapon["name"sv].value().get_string().value().substr(7)); // Skip "weapon_".
 			if (name == "c4"s) {
 				hasC4OrDefuseKit = true;
-				if (active) activeSlot = SLOT_C4;
+				if (active) newActiveSlot = SLOT_C4;
 			} else {
 				auto entry = nameMap.find(name);
 				if (entry != nameMap.end()) {
@@ -83,7 +83,7 @@ void PlayerData::receiveData(CommonResources &commonResources, JSON::dom::object
 									? 0
 									: static_cast<int>(spareRoundsData.value().get_int64())
 							};
-							if (active) activeSlot = SLOT_PRIMARY_GUN;
+							if (active) newActiveSlot = SLOT_PRIMARY_GUN;
 							break;
 						}
 						case WeaponCategory::SECONDARY: {
@@ -96,16 +96,16 @@ void PlayerData::receiveData(CommonResources &commonResources, JSON::dom::object
 									? 0
 									: static_cast<int>(spareRoundsData.value().get_int64())
 							};
-							if (active) activeSlot = SLOT_SECONDARY_GUN;
+							if (active) newActiveSlot = SLOT_SECONDARY_GUN;
 							break;
 						}
 						case WeaponCategory::ZEUS: {
 							hasZeus = true;
-							if (active) activeSlot = SLOT_ZEUS;
+							if (active) newActiveSlot = SLOT_ZEUS;
 							break;
 						}
 						case WeaponCategory::GRENADE: {
-							if (active) activeSlot = SLOT_GRENADE_0 + nextGrenade;
+							if (active) newActiveSlot = SLOT_GRENADE_0 + nextGrenade;
 							const int quantity = getInt(weapon, "ammo_reserve"sv);
 							for (int i = 0; i != quantity; ++i) {
 								grenades[nextGrenade] = type;
@@ -118,6 +118,10 @@ void PlayerData::receiveData(CommonResources &commonResources, JSON::dom::object
 			}
 		}
 	}
+
+	// Workaround for CS2: when the player reloads the weapon, it is reported as being inactive.
+	// Keep the previous reported active slot.
+	if (newActiveSlot != SLOT_NONE) activeSlot = newActiveSlot;
 }
 
 } // namespace CsgoHud

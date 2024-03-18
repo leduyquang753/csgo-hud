@@ -50,13 +50,12 @@ winrt::com_ptr<IDWriteTextLayout3> FixedWidthDigitTextRenderer::prepareLayout(
 	std::wstring_view text, const D2D1_RECT_F &bounds
 ) const {
 	winrt::com_ptr<IDWriteTextLayout> textLayout;
-	winrt::com_ptr<IDWriteTextLayout3> textLayout3;
 	commonResources.writeFactory->CreateTextLayout(
 		text.data(), static_cast<UINT32>(text.size()), textFormat.get(),
 		bounds.right - bounds.left, bounds.bottom - bounds.top,
 		textLayout.put()
 	);
-	textLayout->QueryInterface(textLayout3.put());
+	winrt::com_ptr<IDWriteTextLayout3> textLayout3 = textLayout.as<IDWriteTextLayout3>();
 	textLayout3->SetLineSpacing(&lineSpacingSettings);
 	for (std::size_t i = 0; i != text.size(); ++i) {
 		const wchar_t c = text[i];

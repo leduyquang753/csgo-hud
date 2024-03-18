@@ -70,7 +70,9 @@ void RoundsData::receivePhaseData(JSON::dom::object &json) {
 }
 
 void RoundsData::receiveMapData(JSON::dom::object &json) {
+	int previousRound = getCurrentRound();
 	currentRound = static_cast<int>(json["round"sv].value().get_int64());
+	if (getCurrentRound() != previousRound) beginningOfRound = true;
 	history.clear();
 	auto historyValue = json["round_wins"sv];
 	if (historyValue.error()) return;

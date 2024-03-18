@@ -32,9 +32,14 @@ int WINAPI wWinMain(
 	hudWindow.mainComponent = std::make_unique<CsgoHud::HudComponent>(commonResources);
 	
 	MSG message;
-	while (GetMessage(&message, nullptr, 0, 0) > 0) {
-		TranslateMessage(&message);
-		DispatchMessage(&message);
+	while (true) {
+		if (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&message);
+			DispatchMessage(&message);
+			if (message.message == WM_QUIT) break;
+		} else {
+			hudWindow.update();
+		}
 	}
 
 	commonResources.httpServer.stop();

@@ -48,7 +48,6 @@ class GrenadesData final {
 		RoundsData::Phase previousPhase = RoundsData::Phase::WARMUP;
 		
 		void advanceTime(int timePassed);
-		void resolveGrenadeThrower(Grenade &grenade);
 		void receiveGrenadesData(JSON::dom::object &json);
 	public:
 		std::unordered_map<unsigned long, FragGrenade> fragGrenades;

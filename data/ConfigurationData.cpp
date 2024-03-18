@@ -77,6 +77,8 @@ ConfigurationData::ConfigurationData() {
 	parseColor("ctSecondary"sv, colors.ctSecondary);
 	parseColor("tPrimary"sv, colors.tPrimary);
 	parseColor("tSecondary"sv, colors.tSecondary);
+	parseColor("ctSmoke"sv, colors.ctSmoke);
+	parseColor("tSmoke"sv, colors.tSmoke);
 	parseColor("damage"sv, colors.damage);
 	parseColor("notEnoughTimeToDefuse"sv, colors.notEnoughTimeToDefuse);
 	

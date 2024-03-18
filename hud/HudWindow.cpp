@@ -18,25 +18,19 @@ namespace CsgoHud {
 LRESULT CALLBACK HudWindow::receiveWindowMessage(
 	const HWND windowHandle, const UINT message, const WPARAM wParam, const LPARAM lParam
 ) {
-	if (message == WM_CREATE) {
-		SetWindowLongPtr(
-			windowHandle, GWLP_USERDATA,
-			reinterpret_cast<LONG_PTR>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams)
-		);
-		return 0;
-	} else {
-		auto hudWindow = reinterpret_cast<HudWindow*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
-		return hudWindow
-			? hudWindow->handleWindowMessage(message, wParam, lParam)
-			: DefWindowProc(windowHandle, message, wParam, lParam);
-	}
+	auto hudWindow = reinterpret_cast<HudWindow*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
+	return hudWindow
+		? hudWindow->handleWindowMessage(message, wParam, lParam)
+		: DefWindowProc(windowHandle, message, wParam, lParam);
 }
 
 void HudWindow::preInitialize(const HINSTANCE appInstance) {
 	static const WNDCLASSEX WINDOW_CLASS = {
 		.cbSize = sizeof(WNDCLASSEX),
+		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = receiveWindowMessage,
 		.hInstance = appInstance,
+		.hCursor = LoadCursor(nullptr, IDC_ARROW),
 		.lpszClassName = L"HudWindow"
 	};
 	RegisterClassEx(&WINDOW_CLASS);
@@ -47,13 +41,13 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 {
 	const auto &configuration = commonResources.configuration;
 	windowHandle = CreateWindowEx(
-		WS_EX_LAYERED | WS_EX_TRANSPARENT,
-		L"HudWindow",
-		L"CSGO HUD",
+		WS_EX_NOREDIRECTIONBITMAP | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+		L"HudWindow", L"CSGO HUD",
 		WS_POPUP,
 		0, 0, configuration.windowWidth, configuration.windowHeight,
 		nullptr, nullptr, appInstance, this
 	);
+	SetWindowLongPtr(windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 	SetWindowPos(
 		windowHandle,
 		HWND_TOPMOST,
@@ -70,20 +64,60 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 		windowHandle, GCLP_HICON, reinterpret_cast<LONG_PTR>(LoadIcon(appInstance, MAKEINTRESOURCE(1001)))
 	);
 	
-	D2D1CreateFactory(
-		D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory7),
-		reinterpret_cast<void**>(commonResources.d2dFactory.put())
+	winrt::com_ptr<ID3D11Device> d3dDevice0;
+	winrt::com_ptr<ID3D11DeviceContext> d3dDeviceContext0;
+	D3D11CreateDevice(
+		nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+		nullptr, 0, D3D11_SDK_VERSION,
+		d3dDevice0.put(), nullptr, d3dDeviceContext0.put()
 	);
-	static const D2D1_RENDER_TARGET_PROPERTIES RENDER_TARGET_PROPERTIES = {
-		.type = D2D1_RENDER_TARGET_TYPE_DEFAULT,
-		.pixelFormat = {.format = DXGI_FORMAT_B8G8R8A8_UNORM, .alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED},
-		.dpiX = 0, .dpiY = 0,
-		.usage = D2D1_RENDER_TARGET_USAGE_NONE,
-		.minLevel = D2D1_FEATURE_LEVEL_DEFAULT
+	winrt::com_ptr<ID3D11Device5> d3dDevice = d3dDevice0.as<ID3D11Device5>();
+	winrt::com_ptr<ID3D11DeviceContext4> d3dDeviceContext = d3dDeviceContext0.as<ID3D11DeviceContext4>();
+	winrt::com_ptr<IDXGIDevice4> dxgiDevice = d3dDevice.as<IDXGIDevice4>();
+	winrt::com_ptr<IDXGIFactory2> dxgiFactory2;
+	CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(dxgiFactory2), dxgiFactory2.put_void());
+	winrt::com_ptr<IDXGIFactory7> dxgiFactory = dxgiFactory2.as<IDXGIFactory7>();
+	DXGI_SWAP_CHAIN_DESC1 dxgiSwapChainDescription = {
+		.Width = static_cast<UINT>(configuration.windowWidth),
+		.Height = static_cast<UINT>(configuration.windowHeight),
+		.Format = DXGI_FORMAT_B8G8R8A8_UNORM,
+		.SampleDesc = {.Count = 1},
+		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
+		.BufferCount = 2,
+		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL,
+		.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED
 	};
-	winrt::com_ptr<ID2D1DCRenderTarget> dcRenderTarget;
-	commonResources.d2dFactory->CreateDCRenderTarget(&RENDER_TARGET_PROPERTIES, dcRenderTarget.put());
-	dcRenderTarget->QueryInterface(commonResources.renderTarget.put());
+	winrt::com_ptr<IDXGISwapChain1> swapChain1;
+	dxgiFactory->CreateSwapChainForComposition(dxgiDevice.get(), &dxgiSwapChainDescription, nullptr, swapChain1.put());
+	swapChain = swapChain1.as<IDXGISwapChain4>();
+	winrt::com_ptr<IDCompositionDevice> compositionDevice;
+	DCompositionCreateDevice(dxgiDevice.get(), __uuidof(compositionDevice), compositionDevice.put_void());
+	compositionDevice->CreateTargetForHwnd(windowHandle, true, compositionTarget.put());
+	winrt::com_ptr<IDCompositionVisual> compositionVisual;
+	compositionDevice->CreateVisual(compositionVisual.put());
+	compositionVisual->SetContent(swapChain.get());
+	compositionTarget->SetRoot(compositionVisual.get());
+	compositionDevice->Commit();
+	
+	D2D1_FACTORY_OPTIONS d2dFactoryOptions = {D2D1_DEBUG_LEVEL_INFORMATION};
+	auto &d2dFactory = commonResources.d2dFactory;
+	D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactoryOptions, d2dFactory.put());
+	winrt::com_ptr<ID2D1Device6> d2dDevice;
+	d2dFactory->CreateDevice(dxgiDevice.get(), d2dDevice.put());
+	auto &d2dDeviceContext = commonResources.renderTarget;
+	d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, d2dDeviceContext.put());
+	winrt::com_ptr<IDXGISurface2> surface;
+	swapChain->GetBuffer(0, __uuidof(surface), surface.put_void());
+	D2D1_BITMAP_PROPERTIES1 bitmapProperties = {
+		.pixelFormat = {
+			.format = DXGI_FORMAT_B8G8R8A8_UNORM,
+			.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED
+		},
+		.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW
+	};
+	winrt::com_ptr<ID2D1Bitmap1> bitmap;
+	d2dDeviceContext->CreateBitmapFromDxgiSurface(surface.get(), bitmapProperties, bitmap.put());
+	d2dDeviceContext->SetTarget(bitmap.get());
 	
 	DWriteCreateFactory(
 		DWRITE_FACTORY_TYPE_ISOLATED, __uuidof(IDWriteFactory7),
@@ -91,11 +125,10 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 	);
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteRenderingParams> renderingParams;
-	winrt::com_ptr<IDWriteRenderingParams2> renderingParams2;
 	writeFactory.CreateMonitorRenderingParams(
 		MonitorFromWindow(windowHandle, MONITOR_DEFAULTTOPRIMARY), renderingParams.put()
 	);
-	renderingParams->QueryInterface(renderingParams2.put());
+	winrt::com_ptr<IDWriteRenderingParams2> renderingParams2 = renderingParams.as<IDWriteRenderingParams2>();
 	winrt::com_ptr<IDWriteRenderingParams2> customRenderingParams;
 	writeFactory.CreateCustomRenderingParams(
 		renderingParams2->GetGamma(),
@@ -107,21 +140,11 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 		DWRITE_GRID_FIT_MODE_DISABLED,
 		customRenderingParams.put()
 	);
-	commonResources.renderTarget->SetTextRenderingParams(customRenderingParams.get());
-	
-	RECT windowSize;
-	GetClientRect(windowHandle, &windowSize);
-	windowSurface = GetDC(windowHandle);
-	renderSurface = CreateCompatibleDC(windowSurface);
-	SelectObject(renderSurface, CreateCompatibleBitmap(windowSurface, windowSize.right, windowSize.bottom));
-	dcRenderTarget->BindDC(renderSurface, &windowSize);
+	d2dDeviceContext->SetTextRenderingParams(customRenderingParams.get());
 
 	commonResources.icons.loadIcons(commonResources);
 
-	paint();
 	ShowWindow(windowHandle, SW_SHOW);
-
-	SetTimer(windowHandle, 1, 1, nullptr);
 
 	KeyEventHook::registerHook(
 		commonResources.eventBus,
@@ -133,9 +156,6 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 
 HudWindow::~HudWindow() {
 	KeyEventHook::unregisterHook();
-	
-	DeleteDC(renderSurface);
-	ReleaseDC(windowHandle, windowSurface);
 }
 
 LRESULT HudWindow::handleWindowMessage(const UINT message, const WPARAM wParam, const LPARAM lParam) {
@@ -143,12 +163,7 @@ LRESULT HudWindow::handleWindowMessage(const UINT message, const WPARAM wParam, 
 		case CommonConstants::WM_JSON_ARRIVED:
 			tick();
 			return 0;
-		case WM_TIMER:
-			tick();
-			paint();
-			return 0;
 		case WM_CLOSE:
-			KillTimer(windowHandle, 1);
 			DestroyWindow(windowHandle);
 			return 0;
 		case WM_DESTROY:
@@ -190,7 +205,7 @@ void HudWindow::tick() {
 				);
 				JSON::dom::object json = jsonDocument.get_object();
 				eventBus.notifyDataEvent("", json);
-				for (auto field : json) {
+				for (const auto &field : json) {
 					JSON::dom::object subJson = field.value.get_object();
 					eventBus.notifyDataEvent(std::string(field.key), subJson);
 				}
@@ -206,16 +221,10 @@ void HudWindow::tick() {
 
 void HudWindow::paint() {
 	commonResources.grenades.purgeExpiredEntities();
-	
-	RECT windowRect;
-	GetWindowRect(windowHandle, &windowRect);
-	const int
-		windowWidth = windowRect.right - windowRect.left,
-		windowHeight = windowRect.bottom - windowRect.top;
 
 	auto &renderTarget = *commonResources.renderTarget;	
 	renderTarget.BeginDraw();
-	renderTarget.Clear({0, 0, 0, 0});
+	renderTarget.Clear({0.f, 0.f, 0.f, 0.f});
 
 	const auto &configuration = commonResources.configuration;
 	if (mainComponent) mainComponent->paint(
@@ -224,23 +233,12 @@ void HudWindow::paint() {
 	);
 
 	renderTarget.EndDraw();
-	POINT windowCorner = {windowRect.left, windowRect.top};
-	SIZE windowSize = {windowWidth, windowHeight};
-	POINT zeroPoint = {0, 0};
-	static BLENDFUNCTION blendFunction = {
-		.BlendOp = AC_SRC_OVER,
-		.BlendFlags = 0,
-		.SourceConstantAlpha = 255,
-		.AlphaFormat = AC_SRC_ALPHA
-	};
-	UpdateLayeredWindow(
-		windowHandle,
-		windowSurface, &windowCorner, &windowSize,
-		renderSurface, &zeroPoint,
-		0,
-		&blendFunction,
-		ULW_ALPHA
-	);
+	swapChain->Present(1, 0);
+}
+
+void HudWindow::update() {
+	tick();
+	paint();
 }
 
 HWND HudWindow::getWindowHandle() {

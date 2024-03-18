@@ -18,9 +18,9 @@ class HudWindow final {
 		static LRESULT CALLBACK receiveWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 	
 		HWND windowHandle;
-		HDC windowSurface;
-		HDC renderSurface;
 		CommonResources &commonResources;
+		winrt::com_ptr<IDXGISwapChain4> swapChain;
+		winrt::com_ptr<IDCompositionTarget> compositionTarget;
 
 		JSON::dom::parser jsonParser;
 
@@ -37,6 +37,7 @@ class HudWindow final {
 		HudWindow(HINSTANCE appInstance, CommonResources &commonResources);
 		~HudWindow();
 		HWND getWindowHandle();
+		void update();
 };
 
 } // namespace CsgoHud

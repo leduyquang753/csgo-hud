@@ -102,8 +102,10 @@ the clock. `0` can be used to indicate the time is not available.
 specifies red, green, blue and alpha.
 	- `ctPrimary`: The primary color of the counter-terrorists team. Used for highlighted backgrounds and text.
 	- `ctSecondary`: The secondary color of the counter-terrorists team. Used for minor backgrounds.
+	- `ctSmoke`: The color of the smoke clouds thrown by counter-terrorists on the minimap.
 	- `tPrimary`: The primary color of the terrorists team.
 	- `tSecondary`: The secondary color of the terrorists team.
+	- `tSmoke`: The color of the smoke clouds thrown by terrorists on the minimap.
 	- `damage`: The color used to show the amount of damage received recently of each player.
 	- `notEnoughTimeToDefuse`: This color is used instead of the counter-terrorists' primary color in the bomb timer
 	component when the bomb will detonate before the defuse process has the time to finish.

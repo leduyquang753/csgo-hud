@@ -32,6 +32,9 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	ctColor{commonResources.configuration.colors.ctPrimary},
 	tColor{commonResources.configuration.colors.tPrimary},
 	neutralColor{0.8f, 0.8f, 0.8f, 1},
+	ctSmokeColor{commonResources.configuration.colors.ctSmoke},
+	tSmokeColor{commonResources.configuration.colors.tSmoke},
+	neutralSmokeColor{0.8f, 0.8f, 0.8f, 0.7f},
 	bombRedFlashColor{1, 0.6f, 0.6f, 1},
 	bombWhiteFlashColor{1, 1, 1, 1},
 	explosionInnerAnimation{{{{0, 0}, {0, 0.25f}, {0.25f, 1}, {4000, 1}}}},
@@ -291,6 +294,7 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	auto drawGrenadeEffects = [&map, effectiveScale, lowerLevelOffsetX, lowerLevelOffsetY, &drawGrenadeEffect](
 		const D2D1_VECTOR_3F &position, const D2D1_COLOR_F &color, const float alpha, const float radius
 	) {
+		if (alpha <= 0) return;
 		const float
 			x = (position.x - map.leftCoordinate) / effectiveScale,
 			y = (map.topCoordinate - position.y) / effectiveScale,
@@ -314,17 +318,16 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	const auto &grenades = commonResources.grenades;
 	for (const auto &entry : grenades.burningAreas) {
 		const auto &area = entry.second;
-		if (area.burningTime >= (area.extinguished ? 500 : 7000)) continue;
-		const float alpha = area.extinguished
-			? (500 - area.burningTime) / 500.f
-			: area.burningTime > 6000 ? (7000 - area.burningTime) / 1000.f : 1;
+		if (area.extinguished && area.burningTime >= 500) continue;
+		float alpha = std::min(500, area.burningTime) / 500.f;
+		if (area.extinguished) alpha = 1 - alpha;
 		for (const auto &subentry : area.pieceMap) {
 			const auto &piece = subentry.second;
 			const auto position = piece.position;
 			drawGrenadeEffects(
 				// CS2 bug, all coordinates are being multiplied by 2 for some reason.
 				{position.x / 2, position.y / 2, position.z / 2}, {1, 0.6f, 0.35f, 0.3f},
-				(piece.burningTime < 500 ? piece.burningTime / 500.f : 1) * alpha, 80 / effectiveScale
+				alpha, 80 / effectiveScale
 			);
 		}
 	}
@@ -443,39 +446,44 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	commitIconDraws();
 
 	// Draw overlaying grenade effects.
+	for (const auto &grenade : grenades.explodedDecoyGrenades) {
+		const float animationValue = static_cast<float>(grenade.animationTime) / 4000;
+		drawGrenadeEffects(
+			grenade.position, {0.f, 0.f, 0.f, 0.4f},
+			1 - animationValue, 80 / effectiveScale * (1 - std::pow(animationValue, 3.f))
+		);
+	}
+	for (const auto &grenade : grenades.explodedStunGrenades) {
+		const float longAnimationValue = static_cast<float>(grenade.animationTime) / 2000;
+		drawGrenadeEffects(grenade.position, {1.f, 1.f, 1.f, 0.3f}, 1 - longAnimationValue, 120 / effectiveScale);
+		const float shortAnimationValue = static_cast<float>(grenade.animationTime) / 250;
+		drawGrenadeEffects(
+			grenade.position, {1.f, 1.f, 1.f, 0.8f},
+			1 - shortAnimationValue, 400 / effectiveScale * (1 - std::pow(shortAnimationValue, 3.f))
+		);
+	}
+	for (const auto &entry : grenades.smokeGrenades) {
+		const auto &grenade = entry.second;
+		if (grenade.smokingTime < 21500) drawGrenadeEffects(
+			grenade.position,
+			grenade.throwerFound
+				? grenade.throwerTeam ? ctSmokeColor : tSmokeColor
+				: neutralSmokeColor,
+			grenade.smokingTime < 750 ? grenade.smokingTime / 750.f
+			: grenade.smokingTime > 18500 ? (21500 - grenade.smokingTime) / 3000.f
+			: 1,
+			144 / effectiveScale * (grenade.smokingTime < 300 ? grenade.smokingTime / 300.f : 1)
+		);
+	}
 	for (const auto &entry : grenades.fragGrenades) {
 		const auto &grenade = entry.second;
 		if (grenade.explodingTime != -1 && grenade.explodingTime < 4000) {
 			const float animationValue = grenade.explodingTime / 4000.f;
 			drawGrenadeEffects(
 				grenade.position, {0, 0, 0, 0.8f},
-				1 - animationValue, 384 / effectiveScale * (1 - std::pow(animationValue, 3.f))
+				1 - animationValue, 360 / effectiveScale * (1 - std::pow(animationValue, 3.f))
 			);
 		}
-	}
-	auto drawExplodedGrenades = [&drawGrenadeEffects](
-		const std::vector<GrenadesData::ExplodedGrenade> &grenades, const D2D1_COLOR_F &color,
-		const float startingRadius, const int lifetime
-	) {
-		for (const auto &grenade : grenades) {
-			const float animationValue = static_cast<float>(grenade.animationTime) / lifetime;
-			drawGrenadeEffects(
-				grenade.position, color,
-				1 - animationValue, startingRadius * (1 - std::pow(animationValue, 3.f))
-			);
-		}
-	};
-	drawExplodedGrenades(grenades.explodedDecoyGrenades, {0, 0, 0, 0.4f}, 8, 4000);
-	drawExplodedGrenades(grenades.explodedStunGrenades, {1, 1, 1, 0.8f}, 20, 250);
-	for (const auto &entry : grenades.smokeGrenades) {
-		const auto &grenade = entry.second;
-		if (grenade.smokingTime < 18000) drawGrenadeEffects(
-			grenade.position, {0.8f, 0.8f, 0.8f, 0.7f},
-			grenade.smokingTime < 750 ? grenade.smokingTime / 750.f
-			: grenade.smokingTime > 16000 ? (18000 - grenade.smokingTime) / 2000.f
-			: 1,
-			144 / effectiveScale * (grenade.smokingTime < 300 ? grenade.smokingTime / 300.f : 1)
-		);
 	}
 
 	// Draw the bomb explision.
@@ -483,7 +491,7 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		float
 			x = (bomb.bombPosition.x - map.leftCoordinate) / effectiveScale,
 			y = (map.topCoordinate - bomb.bombPosition.y) / effectiveScale;
-		auto drawEllipse = [&renderTarget, &bomb](
+		auto drawCircle = [&renderTarget, &bomb](
 			const float x, const float y, const float maxRadius, const float animationValue
 		) {
 			winrt::com_ptr<ID2D1SolidColorBrush> brush;
@@ -491,17 +499,17 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			const float radius = maxRadius * animationValue;
 			renderTarget.FillEllipse({{x, y}, radius, radius}, brush.get());
 		};
-		// Always draw the explosion on both levels as the bomb doesn't deal damage only on the level it is in.
+		// Always draw the explosion on both levels as the bomb doesn't deal damage only on the level it is on.
 		const float
 			outerAnimationValue = explosionOuterAnimation.getValue(static_cast<float>(bomb.bombTimeLeft)),
 			innerAnimationValue = explosionInnerAnimation.getValue(static_cast<float>(bomb.bombTimeLeft));
-		drawEllipse(x, y, 60, outerAnimationValue);
-		drawEllipse(x, y, 50, innerAnimationValue);
+		drawCircle(x, y, 60, outerAnimationValue);
+		drawCircle(x, y, 50, innerAnimationValue);
 		if (map.hasLowerLevel) {
 			x += lowerLevelOffsetX;
 			y += lowerLevelOffsetY;
-			drawEllipse(x, y, 60, outerAnimationValue);
-			drawEllipse(x, y, 50, innerAnimationValue);
+			drawCircle(x, y, 60, outerAnimationValue);
+			drawCircle(x, y, 50, innerAnimationValue);
 		}
 	}
 

@@ -43,6 +43,8 @@ class ConfigurationData final {
 			D2D1_COLOR_F ctSecondary;
 			D2D1_COLOR_F tPrimary;
 			D2D1_COLOR_F tSecondary;
+			D2D1_COLOR_F ctSmoke;
+			D2D1_COLOR_F tSmoke;
 			D2D1_COLOR_F damage;
 			D2D1_COLOR_F notEnoughTimeToDefuse;
 		} colors;
