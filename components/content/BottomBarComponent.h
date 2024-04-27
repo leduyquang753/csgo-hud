@@ -18,7 +18,7 @@ class BottomBarComponent final: public Component {
 	private:
 		std::unique_ptr<BagComponent> container;
 		TransitionedValue fadingTransition, slidingTransition1, slidingTransition2;
-		
+
 		bool activePlayerShown = false, forceShowTeamBuy = false, showRoundHistory = false;
 
 		void onForceShowTeamBuyToggle();

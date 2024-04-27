@@ -18,7 +18,7 @@ class EventBus;
 class AllPlayersData final {
 	private:
 		CommonResources &commonResources;
-		std::array<std::optional<PlayerData>, 10> 
+		std::array<std::optional<PlayerData>, 10>
 			players1, players2,
 			*currentPlayers = &players1, *previousPlayers = &players2;
 		std::unordered_map<std::uint64_t, int>

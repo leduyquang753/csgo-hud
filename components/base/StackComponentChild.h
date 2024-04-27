@@ -12,7 +12,7 @@ struct StackComponentChild final {
 	public:
 		// If a mode value is zero, the corresponding value is in pixels; otherwise, the value is a ratio.
 		static constexpr UINT32 MODE_PIXELS = 0, MODE_RATIO = 1;
-		
+
 		// The size of the child. The ratio is relative to the size of the stack component.
 		D2D1_SIZE_F size;
 		D2D1_POINT_2U sizeMode;

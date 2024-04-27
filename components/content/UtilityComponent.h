@@ -28,7 +28,7 @@ class UtilityComponent final: public Component {
 		bool rightSide;
 	public:
 		bool ct;
-		
+
 		UtilityComponent(CommonResources &commonResources, bool rightSide, const TransitionedValue &transition);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;
 };

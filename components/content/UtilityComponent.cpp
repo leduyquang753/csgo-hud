@@ -34,7 +34,7 @@ UtilityComponent::UtilityComponent(
 	renderTarget.CreateSolidColorBrush(normalColor, normalTextBrush.put());
 	renderTarget.CreateSolidColorBrush(grayedColor, grayedTextBrush.put());
 	renderTarget.CreateLayer(layer.put());
-	
+
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
 	const float
@@ -46,7 +46,7 @@ UtilityComponent::UtilityComponent(
 		14, L"", textFormat.put()
 	);
 	titleTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
-	
+
 	textFormat = nullptr;
 	commonResources.writeFactory->CreateTextFormat(
 		fontFamily, nullptr,
@@ -55,7 +55,7 @@ UtilityComponent::UtilityComponent(
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 	totalTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
-	
+
 	textFormat = nullptr;
 	commonResources.writeFactory->CreateTextFormat(
 		fontFamily, nullptr,
@@ -96,7 +96,7 @@ void UtilityComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			++totalCount;
 		}
 	}
-	
+
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 	const bool transiting = transition.transiting();
@@ -129,7 +129,7 @@ void UtilityComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	totalTextRenderer->draw(
 		std::to_wstring(totalCount) + L" / 20"s, {8, 0, parentSize.width - 8, verticalMiddle}, normalTextBrush
 	);
-	
+
 	winrt::com_ptr<ID2D1SpriteBatch> spriteBatch;
 	renderTarget.CreateSpriteBatch(spriteBatch.put());
 	auto drawCount = [this, &parentSize, &renderTarget, verticalMiddle, contentMiddle, entryPadding, &spriteBatch](
@@ -142,7 +142,7 @@ void UtilityComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			},
 			backgroundShadeBrush.get()
 		);
-		
+
 		const auto &icon = commonResources.icons[iconIndex];
 		const float iconWidth = 16.f * icon.width / icon.height;
 		const D2D1_RECT_F destinationRect = {
@@ -168,7 +168,7 @@ void UtilityComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	);
 	drawCount(parentSize.width * 3/5, IconStorage::INDEX_SMOKE_GRENADE, smokeCount, 5);
 	drawCount(parentSize.width * 4/5, IconStorage::INDEX_DECOY_GRENADE, decoyCount, 5);
-	
+
 	const auto oldMode = renderTarget.GetAntialiasMode();
 	renderTarget.SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
 	renderTarget.DrawSpriteBatch(

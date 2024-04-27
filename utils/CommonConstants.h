@@ -6,7 +6,7 @@ namespace CsgoHud {
 namespace CommonConstants {
 	// The custom window message sent by the HTTP server to notify the HUD winodw about new data being available.
 	const UINT32 WM_JSON_ARRIVED = 0x8001;
-	
+
 	/*
 		The amount in milliseocnds that a difference in time between what the game reports and what the HUD is
 		keeping is considered a desync and the HUD resets its time to be what the game says.

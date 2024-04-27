@@ -45,7 +45,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 	utilityTransition(commonResources, getMovementFunctions(), 300, 0)
 {
 	auto &renderTarget = *commonResources.renderTarget;
-	
+
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> normalTextFormat, boldTextFormat;
 	winrt::com_ptr<IDWriteInlineObject> trimmingSign;
@@ -67,7 +67,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 		DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
 		14, L"", boldTextFormat.put()
 	);
-	
+
 	normalTextRenderer.emplace(commonResources, normalTextFormat, fontOffsetRatio, fontLineHeightRatio);
 	boldTextRenderer.emplace(commonResources, boldTextFormat, fontOffsetRatio, fontLineHeightRatio);
 
@@ -87,7 +87,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 		.boldTextRenderer = *boldTextRenderer,
 		.statsTransition = statsTransition
 	});
-	
+
 	const auto &colors = commonResources.configuration.colors;
 	renderTarget.CreateSolidColorBrush(colors.ctPrimary, resources->teamCtBrush.put());
 	renderTarget.CreateSolidColorBrush(colors.tPrimary, resources->teamTBrush.put());
@@ -120,8 +120,8 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 				nullptr
 			});
 		}
-		
-		auto topArea = static_cast<BagComponent*>(	
+
+		auto topArea = static_cast<BagComponent*>(
 			currentStack->children.emplace_back(StackComponentChild{
 				{1, 40}, {StackComponentChild::MODE_RATIO, StackComponentChild::MODE_PIXELS},
 				0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
@@ -148,7 +148,7 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 			D2D1_POINT_2F{0, 0}, D2D1_POINT_2U{SizedComponent::MODE_RATIO, SizedComponent::MODE_PIXELS},
 			std::move(headerPointer)
 		));
-		
+
 		container->children.emplace_back(std::make_unique<SizedComponent>(
 			this->commonResources,
 			D2D1_SIZE_F{0.2f, 1.f}, D2D1_POINT_2U{SizedComponent::MODE_RATIO, SizedComponent::MODE_RATIO},
@@ -157,10 +157,10 @@ AllPlayersComponent::AllPlayersComponent(CommonResources &commonResources):
 			std::move(currentStack)
 		));
 	};
-	
+
 	makeSide(0, 0, leftStatsHeader, leftUtility);
 	makeSide(5, 1, rightStatsHeader, rightUtility);
-	
+
 	commonResources.eventBus.listenToKeyEvent(
 		Utils::parseKeyCode(
 			commonResources.configuration.keybindings["toggleUtility"sv].value().get_string().value()
@@ -194,7 +194,7 @@ void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		statsOn = currentStatsOn;
 		statsTransition.transition(statsOn ? 1.f : 0.f, statsOn ? 0 : 1);
 	}
-	
+
 	const bool leftTeam = players[firstPlayerIndex]->team;
 	const int activeSlot = players.getActivePlayerIndex();
 	int leftSideSlot = 0, rightSideSlot = 5;
@@ -219,7 +219,7 @@ void AllPlayersComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 	rightStatsHeader->ct = !leftTeam;
 	leftUtility->ct = leftTeam;
 	rightUtility->ct = !leftTeam;
-	
+
 	container->paint(transform, parentSize);
 }
 

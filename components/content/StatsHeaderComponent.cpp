@@ -25,14 +25,14 @@ void StatsHeaderComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_S
 		MONEY_CELL_LENGTH = 64,
 		STAT_CELL_SPACING = 4,
 		STATS_LENGTH = KD_CELL_LENGTH + MONEY_CELL_LENGTH + STAT_CELL_SPACING;
-	
+
 	const float statsTransitionValue = resources.statsTransition.getValue();
 	if (statsTransitionValue == 0) return;
 	const bool statsTransiting = resources.statsTransition.transiting();
-	
+
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
-	
+
 	const float
 		verticalMiddle = parentSize.height / 2,
 		currentLength = STATS_LENGTH * statsTransitionValue;
@@ -49,7 +49,7 @@ void StatsHeaderComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_S
 		},
 		layer.get()
 	);
-	const float	
+	const float
 		start = rightSide
 			? -STAT_CELL_SPACING - currentLength
 			: parentSize.width + STAT_CELL_SPACING - STATS_LENGTH + currentLength,

@@ -17,7 +17,7 @@ class HudComponent final: public Component {
 	private:
 		std::unique_ptr<BagComponent> bag;
 		bool shown = true;
-		
+
 		void onVisibilityToggle();
 	public:
 		HudComponent(CommonResources &commonResources);

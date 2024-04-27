@@ -44,7 +44,7 @@ void IconStorage::loadIcons(CommonResources &commonResources) {
 		L"SSG 08"s,
 		L"UMP-45"s,
 		L"XM1014"s,
-		
+
 		L"CZ75 auto"s,
 		L"Desert eagle"s, // 25
 		L"Dual Berettas"s,
@@ -55,9 +55,9 @@ void IconStorage::loadIcons(CommonResources &commonResources) {
 		L"R8 revolver"s,
 		L"Tec-9"s,
 		L"USP-S"s,
-		
+
 		L"Zeus x27"s,
-		
+
 		L"Decoy grenade"s, // 35
 		L"Stun grenade"s,
 		L"Frag grenade"s,
@@ -102,7 +102,7 @@ void IconStorage::loadIcons(CommonResources &commonResources) {
 	spriteTarget->BeginDraw();
 	for (int i = 0; i != fileNames.size(); ++i) {
 		const std::wstring path = L"Icons\\"s + fileNames[i] + L".png"s;
-		
+
 		winrt::com_ptr<IWICBitmapDecoder> decoder;
 		imagingFactory->CreateDecoderFromFilename(
 			path.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, decoder.put()

@@ -30,7 +30,7 @@ static std::wstring url;
 
 void HttpServer::run(const HWND windowHandle, const int port) {
 	url = L"http://127.0.0.1:"s + std::to_wstring(port) + L'/';
-	
+
 	HttpInitialize(HTTPAPI_VERSION_1, HTTP_INITIALIZE_SERVER, nullptr);
 	HttpCreateHttpHandle(&queue, 0);
 	HttpAddUrl(queue, url.c_str(), nullptr);

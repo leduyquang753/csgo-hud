@@ -63,7 +63,7 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 	SetClassLongPtr(
 		windowHandle, GCLP_HICON, reinterpret_cast<LONG_PTR>(LoadIcon(appInstance, MAKEINTRESOURCE(1001)))
 	);
-	
+
 	winrt::com_ptr<ID3D11Device> d3dDevice0;
 	winrt::com_ptr<ID3D11DeviceContext> d3dDeviceContext0;
 	D3D11CreateDevice(
@@ -98,7 +98,7 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 	compositionVisual->SetContent(swapChain.get());
 	compositionTarget->SetRoot(compositionVisual.get());
 	compositionDevice->Commit();
-	
+
 	D2D1_FACTORY_OPTIONS d2dFactoryOptions = {D2D1_DEBUG_LEVEL_INFORMATION};
 	auto &d2dFactory = commonResources.d2dFactory;
 	D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactoryOptions, d2dFactory.put());
@@ -118,7 +118,7 @@ HudWindow::HudWindow(const HINSTANCE appInstance, CommonResources &commonResourc
 	winrt::com_ptr<ID2D1Bitmap1> bitmap;
 	d2dDeviceContext->CreateBitmapFromDxgiSurface(surface.get(), bitmapProperties, bitmap.put());
 	d2dDeviceContext->SetTarget(bitmap.get());
-	
+
 	DWriteCreateFactory(
 		DWRITE_FACTORY_TYPE_ISOLATED, __uuidof(IDWriteFactory7),
 		reinterpret_cast<IUnknown**>(commonResources.writeFactory.put())
@@ -198,7 +198,7 @@ void HudWindow::tick() {
 				);
 				eventBus.notifyTimeEvent(time - lastTickTime);
 				lastTickTime = time;
-				
+
 				JSON::dom::element jsonDocument = jsonParser.parse(
 					jsons.c_str() + currentStartLength->first,
 					currentStartLength->second, currentStartLength->second + JSON::SIMDJSON_PADDING
@@ -222,7 +222,7 @@ void HudWindow::tick() {
 void HudWindow::paint() {
 	commonResources.grenades.purgeExpiredEntities();
 
-	auto &renderTarget = *commonResources.renderTarget;	
+	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.BeginDraw();
 	renderTarget.Clear({0.f, 0.f, 0.f, 0.f});
 

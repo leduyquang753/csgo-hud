@@ -52,7 +52,7 @@ BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
 	renderTarget.CreateSolidColorBrush(colors.notEnoughTimeToDefuse, defuseNotEnoughTimeBrush.put());
 	renderTarget.CreateLayer(bombLayer.put());
 	renderTarget.CreateLayer(defuseLayer.put());
-	
+
 	commonResources.writeFactory->CreateTextFormat(
 		commonResources.configuration.fontFamily.c_str(), nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
@@ -62,7 +62,7 @@ BombTimerComponent::BombTimerComponent(CommonResources &commonResources):
 	static const DWRITE_TRIMMING TRIMMING_OPTIONS = {DWRITE_TRIMMING_GRANULARITY_CHARACTER, 0, 0};
 	textFormat->SetTrimming(&TRIMMING_OPTIONS, trimmingSign.get());
 	textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
-	
+
 	textRenderer.emplace(
 		commonResources, textFormat,
 		commonResources.configuration.fontOffsetRatio, commonResources.configuration.fontLineHeightRatio
@@ -85,10 +85,10 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 			bombTransition.transition(0);
 		}
 	}
-	
+
 	const float bombTransitionValue = bombTransition.getValue();
 	if (bombTransitionValue == 0) return;
-	
+
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 	const bool bombTransiting = bombTransition.transiting();
@@ -180,9 +180,9 @@ void BombTimerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZ
 		);
 		if (shouldApplyDefuseLayer) renderTarget.PopLayer();
 	}
-	
+
 	if (bombTransiting) renderTarget.PopLayer();
-	
+
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
 }
 

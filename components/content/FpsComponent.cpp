@@ -19,7 +19,7 @@ namespace CsgoHud {
 
 FpsComponent::FpsComponent(CommonResources &commonResources): Component(commonResources) {
 	commonResources.renderTarget->CreateSolidColorBrush({1, 1, 1, 1}, textBrush.put());
-	
+
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	commonResources.writeFactory->CreateTextFormat(
 		commonResources.configuration.fontFamily.c_str(), nullptr,
@@ -30,7 +30,7 @@ FpsComponent::FpsComponent(CommonResources &commonResources): Component(commonRe
 		commonResources, textFormat,
 		commonResources.configuration.fontOffsetRatio, commonResources.configuration.fontLineHeightRatio
 	);
-	
+
 	commonResources.eventBus.listenToKeyEvent(
 		Utils::parseKeyCode(commonResources.configuration.keybindings["toggleFps"sv].value().get_string().value()),
 		[this](){ onVisibilityToggle(); }

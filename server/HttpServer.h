@@ -32,7 +32,7 @@ class HttpServer final {
 		std::atomic_bool finished = false;
 	public:
 		std::mutex mutex;
-		
+
 		void run(HWND windowHandle, int port);
 		void stop();
 		const std::string& getCurrentJsons();

@@ -23,7 +23,7 @@ class PlayerData final {
 			SLOT_PRIMARY_GUN = 1, SLOT_SECONDARY_GUN = 2, SLOT_KNIFE = 3, SLOT_ZEUS = 4,
 			SLOT_GRENADE_0 = 5, SLOT_GRENADE_1 = 6, SLOT_GRENADE_2 = 7, SLOT_GRENADE_3 = 8,
 			SLOT_C4 = 9;
-		
+
 		std::uint64_t steamId;
 		std::wstring name;
 		bool team;

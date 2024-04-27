@@ -48,7 +48,7 @@ HudComponent::HudComponent(CommonResources &commonResources):
 	bag->children.emplace_back(
 		std::make_unique<PaddedComponent>(commonResources, 8.f, std::move(innerBag))
 	);
-	
+
 	commonResources.eventBus.listenToKeyEvent(
 		Utils::parseKeyCode(commonResources.configuration.keybindings["toggleHud"sv].value().get_string().value()),
 		[this](){ onVisibilityToggle(); }

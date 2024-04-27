@@ -80,7 +80,7 @@ CubicBezier::CubicBezier(const float x1, const float y1, const float x2, const f
 
 float CubicBezier::operator()(const float x) const {
 	static const float NEWTON_RAPHSON_MINIMUM_SLOPE = 0.001f;
-	
+
 	// "Guarantee the extremes are right."
 	if (x == 0 || x == 1) return x;
 
@@ -99,7 +99,7 @@ float CubicBezier::operator()(const float x) const {
 	 	+ (x - splineTable[currentSample])
 	 		/ (splineTable[currentSample+1] - splineTable[currentSample])
 			* SAMPLE_STEP_SIZE;
-	
+
 	const float initialSlope = getBezierDerivative(t, x1, x2);
 	return getBezierCoordinate(
 		initialSlope >= NEWTON_RAPHSON_MINIMUM_SLOPE ? newtonRaphson(x, t, x1, x2)

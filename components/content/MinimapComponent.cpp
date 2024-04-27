@@ -45,7 +45,7 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 		flashTimes.push_back(static_cast<int>(currentFlashTime));
 		currentFlashTime -= std::max(150.f, 100.f + 900.f * currentFlashTime / 40000);
 	}
-	
+
 	auto &renderTarget = *commonResources.renderTarget;
 	const auto &colors = commonResources.configuration.colors;
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, whiteBrush.put());
@@ -56,7 +56,7 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, flashBrush.put());
 	renderTarget.CreateSolidColorBrush({0.8f, 0.8f, 0.8f, 1}, smokeBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 0.5f, 0.5f, 1}, fireBrush.put());
-	
+
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
@@ -80,14 +80,14 @@ MinimapComponent::MinimapComponent(CommonResources &commonResources):
 	bombsiteNameRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
 
 	renderTarget.CreateLayer(layer1.put());
-	renderTarget.CreateLayer(layer2.put());	
+	renderTarget.CreateLayer(layer2.put());
 }
 
 void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
 	const auto &map = commonResources.map;
-	
+
 	if (!map.mapAvailable) return;
-	
+
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 
@@ -331,7 +331,7 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 			);
 		}
 	}
-	
+
 	const auto &bomb = commonResources.bomb;
 	if (
 		bomb.bombState != BombData::State::CARRIED
@@ -386,7 +386,7 @@ void MinimapComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 		}
 	}
 	commitIconDraws();
-	
+
 	// Draw alive players on top.
 	for (int i = 0; i != 10; ++i) {
 		const auto &player = players[i];

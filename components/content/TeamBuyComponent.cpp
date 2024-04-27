@@ -33,7 +33,7 @@ TeamBuyComponent::TeamBuyComponent(
 	renderTarget.CreateSolidColorBrush(colors.ctSecondary, ctBrush.put());
 	renderTarget.CreateSolidColorBrush(colors.tSecondary, tBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, textBrush.put());
-	
+
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
@@ -47,7 +47,7 @@ TeamBuyComponent::TeamBuyComponent(
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	titleTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
-	
+
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
@@ -72,7 +72,7 @@ void TeamBuyComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	const int firstPlayerIndex = players.getFirstPlayerIndex();
 	if (firstPlayerIndex == -1) return;
 	const bool leftTeam = players[firstPlayerIndex]->team;
-	
+
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 
@@ -136,7 +136,7 @@ void TeamBuyComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_
 	};
 	drawGraph(leftBuyAmount, rightBuyAmount, buyAmountTop, buyAmountBottom);
 	drawGraph(leftEquipmentValue, rightEquipmentValue, equipmentValueTop, equipmentValueBottom);
-	
+
 	titleTextRenderer->draw(
 		L"BUY AMOUNT"sv, {innerLeft, buyAmountTop, innerRight, buyAmountBottom}, textBrush
 	);

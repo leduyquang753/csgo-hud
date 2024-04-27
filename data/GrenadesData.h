@@ -46,7 +46,7 @@ class GrenadesData final {
 	private:
 		CommonResources &commonResources;
 		RoundsData::Phase previousPhase = RoundsData::Phase::WARMUP;
-		
+
 		void advanceTime(int timePassed);
 		void receiveGrenadesData(JSON::dom::object &json);
 	public:

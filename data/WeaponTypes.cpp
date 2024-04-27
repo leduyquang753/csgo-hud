@@ -45,7 +45,7 @@ WeaponTypes::WeaponTypes() {
 		{"ssg08"s, WeaponCategory::PRIMARY},
 		{"ump45"s, WeaponCategory::PRIMARY},
 		{"xm1014"s, WeaponCategory::PRIMARY},
-		
+
 		{"cz75a"s, WeaponCategory::SECONDARY},
 		{"deagle"s, WeaponCategory::SECONDARY}, // 25
 		{"elite"s, WeaponCategory::SECONDARY},
@@ -56,9 +56,9 @@ WeaponTypes::WeaponTypes() {
 		{"revolver"s, WeaponCategory::SECONDARY},
 		{"tec9"s, WeaponCategory::SECONDARY},
 		{"usp_silencer"s, WeaponCategory::SECONDARY},
-		
+
 		{"taser"s, WeaponCategory::ZEUS},
-		
+
 		{"decoy"s, WeaponCategory::GRENADE}, // 35
 		{"flashbang"s, WeaponCategory::GRENADE},
 		{"hegrenade"s, WeaponCategory::GRENADE},

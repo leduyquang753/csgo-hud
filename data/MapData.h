@@ -14,14 +14,14 @@ class MapData final {
 	private:
 		CommonResources &commonResources;
 		JSON::dom::parser jsonParser;
-		
+
 		void receiveMapData(JSON::dom::object &json);
 	public:
 		std::string mapInternalName;
 		bool mapAvailable = false;
-		
+
 		std::wstring mapName;
-		
+
 		winrt::com_ptr<IWICImagingFactory> imagingFactory;
 		winrt::com_ptr<ID2D1Bitmap> mapImage;
 		UINT mapIntWidth, mapIntHeight;

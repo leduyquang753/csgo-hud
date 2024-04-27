@@ -106,7 +106,7 @@ class TopBarComponent final: public Component {
 			textBrush, moneyGainBrush;
 		std::optional<NormalTextRenderer> nameTextRenderer, winLoseTextRenderer;
 		std::optional<FixedWidthDigitTextRenderer> scoreTextRenderer, streakTextRenderer, moneyGainTextRenderer;
-		
+
 		std::unique_ptr<StackComponent> container;
 		ChildComponent
 			*leftNameDisplay, *rightNameDisplay, *leftScoreDisplay, *rightScoreDisplay,
@@ -119,7 +119,7 @@ class TopBarComponent final: public Component {
 		bool winLoseShown = false, matchPointShown = false, timeoutShown = false;
 
 		int ctScore = 0, tScore = 0, ctTimeouts = 0, tTimeouts = 0;
-		
+
 		bool ctToTheLeft = true, justSwappedSides = false;
 
 		void receiveMapData(JSON::dom::object &json);

@@ -89,7 +89,7 @@ void TopBarComponent::WinLoseComponent::paint(const D2D1::Matrix3x2F &transform,
 		{0, 0, parentSize.width, parentSize.height},
 		winIconIndex == -1 ? backgroundBlackBrush.get() : backgroundTeamBrush.get()
 	);
-	
+
 	if (winIconIndex == -1) {
 		const float
 			length = parentSize.height * 3 / 4,
@@ -114,7 +114,7 @@ void TopBarComponent::WinLoseComponent::paint(const D2D1::Matrix3x2F &transform,
 				1, D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, icon.floatBounds, nullptr
 			);
 		};
-	
+
 		drawIcon(winIconIndex, 8);
 		winTextRenderer.draw(
 			L"WIN"sv, {12 + parentSize.height * 3 / 4, 0, parentSize.width, parentSize.height}, textBrush
@@ -122,7 +122,7 @@ void TopBarComponent::WinLoseComponent::paint(const D2D1::Matrix3x2F &transform,
 		if (!streak.empty()) {
 			const float middle = parentSize.width / 2;
 			drawIcon(IconStorage::INDEX_FIRE, middle - iconSize);
-			
+
 			const D2D1_RECT_F bounds = {middle + 8, 0, parentSize.width, parentSize.height};
 			auto textLayout = streakTextRenderer.prepareLayout(streak, bounds);
 			streakTextRenderer.drawPreparedLayout(textLayout, bounds, textBrush);

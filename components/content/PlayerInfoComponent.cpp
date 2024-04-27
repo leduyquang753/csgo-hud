@@ -77,7 +77,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		wasActive = active;
 		activeTransition.transition(active ? 1.f : 0.f);
 	}
-	
+
 	if (index == -1) return;
 	const auto &optionalPlayer = commonResources.players[index];
 	if (!optionalPlayer) return;
@@ -92,10 +92,10 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		activeTransition.setValue(0);
 	}
 	lastIndex = index;
-		
+
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
-	
+
 	const float
 		verticalMiddle = parentSize.height / 2,
 		scale = verticalMiddle / CommonConstants::ICON_HEIGHT,
@@ -126,7 +126,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			nullptr, 0, 0, 0, 0
 		);
 	};
-	
+
 	winrt::com_ptr<ID2D1SolidColorBrush> backgroundBrush;
 	const float in = activeTransition.getValue(), out = 1 - in;
 	renderTarget.CreateSolidColorBrush(
@@ -171,7 +171,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		drawEffect(resources.smokeColor, player.smokeAmount);
 		drawEffect(resources.fireColor, player.fireAmount);
 	}
-	
+
 	if (player.health > currentHealth) {
 		currentHealth = oldHealth = player.health;
 		healthTransition.setValue(static_cast<float>(oldHealth));
@@ -179,7 +179,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		currentHealth = player.health;
 		healthDecayTime = 2000;
 	}
-	
+
 	{
 		const float healthTransitionValue = healthTransition.getValue();
 		if (healthTransitionValue != player.health) {
@@ -197,7 +197,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			);
 		}
 	}
-	
+
 	if (player.health == 0) {
 		drawIcon(
 			IconStorage::INDEX_DEAD,
@@ -221,7 +221,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 				: D2D1_RECT_F{PADDING, 0, PADDING + HEALTH_LENGTH - 4, verticalMiddle},
 			resources.textWhiteBrush
 		);
-		
+
 		const float gunPosition = rightSide ? PADDING : parentSize.width - PADDING;
 		if (player.primaryGun) drawIcon(
 			player.primaryGun->type,
@@ -229,7 +229,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			player.activeSlot == PlayerData::SLOT_PRIMARY_GUN, player.primaryGun->roundsInClip == 0,
 			!rightSide, rightSide
 		);
-		
+
 		float secondRowPos = gunPosition;
 		const float advanceDirection = rightSide ? 1.f : -1.f;
 		if (player.secondaryGun) {
@@ -261,7 +261,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			);
 			secondRowPos += (commonResources.icons[index].width * scale + UTILITY_SPACING) * advanceDirection;
 		}
-		
+
 		const float smallIconY = parentSize.height * 9 / 16;
 		if (player.armor != 0) drawIcon(
 			player.hasHelmet ? IconStorage::INDEX_FULL_ARMOR : IconStorage::INDEX_KEVLAR,
@@ -275,7 +275,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 		);
 	}
 	renderTarget.SetTransform(transform);
-	
+
 	resources.normalTextFormat->SetTextAlignment(
 		rightSide ? DWRITE_TEXT_ALIGNMENT_LEADING : DWRITE_TEXT_ALIGNMENT_TRAILING
 	);
@@ -317,7 +317,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 				},
 		resources.textWhiteBrush
 	);
-		
+
 	resources.normalTextRenderer.draw(
 		Utils::formatMoneyAmount(player.money, commonResources.configuration),
 		rightSide
@@ -325,7 +325,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 			: D2D1_RECT_F{PADDING + 40, verticalMiddle, parentSize.width - PADDING, parentSize.height},
 		resources.textGreenBrush
 	);
-	
+
 	{
 		const float activeTransitionValue = activeTransition.getValue();
 		if (activeTransitionValue != 0) {
@@ -386,7 +386,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 				},
 				statsLayer.get()
 			);
-			const float	
+			const float
 				start = rightSide
 					? -STAT_CELL_SPACING - currentLength
 					: parentSize.width + STAT_CELL_SPACING - STATS_LENGTH + currentLength,
@@ -394,7 +394,7 @@ void PlayerInfoComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SI
 				kdEnd = kdStart + KD_CELL_LENGTH,
 				moneyStart = rightSide ? start : start + KD_CELL_LENGTH + STAT_CELL_SPACING,
 				moneyEnd = moneyStart + MONEY_CELL_LENGTH;
-				
+
 			renderTarget.FillRectangle({kdStart, 0, kdEnd, parentSize.height}, backgroundBrush.get());
 			renderTarget.FillRectangle({moneyStart, 0, moneyEnd, parentSize.height}, backgroundBrush.get());
 			resources.normalTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);

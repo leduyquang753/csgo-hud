@@ -19,7 +19,7 @@ class MinimapComponent final: public Component {
 	private:
 		std::vector<int> flashTimes;
 		const CubicBezierMovementFunction explosionInnerAnimation, explosionOuterAnimation;
-		
+
 		D2D1_COLOR_F
 			droppedBombColor, plantedBombColor, defusedBombColor,
 			ctColor, tColor, neutralColor, ctSmokeColor, tSmokeColor, neutralSmokeColor,

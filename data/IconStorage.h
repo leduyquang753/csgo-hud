@@ -42,7 +42,7 @@ class IconStorage final {
 			INDEX_FIRE = 49,
 			INDEX_X = 50,
 			INDEX_LED = 51;
-		
+
 		void loadIcons(CommonResources &commonResources);
 		const Icon& operator[](int index) const;
 		ID2D1Bitmap* getBitmap() const;

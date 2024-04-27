@@ -21,11 +21,11 @@ struct CommonResources final {
 		ConfigurationData mutableConfiguration;
 	public:
 		int time = -1;
-		
+
 		EventBus eventBus;
-		
+
 		HttpServer httpServer;
-		
+
 		winrt::com_ptr<ID2D1Factory7> d2dFactory;
 		winrt::com_ptr<ID2D1DeviceContext6> renderTarget;
 		winrt::com_ptr<IDWriteFactory7> writeFactory;

@@ -26,7 +26,7 @@ class RoundsData final {
 		void receiveMapData(JSON::dom::object &json);
 	public:
 		static const std::array<int, 4> iconMap;
-		
+
 		RoundsData(EventBus &eventBus);
 		const std::vector<std::pair<bool, WinningCondition>>& getRounds() const;
 		int getCurrentRound() const;

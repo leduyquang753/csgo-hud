@@ -16,7 +16,7 @@ class HudWindow final {
 			HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam
 		);
 		static LRESULT CALLBACK receiveWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
-	
+
 		HWND windowHandle;
 		CommonResources &commonResources;
 		winrt::com_ptr<IDXGISwapChain4> swapChain;
@@ -31,9 +31,9 @@ class HudWindow final {
 		void paint();
 	public:
 		static void preInitialize(HINSTANCE appInstance);
-		
+
 		std::unique_ptr<Component> mainComponent;
-		
+
 		HudWindow(HINSTANCE appInstance, CommonResources &commonResources);
 		~HudWindow();
 		HWND getWindowHandle();

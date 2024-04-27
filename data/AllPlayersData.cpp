@@ -27,7 +27,7 @@ AllPlayersData::AllPlayersData(CommonResources &commonResources): commonResource
 	eventBus.listenToDataEvent("allplayers"s, [this](JSON::dom::object &json) { receivePlayersData(json); });
 	eventBus.listenToDataEvent(
 		"phase_countdowns"s, [this](JSON::dom::object &json) { receivePhaseData(json); }
-	);	
+	);
 }
 
 void AllPlayersData::receivePlayerData(JSON::dom::object &json) {
@@ -122,7 +122,7 @@ const std::optional<PlayerData>& AllPlayersData::operator[](const int slot) cons
 
 const std::optional<PlayerData>& AllPlayersData::operator()(const std::uint64_t steamId) const {
 	static const std::optional<PlayerData> NO_PLAYER;
-	
+
 	auto iterator = currentSteamIdMap->find(steamId);
 	return iterator == currentSteamIdMap->end() ? NO_PLAYER : (*currentPlayers)[iterator->second];
 }

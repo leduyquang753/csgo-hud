@@ -182,7 +182,7 @@ void GrenadesData::receiveGrenadesData(JSON::dom::object &json) {
 					const auto subIterator = pieces.find(subId);
 					if (subIterator == pieces.end()) {
 						pieces.emplace(
-							subId, 
+							subId,
 							BurningPiece{true, Utils::parseVector(entry.value.get_string().value()), 0}
 						);
 					} else {

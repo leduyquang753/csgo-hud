@@ -65,7 +65,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 	renderTarget.CreateSolidColorBrush(colors.tPrimary, tScoreBackgroundBrush.put());
 	renderTarget.CreateSolidColorBrush({0.5f, 1, 0.5f, 1}, moneyGainBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, textBrush.put());
-	
+
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
@@ -83,7 +83,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
 	nameTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
-	
+
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
@@ -92,7 +92,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 	);
 	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	scoreTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
-	
+
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
@@ -100,7 +100,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		24, L"", textFormat.put()
 	);
 	winLoseTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
-	
+
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
@@ -108,7 +108,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		18, L"", textFormat.put()
 	);
 	streakTextRenderer.emplace(commonResources, textFormat, fontOffsetRatio, fontLineHeightRatio);
-	
+
 	textFormat = nullptr;
 	writeFactory.CreateTextFormat(
 		fontFamily, nullptr,
@@ -130,7 +130,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 		);
 
 		const auto &backgroundBrush = side ? tNameBackgroundBrush : ctNameBackgroundBrush;
-		
+
 		auto child = std::make_unique<ChildComponent>(
 			commonResources, backgroundBrush, textBrush, *nameTextRenderer,
 			side ? commonResources.configuration.defaultTName : commonResources.configuration.defaultCtName
@@ -167,16 +167,16 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 			0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
 			std::move(bag)
 		});
-		
+
 		stack->children.emplace_back(StackComponentChild{
 			{100, 1}, {StackComponentChild::MODE_PIXELS, StackComponentChild::MODE_RATIO},
 			0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
 			std::move(innerStack)
 		});
 	};
-	
+
 	std::unique_ptr<ChildComponent> currentChild;
-	
+
 	currentChild = std::make_unique<ChildComponent>(
 		commonResources, ctScoreBackgroundBrush, textBrush, *scoreTextRenderer, L"0"sv
 	);
@@ -188,7 +188,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 	});
 
 	makeNameStack(false);
-	
+
 	stack->children.emplace_back(StackComponentChild{
 		{80, 1}, {StackComponentChild::MODE_PIXELS, StackComponentChild::MODE_RATIO},
 		0, StackComponentChild::MODE_PIXELS, 0, StackComponentChild::MODE_PIXELS,
@@ -196,7 +196,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 	});
 
 	makeNameStack(true);
-	
+
 	currentChild = std::make_unique<ChildComponent>(
 		commonResources, tScoreBackgroundBrush, textBrush, *scoreTextRenderer, L"0"sv
 	);
@@ -214,7 +214,7 @@ TopBarComponent::TopBarComponent(CommonResources &commonResources):
 
 	leftNameWidth = &stack->children[1].size.width;
 	rightNameWidth = &stack->children[3].size.width;
-	
+
 	container = std::make_unique<StackComponent>(
 		commonResources,
 		StackComponent::AXIS_VERTICAL, StackComponent::AXIS_INCREASE, 0.5f, StackComponent::MODE_RATIO
@@ -411,7 +411,7 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 	*paddingHeight = winLoseTransition.getValue() * 28;
 
 	justSwappedSides = false;
-	
+
 	container->paint(transform, parentSize);
 }
 

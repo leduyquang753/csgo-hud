@@ -33,7 +33,7 @@ RoundHistoryComponent::RoundHistoryComponent(CommonResources &commonResources, c
 	renderTarget.CreateSolidColorBrush(tColor, tBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, textBrush.put());
 	renderTarget.CreateLayer(layer.put());
-	
+
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
 	const float
@@ -64,7 +64,7 @@ void RoundHistoryComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 	const int firstPlayerIndex = commonResources.players.getFirstPlayerIndex();
 	if (firstPlayerIndex == -1) return;
 	const bool leftTeam = commonResources.players[firstPlayerIndex]->team;
-	
+
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
 
@@ -76,7 +76,7 @@ void RoundHistoryComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		TOTAL_HEIGHT = (TITLE_HEIGHT + SLOT_HEIGHT) * 2,
 		SPACING = 2;
 	const float top = parentSize.height - TOTAL_HEIGHT;
-	
+
 	const bool transiting = transition.transiting();
 	if (transiting) {
 		renderTarget.PushLayer(

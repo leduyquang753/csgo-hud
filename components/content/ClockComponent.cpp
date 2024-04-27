@@ -29,7 +29,7 @@ ClockComponent::ClockComponent(CommonResources &commonResources): Component(comm
 	renderTarget.CreateSolidColorBrush({0, 0, 0, 0.5f}, backgroundBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 0.2f}, progressWhiteBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 0.4f, 0.4f, 0.4f}, progressRedBrush.put());
-	
+
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
@@ -116,10 +116,10 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 			= map.getDistinguishingAxisValue(bomb.bombPosition) > map.bombsiteDistinguishingValue
 			== map.bombsiteAToPositiveSide;
 	}
-	
+
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
-	
+
 	renderTarget.FillRectangle({0, 0, parentSize.width, parentSize.height}, backgroundBrush.get());
 	if (phase == "warmup"s) {
 		renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
@@ -136,7 +136,7 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 		renderTarget.FillRectangle({center+inner, iconTop, center+outer, iconBottom}, textWhiteBrush.get());
 	} else if (bombPlanted && phase != "over"s) {
 		const float center = parentSize.width / 2;
-		
+
 		const auto &icon = commonResources.icons[IconStorage::INDEX_C4];
 		const float iconWidth
 			= icon.width * parentSize.height / CommonConstants::ICON_HEIGHT * 3 / 4;
@@ -171,7 +171,7 @@ void ClockComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F 
 			red ? textRedBrush : textWhiteBrush
 		);
 	}
-	
+
 	renderTarget.SetTransform(D2D1::Matrix3x2F::Identity());
 }
 

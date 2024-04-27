@@ -19,7 +19,7 @@ class StatsHeaderComponent final: public Component {
 		const bool rightSide;
 	public:
 		bool ct = false;
-		
+
 		StatsHeaderComponent(
 			CommonResources &commonResources, bool rightSide, const PlayerInfoComponent::Resources &resources
 		);

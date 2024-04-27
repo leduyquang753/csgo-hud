@@ -17,11 +17,11 @@ int WINAPI wWinMain(
 	CoInitialize(nullptr);
 
 	{ // Block enclosing resources to be freed before returning.
-	
+
 	// Allocate dynamically as the object is potentially large.
 	auto commonResourcesPointer = std::make_unique<CsgoHud::CommonResources>();
 	auto &commonResources = *commonResourcesPointer;
-	
+
 	CsgoHud::HudWindow::preInitialize(instance);
 	CsgoHud::HudWindow hudWindow(instance, commonResources);
 
@@ -30,7 +30,7 @@ int WINAPI wWinMain(
 	});
 
 	hudWindow.mainComponent = std::make_unique<CsgoHud::HudComponent>(commonResources);
-	
+
 	MSG message;
 	while (true) {
 		if (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE)) {
@@ -44,7 +44,7 @@ int WINAPI wWinMain(
 
 	commonResources.httpServer.stop();
 	httpThread.join();
-	
+
 	} // Block enclosing resources to be freed before returning.
 
 	CoUninitialize();

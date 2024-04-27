@@ -81,7 +81,7 @@ ConfigurationData::ConfigurationData() {
 	parseColor("tSmoke"sv, colors.tSmoke);
 	parseColor("damage"sv, colors.damage);
 	parseColor("notEnoughTimeToDefuse"sv, colors.notEnoughTimeToDefuse);
-	
+
 	keybindings = json["keybindings"sv].value().get_object().value();
 }
 

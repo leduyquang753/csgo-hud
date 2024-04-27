@@ -14,7 +14,7 @@ class CubicBezier final {
 	private:
 		static constexpr int SPLINE_TABLE_SIZE = 11;
 		static const float SAMPLE_STEP_SIZE;
-		
+
 		const float x1, y1, x2, y2;
 		std::array<float, SPLINE_TABLE_SIZE> splineTable;
 	public:

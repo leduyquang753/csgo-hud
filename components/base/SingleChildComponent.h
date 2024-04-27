@@ -17,7 +17,7 @@ class SingleChildComponent: public Component {
 		virtual void paintChild(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) = 0;
 	public:
 		std::unique_ptr<Component> child;
-		
+
 		SingleChildComponent(CommonResources &commonResources, std::unique_ptr<Component> &&child = nullptr);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) final override;
 };

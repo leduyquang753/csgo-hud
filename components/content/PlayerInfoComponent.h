@@ -31,7 +31,7 @@ class PlayerInfoComponent final: public Component {
 	private:
 		const Resources &resources;
 		winrt::com_ptr<ID2D1Layer> statsLayer;
-		
+
 		const bool rightSide;
 		TransitionedValue activeTransition, healthTransition;
 		int currentHealth, oldHealth = 0;

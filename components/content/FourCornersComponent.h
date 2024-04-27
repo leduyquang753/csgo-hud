@@ -15,7 +15,7 @@ class FourCornersComponent final: public Component {
 		winrt::com_ptr<ID2D1SolidColorBrush> brush;
 
 		bool shown = true;
-		
+
 		void onVisibilityToggle();
 	public:
 		FourCornersComponent(CommonResources &commonResources);

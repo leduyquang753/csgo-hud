@@ -32,9 +32,9 @@ class StackComponent final: public Component {
 		bool axisDirection;
 		float axisPosition;
 		bool axisPositionMode;
-		
+
 		std::vector<StackComponentChild> children;
-		
+
 		StackComponent(
 			CommonResources &commonResources,
 			bool axis, bool axisDirection, float axisPosition, bool axisPositionMode,

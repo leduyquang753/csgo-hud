@@ -42,7 +42,7 @@ ActivePlayerComponent::ActivePlayerComponent(
 	renderTarget.CreateSolidColorBrush(colors.ctPrimary, ctBrush.put());
 	renderTarget.CreateSolidColorBrush(colors.tPrimary, tBrush.put());
 	renderTarget.CreateSolidColorBrush({1, 1, 1, 1}, whiteBrush.put());
-	
+
 	auto &writeFactory = *commonResources.writeFactory;
 	winrt::com_ptr<IDWriteTextFormat> textFormat;
 	const auto fontFamily = commonResources.configuration.fontFamily.c_str();
@@ -107,7 +107,7 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		AMMO_LENGTH = 74,
 		AMMO_SEPARATION = 42,
 		SPACING = 8;
-	
+
 	const float alpha = fadingTransition.getValue() * selfTransition.getValue();
 	const int activeSlot = commonResources.players.getActivePlayerIndex();
 	if (activeSlot == -1) {
@@ -136,10 +136,10 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 	const bool
 		alphaTransiting = alpha != 1,
 		slideTransiting = slidingTransition.transiting();
-	
+
 	auto &renderTarget = *commonResources.renderTarget;
 	renderTarget.SetTransform(transform);
-	
+
 	if (alphaTransiting || slideTransiting) renderTarget.PushLayer(
 		{
 			{0, 0, parentSize.width, parentSize.height},
@@ -173,7 +173,7 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		{centerLeft, 0, centerRight, NAME_HEIGHT},
 		player.team ? backgroundCtBrush.get() : backgroundTBrush.get()
 	);
-	renderTarget.FillRectangle(	
+	renderTarget.FillRectangle(
 		{centerLeft, NAME_HEIGHT, centerRight, parentSize.height}, backgroundBlackBrush.get()
 	);
 
@@ -215,7 +215,7 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		player.armor != 0 && player.hasHelmet ? IconStorage::INDEX_FULL_ARMOR : IconStorage::INDEX_KEVLAR,
 		healthArmorMiddle + sideMargin, sideInnerTop
 	);
-	
+
 	bigNumberTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 	bigNumberRenderer->draw(
 		std::to_wstring(player.health),
@@ -278,7 +278,7 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		weaponTextRenderer->draw(
 			activeWeaponName, {ammoLeft, weaponNameBottom - 14, parentSize.width, weaponNameBottom}, whiteBrush
 		);
-			
+
 		if (gunActive) {
 			const auto &gun
 				= player.activeSlot == PlayerData::SLOT_PRIMARY_GUN ? *player.primaryGun : *player.secondaryGun;
