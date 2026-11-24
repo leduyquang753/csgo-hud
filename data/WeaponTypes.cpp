@@ -15,6 +15,13 @@ namespace CsgoHud {
 
 // == WeaponTypes ==
 
+bool WeaponTypes::isShotgun(int type) {
+	return type == 11 // mag7
+		|| type == 16 // nova
+		|| type == 18 // sawedoff
+		|| type == 23; // xm1014
+}
+
 WeaponTypes::WeaponTypes() {
 	struct WeaponTypeData {
 		std::string name;

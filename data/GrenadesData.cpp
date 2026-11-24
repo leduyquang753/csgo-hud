@@ -147,7 +147,12 @@ void GrenadesData::receiveGrenadesData(JSON::dom::object &json) {
 									&& newPosition.y == grenade.position.y
 									&& newPosition.z == grenade.position.z
 								)
-							) grenade.explodingTime = 0;
+							) {
+								// Initially after being thrown, the velocity might be zero, so don't count that as the
+								// grenade detonating.
+								if (grenade.startedMovement) grenade.explodingTime = 0;
+								else grenade.startedMovement = true;
+							}
 						}
 						grenadeToResolve = &grenade;
 						break;
@@ -170,11 +175,13 @@ void GrenadesData::receiveGrenadesData(JSON::dom::object &json) {
 			case 'i'/*nferno*/: {
 				auto &area = burningAreas.emplace(id, BurningArea{}).first->second;
 				area.stillAlive = true;
+				/*
 				const int burningTime = parseTime(data["lifetime"sv].value().get_string().value());
 				if (burningTime != 0 && (
 					area.burningTime == 0
 					|| std::abs(burningTime - area.burningTime) >= CommonConstants::DESYNC_THRESHOLD
 				)) area.burningTime = burningTime;
+				*/
 				auto &pieces = area.pieceMap;
 				for (auto &entry : pieces) entry.second.stillAlive = false;
 				for (const auto &entry : data["flames"sv].value().get_object().value()) {

@@ -2,6 +2,7 @@
 #define CSGO_HUD_COMPONENTS_CONTENT_MINIMAP_COMPONENT_H
 
 #include <optional>
+#include <unordered_map>
 #include <vector>
 
 #include "components/base/Component.h"
@@ -17,7 +18,15 @@ struct CommonResources;
 */
 class MinimapComponent final: public Component {
 	private:
+		struct Trail {
+			D2D1_VECTOR_3F start, end;
+			D2D1_COLOR_F color;
+			int fadeTime, timeLeft;
+		};
+
 		std::vector<int> flashTimes;
+		std::vector<Trail> trails;
+		std::unordered_map<unsigned long, D2D1_VECTOR_3F> previousGrenadePositionMap, currentGrenadePositionMap;
 		const CubicBezierMovementFunction explosionInnerAnimation, explosionOuterAnimation;
 
 		D2D1_COLOR_F
@@ -30,6 +39,7 @@ class MinimapComponent final: public Component {
 		std::optional<NormalTextRenderer> numberRenderer, bombsiteNameRenderer;
 	public:
 		MinimapComponent(CommonResources &commonResources);
+		void advanceTime(const int timePassed);
 		void paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) override;
 };
 

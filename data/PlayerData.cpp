@@ -26,6 +26,10 @@ void PlayerData::receiveData(CommonResources &commonResources, JSON::dom::object
 	hasC4OrDefuseKit = false;
 	auto state = json["state"sv].value().get_object().value();
 	health = getInt(state, "health"sv);
+	auto predictedHealthAfterBombDetonationData = state["health_c4_preview"sv];
+	predictedHealthAfterBombDetonation
+		= predictedHealthAfterBombDetonationData.error() ? health
+		: static_cast<int>(predictedHealthAfterBombDetonationData.value().get_int64());
 	armor = getInt(state, "armor"sv);
 	hasHelmet = state["helmet"sv].value().get_bool();
 	flashAmount = getInt(state, "flashed"sv);

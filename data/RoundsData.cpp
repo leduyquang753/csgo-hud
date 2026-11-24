@@ -78,7 +78,7 @@ void RoundsData::receiveMapData(JSON::dom::object &json) {
 	if (historyValue.error()) return;
 	auto historyData = historyValue.value().get_object().value();
 	history.reserve(historyData.size());
-	for (auto entry : historyData) {
+	for (const auto &entry : historyData) {
 		std::string_view winString = entry.value.get_string();
 		const bool winningTeam = winString[0] == 'c'/*t*/;
 		WinningCondition condition;

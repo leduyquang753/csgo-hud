@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <fstream>
 #include <string_view>
 
 #include "events/KeyEventHook.h"
@@ -12,6 +13,11 @@
 using namespace std::string_view_literals;
 
 namespace CsgoHud {
+
+#define DEBUG_LOG 0
+#if DEBUG_LOG
+static std::ofstream file{"T:\\data.txt", std::ios::out | std::ios::app};
+#endif
 
 // == HudWindow ==
 
@@ -199,6 +205,10 @@ void HudWindow::tick() {
 				eventBus.notifyTimeEvent(time - lastTickTime);
 				lastTickTime = time;
 
+#if DEBUG_LOG
+				file.write(jsons.c_str() + currentStartLength->first, currentStartLength->second);
+				file << '\n';
+#endif
 				JSON::dom::element jsonDocument = jsonParser.parse(
 					jsons.c_str() + currentStartLength->first,
 					currentStartLength->second, currentStartLength->second + JSON::SIMDJSON_PADDING

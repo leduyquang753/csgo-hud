@@ -29,6 +29,7 @@ class PlayerData final {
 		bool team;
 
 		int health;
+		int predictedHealthAfterBombDetonation;
 		int lastDeathTime = -10000;
 		int armor;
 		bool hasHelmet;

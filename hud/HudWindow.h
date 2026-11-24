@@ -12,9 +12,6 @@ struct CommonResources;
 
 class HudWindow final {
 	private:
-		friend static LRESULT CALLBACK receiveWindowMessage(
-			HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam
-		);
 		static LRESULT CALLBACK receiveWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
 		HWND windowHandle;

@@ -104,6 +104,8 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 		BAR_WIDTH = 4,
 		BAR_SPACING = 4,
 		BAR_RESERVED_WIDTH = BAR_WIDTH + BAR_SPACING,
+		THIN_BAR_WIDTH = 2,
+		THIN_BAR_SPACING = 2,
 		AMMO_LENGTH = 74,
 		AMMO_SEPARATION = 42,
 		SPACING = 8;
@@ -296,15 +298,27 @@ void ActivePlayerComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_
 				{ammoLeft, sideTop, ammoMiddle - BAR_SPACING, parentSize.height},
 				whiteBrush
 			);
-			if (gun.spareRounds != 0) smallNumberRenderer->draw(
-				std::to_wstring(
-					commonResources.configuration.formatting.addCurrentClipToTotalAmmo
-					? gun.roundsInClip + gun.spareRounds
-					: gun.spareRounds
-				),
-				{ammoMiddle + BAR_RESERVED_WIDTH, sideInnerBottom - 15, ammoRight, sideInnerBottom},
-				whiteBrush
-			);
+			if (gun.spareRounds != 0) {
+				if (commonResources.weaponTypes.isShotgun(gun.type)) {
+					smallNumberRenderer->draw(
+						std::to_wstring(
+							commonResources.configuration.formatting.addCurrentClipToTotalAmmo
+							? gun.roundsInClip + gun.spareRounds
+							: gun.spareRounds
+						),
+						{ammoMiddle + BAR_RESERVED_WIDTH, sideInnerBottom - 15, ammoRight, sideInnerBottom},
+						whiteBrush
+					);
+				} else {
+					for (int i = 0; i < gun.spareRounds; ++i) {
+						const float x = ammoMiddle + BAR_RESERVED_WIDTH + (THIN_BAR_WIDTH + THIN_BAR_SPACING) * i;
+						renderTarget.FillRectangle(
+							{x, sideInnerTop, x + THIN_BAR_WIDTH, sideInnerBottom},
+							whiteBrush.get()
+						);
+					}
+				}
+			}
 		}
 	}
 

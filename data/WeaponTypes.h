@@ -21,6 +21,8 @@ class WeaponTypes final {
 			ID_MOLOTOV_COCKTAIL = 39,
 			ID_SMOKE_GRENADE = 40;
 
+		static bool isShotgun(int type);
+
 		std::unordered_map<std::string, int> nameMap;
 		std::array<WeaponCategory, 41> categoryMap;
 		std::array<std::wstring, 41> displayNameMap;

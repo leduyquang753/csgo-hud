@@ -281,6 +281,7 @@ void TopBarComponent::updateCtSide(const bool toTheLeft) {
 }
 
 void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F &parentSize) {
+
 	int firstPlayerIndex = commonResources.players.getFirstPlayerIndex();
 	if (firstPlayerIndex != -1) updateCtSide(commonResources.players[firstPlayerIndex]->team);
 	// (parentWidth:2 – 40 – 80 – 40) : 2.
@@ -310,15 +311,15 @@ void TopBarComponent::paint(const D2D1::Matrix3x2F &transform, const D2D1_SIZE_F
 		return {
 			oldLevel,
 			win
-				? WIN_MONEY_MAP[winningCondition]
-					+ (!team && winningCondition == 0 && roundsData.bombIsPlanted() ? 300 : 0)
-				: 1400 + 500*oldLevel + (winningCondition == 3 ? 800 : 0)
+			? WIN_MONEY_MAP[winningCondition]
+				+ (!team && winningCondition == 0 && roundsData.bombIsPlanted() ? 300 : 0)
+			: 1400 + 500*oldLevel + (winningCondition == 3 ? 800 : 0)
 		};
 	};
 	auto computeStreak = [](const bool team, const RoundsData &roundsData) {
 		const auto &rounds = roundsData.getRounds();
 		const int currentRound = roundsData.getCurrentRound();
-		// When in overtime the main rounds data get erased to no way to figure out the streak anymore.
+		// When in overtime the main rounds data get erased so no way to figure out the streak anymore.
 		if (currentRound > 24) return 1;
 		bool currentTeam = currentRound > 12 ? !team : team;
 		const int firstCap = currentRound > 12 ? 12 : currentRound;

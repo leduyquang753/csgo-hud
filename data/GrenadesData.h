@@ -24,6 +24,7 @@ class GrenadesData final {
 			bool throwerFound = false, throwerTeam;
 		};
 		struct FragGrenade final: Grenade {
+			bool startedMovement = false;
 			int explodingTime = -1;
 		};
 		struct SmokeGrenade final: Grenade {

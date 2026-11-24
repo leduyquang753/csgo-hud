@@ -22,7 +22,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>$(CoreLibraryDependencies);d2d1.lib;d3d11.lib;dcomp.lib;dwrite.lib;dxgi.lib;dxguid.lib;httpapi.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);d2d1.lib;d3d11.lib;dcomp.lib;dwrite.lib;dxgi.lib;dxguid.lib;httpapi.lib;runtimeobject.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

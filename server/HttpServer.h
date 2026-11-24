@@ -16,16 +16,16 @@ namespace CsgoHud {
 */
 class HttpServer final {
 	private:
+		using StartLengths = std::vector<std::pair<std::size_t, std::size_t>>;
+		using ReceiveTimestamps = std::vector<std::chrono::time_point<std::chrono::steady_clock>>;
+
 		HANDLE queue;
-		std::string
-			jsons1, jsons2,
-			*currentJsons = &jsons1;
-		std::vector<std::chrono::time_point<std::chrono::steady_clock>>
-			timestamps1, timestamps2,
-			*currentTimestamps = &timestamps1;
-		std::vector<std::pair<std::size_t, std::size_t>>
-			startLengths1, startLengths2,
-			*currentStartLengths = &startLengths1;
+		std::string jsons1, jsons2;
+		std::string *currentJsons = &jsons1;
+		ReceiveTimestamps timestamps1, timestamps2;
+		ReceiveTimestamps *currentTimestamps = &timestamps1;
+		StartLengths startLengths1, startLengths2;
+		StartLengths *currentStartLengths = &startLengths1;
 		std::size_t jsonStart = 0;
 		bool bufferSwitch = true;
 		bool notificationSent = false;
